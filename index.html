@@ -13,8 +13,13 @@
   <div class="page">
     <header class="header">
       <nav class="nav">
-        <div class="brand">Berk Kasimcan</div>
-        <div class="nav-links">
+        <a class="brand" href="index.html">Berk Kasimcan</a>
+        <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="site-nav-links">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="nav-links" id="site-nav-links">
           <a href="index.html">Home</a>
           <a href="projects.html">Projects</a>
           <a href="courses.html">Course Counted</a>
@@ -28,7 +33,17 @@
     <section class="hero">
       <div class="profile-block">
         <div class="profile-frame">
-          <img src="assets/images/profile/IMG_0313.png" alt="Berk Kasimcan portrait" />
+          <picture>
+            <source srcset="assets/optimized/images/profile/IMG_0313.jpg" type="image/jpeg" />
+            <img
+              src="assets/images/profile/IMG_0313.png"
+              alt="Berk Kasimcan portrait"
+              width="2400"
+              height="3000"
+              fetchpriority="high"
+              decoding="async"
+            />
+          </picture>
         </div>
         <div class="profile-name">Berk Kasimcan</div>
       </div>
