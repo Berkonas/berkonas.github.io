@@ -457,6 +457,30 @@ const GALLERY_IMAGES = [
   "assets/images/gallery/IMG_9671.png",
 ];
 
+function getOptimizedImagePath(src) {
+  if (!src || typeof src !== "string") return src;
+  if (!src.startsWith("assets/")) return src;
+  if (!/\.(png|jpe?g)$/i.test(src)) return src;
+  return src.replace(/^assets\//, "assets/optimized/").replace(/\.(png|jpe?g)$/i, ".jpg");
+}
+
+function setImageSourceWithFallback(img, src, onHardFailure) {
+  const optimizedSrc = getOptimizedImagePath(src);
+  let fallbackAttempted = false;
+  img.decoding = "async";
+  img.onerror = () => {
+    if (!fallbackAttempted && optimizedSrc !== src) {
+      fallbackAttempted = true;
+      img.src = src;
+      return;
+    }
+    if (typeof onHardFailure === "function") {
+      onHardFailure();
+    }
+  };
+  img.src = optimizedSrc;
+}
+
 function createCourseCard(course) {
   const card = document.createElement("div");
   card.className = "course-card";
@@ -588,8 +612,9 @@ function createProjectCard(project) {
     `;
   } else {
     const coverImg = document.createElement("img");
-    coverImg.src = project.cover;
     coverImg.alt = `${project.title} cover`;
+    coverImg.loading = "lazy";
+    setImageSourceWithFallback(coverImg, project.cover);
     cover.appendChild(coverImg);
   }
 
@@ -685,9 +710,9 @@ function createProjectCard(project) {
         mediaItem.appendChild(iframe);
       } else {
         const img = document.createElement("img");
-        img.src = item.src;
         img.alt = `${project.title} media`;
         img.loading = "lazy";
+        setImageSourceWithFallback(img, item.src);
         img.addEventListener("load", updateOpenPanels);
         img.addEventListener("click", () => openLightbox(item.src));
         mediaItem.appendChild(img);
@@ -967,7 +992,7 @@ function openLightbox(src) {
     });
   }
   const img = lightboxEl.querySelector("img");
-  img.src = src;
+  setImageSourceWithFallback(img, src);
   lightboxEl.classList.add("open");
 }
 
@@ -981,8 +1006,8 @@ function initModelViewers() {
       if (fallback) {
         container.innerHTML = "";
         const img = document.createElement("img");
-        img.src = fallback;
         img.alt = "Project cover";
+        setImageSourceWithFallback(img, fallback);
         container.appendChild(img);
       }
     });
@@ -1100,15 +1125,43 @@ function renderGallery() {
     button.type = "button";
     button.className = "gallery-item";
     const img = document.createElement("img");
-    img.src = src;
     img.alt = "Gallery photo";
     img.loading = "lazy";
-    img.addEventListener("error", () => {
-      button.remove();
-    });
+    setImageSourceWithFallback(img, src, () => button.remove());
     button.appendChild(img);
     button.addEventListener("click", () => openLightbox(src));
     grid.appendChild(button);
+  });
+}
+
+function initMobileNav() {
+  document.querySelectorAll(".nav").forEach((nav) => {
+    const toggle = nav.querySelector(".nav-toggle");
+    const links = nav.querySelector(".nav-links");
+    if (!toggle || !links) return;
+    nav.classList.add("nav-ready");
+
+    const setOpen = (isOpen) => {
+      nav.classList.toggle("nav-open", isOpen);
+      toggle.setAttribute("aria-expanded", String(isOpen));
+    };
+
+    setOpen(false);
+
+    toggle.addEventListener("click", () => {
+      const isOpen = nav.classList.contains("nav-open");
+      setOpen(!isOpen);
+    });
+
+    links.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => setOpen(false));
+    });
+
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 860) {
+        setOpen(false);
+      }
+    });
   });
 }
 
@@ -1215,6 +1268,7 @@ function initIntro() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  initMobileNav();
   renderCourses();
   setupFilters();
   renderProjects();
