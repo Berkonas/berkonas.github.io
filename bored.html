@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bored? | Berk Kasimcan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <nav class="nav">
+        <div class="brand">Berk Kasimcan</div>
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="projects.html">Projects</a>
+          <a href="courses.html">Course Counted</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="resume.html">Resume</a>
+          <a href="bored.html">Bored?</a>
+        </div>
+      </nav>
+    </header>
+
+    <section class="section">
+      <h1 class="page-title">Bored? Let’s Play.</h1>
+      <p>
+        Three quick games with a Berk twist. Play a word puzzle, challenge a snake run, and get a rotating joke or quote.
+      </p>
+
+      <div class="stack games-stack">
+        <div class="card game-card">
+          <div class="game-head">
+            <h2>Wordle-ish</h2>
+            <button class="button secondary" id="wordle-reset" type="button">New Word</button>
+          </div>
+          <p class="game-sub">Guess the mystery word. Words rotate from Berk’s research vocabulary.</p>
+          <div id="wordle-board" class="wordle-board"></div>
+          <div id="wordle-keyboard" class="wordle-keyboard"></div>
+          <div id="wordle-status" class="game-status"></div>
+        </div>
+
+        <div class="card game-card">
+          <div class="game-head">
+            <h2>Snake Break</h2>
+            <button class="button secondary" id="snake-reset" type="button">New Game</button>
+          </div>
+          <p class="game-sub">Classic snake. Use arrow keys or WASD, grab the dots, don’t hit the wall.</p>
+          <div class="snake-wrap">
+            <canvas id="snake-canvas" width="420" height="420" aria-label="Snake game"></canvas>
+            <div class="snake-panel">
+              <div class="game-status" id="snake-status">Press any arrow key to start.</div>
+              <div class="quote-card" id="snake-quote">Ready to chase the next idea.</div>
+              <div class="snake-score">Score: <span id="snake-score">0</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card game-card">
+          <div class="game-head">
+            <h2>Dad Joke / Quote of the Day</h2>
+            <button class="button secondary" id="joke-next" type="button">Another One</button>
+          </div>
+          <p class="game-sub">A rotating dose of fun at the bottom of the screen.</p>
+          <div class="joke-preview" id="joke-preview">Loading fun…</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="joke-bar" id="joke-bar"></div>
+
+    <footer class="footer">
+      Built by Berk Kasimcan • Bored Zone
+    </footer>
+  </div>
+
+  <script src="script.js" defer></script>
+  <script src="bored.js"></script>
+</body>
+</html>
