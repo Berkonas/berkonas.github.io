@@ -1275,3 +1275,5 @@ document.addEventListener("DOMContentLoaded", () => {
   renderGallery();
   initIntro();
 });
+
+
