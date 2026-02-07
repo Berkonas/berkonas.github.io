@@ -404,6 +404,43 @@ const PROJECTS = [
     ],
   },
   {
+    id: "migraine-wave",
+    category: ["Healthcare", "Data", "Human-Centered Design"],
+    title: "MigraineWave: Personal macOS Pain Tracking App",
+    blurb:
+      "Built a privacy-first macOS app for tracking migraine and chronic pain episodes with low-friction logging and clear trend visualization.",
+    cover: "assets/projects/migraine-app/SCR-20260206-sxeo.jpeg",
+    media: [
+      { type: "image", src: "assets/projects/migraine-app/SCR-20260206-sxeo.jpeg" },
+      { type: "image", src: "assets/projects/migraine-app/SCR-20260206-sxhi.jpeg" },
+      { type: "image", src: "assets/projects/migraine-app/SCR-20260206-sxjt.jpeg" },
+      { type: "image", src: "assets/projects/migraine-app/SCR-20260206-syhn.jpeg" },
+      { type: "youtube", id: "OzfOmHlkw-Y", title: "MigraineWave demo" },
+    ],
+    what:
+      "A native macOS application that lets users quickly log pain intensity with automatic timestamps and optional context, then review symptom history through wave-based visualizations designed for fast pattern recognition.",
+    why:
+      "People with migraines often track symptoms in notes or spreadsheets, which makes trends harder to interpret. MigraineWave reduces logging friction and improves clarity while keeping sensitive health data local to the device.",
+    highlights: [
+      "Custom pain-severity dial with fine-grained increments and smooth snapping",
+      "Fast, structured logging flow with optional medication, activity, and notes context",
+      "Wave-style time-series charts that preserve zero-pain days for honest trend tracking",
+      "Local-only persistence with no accounts, cloud sync, or third-party data services",
+      "Release-ready macOS packaging pipeline for local distribution and testing",
+    ],
+    tech: [
+      "Swift",
+      "SwiftUI",
+      "macOS",
+      "Swift Package Manager",
+      "Local persistence",
+      "Data visualization",
+    ],
+    links: [
+      { label: "Watch demo", url: "https://youtu.be/OzfOmHlkw-Y" },
+    ],
+  },
+  {
     id: "bike-hmm-bikeshare",
     category: ["Machine Learning", "Probabilistic ML", "Data"],
     title: "Uncovering Hidden Mobility Regimes in Capital Bikeshare Data",
@@ -1275,5 +1312,3 @@ document.addEventListener("DOMContentLoaded", () => {
   renderGallery();
   initIntro();
 });
-
-
