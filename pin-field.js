@@ -37,12 +37,12 @@ function start(host) {
   host.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x091526, 14, 34);
+  scene.fog = new THREE.Fog(0x091526, 20, 42);
 
   const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
 
   scene.add(new THREE.HemisphereLight(0xe6edf7, 0x091526, 1.6));
-  const key = new THREE.DirectionalLight(0xf4f1ea, 2.2);
+  const key = new THREE.DirectionalLight(0xfff3dc, 2.7);
   key.position.set(-6, 12, 8);
   scene.add(key);
   const rim = new THREE.DirectionalLight(0x76aade, 1.1);
@@ -54,7 +54,7 @@ function start(host) {
 
   const geometry = new THREE.CylinderGeometry(0.14, 0.14, 1, 14, 1);
   geometry.translate(0, 0.5, 0);
-  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.38, metalness: 0.22 });
+  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.34, metalness: 0.12 });
   const pins = new THREE.InstancedMesh(geometry, material, COUNT);
   pins.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   scene.add(pins);
@@ -93,7 +93,7 @@ function start(host) {
   const color = new THREE.Color();
   const graphite = new THREE.Color(0x1c2b42);
   const steel = new THREE.Color(0x7d8ea8);
-  const accent = new THREE.Color(0xf0c878);
+  const accent = new THREE.Color(0xffcf6e);
 
   // Pointer state in field-local coordinates.
   const pointer = { x: 0, z: 0, active: 0, target: 0, lastMove: -10, has: false };
