@@ -800,6 +800,10 @@ main {
     gap: 16px;
   }
 
+  .hero-meta > div:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+
   .hero-hint {
     display: none;
   }
@@ -1294,6 +1298,15 @@ main {
 
   .focus-card {
     min-height: 0;
+    padding: 22px;
+  }
+
+  .focus-card h3 {
+    margin-top: 18px;
+  }
+
+  .portrait {
+    max-width: 340px;
   }
 }
 
@@ -2164,7 +2177,7 @@ main {
 }
 
 /* --------------------------------------------------------------------------
-   Course Counted
+   Highlighted courses
    -------------------------------------------------------------------------- */
 
 .courses-category {
@@ -2451,6 +2464,300 @@ main {
 @media (max-width: 720px) {
   .resume-frame {
     height: 72vh;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Home — institutions strip (under the marquee)
+   -------------------------------------------------------------------------- */
+
+.institutions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 18px 0 20px var(--gutter);
+  background: var(--stage);
+  color: var(--on-stage);
+  border-top: 1px solid var(--stage-line);
+  overflow: hidden;
+}
+
+.institutions-label {
+  flex: none;
+  margin: 0;
+  max-width: 9em;
+  font-size: 0.66rem;
+  line-height: 1.5;
+  color: var(--on-stage-muted);
+}
+
+.inst-strip {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.inst-track {
+  display: flex;
+  gap: 40px;
+  width: max-content;
+  margin: 0;
+  padding: 0 20px 0 0;
+  list-style: none;
+  animation: marquee 46s linear infinite reverse;
+}
+
+.inst-strip:hover .inst-track {
+  animation-play-state: paused;
+}
+
+.inst {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+  font-size: 1.02rem;
+  font-weight: 500;
+  font-stretch: var(--wide);
+  letter-spacing: -0.02em;
+  color: var(--on-stage-2);
+}
+
+.inst b {
+  display: grid;
+  place-items: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 7px;
+  border: 1px solid rgb(var(--accent-rgb) / 0.55);
+  border-radius: 7px;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  font-stretch: 100%;
+  letter-spacing: 0.04em;
+}
+
+.inst img {
+  height: 34px;
+  width: auto;
+}
+
+@media (max-width: 720px) {
+  .institutions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 16px 0 18px;
+  }
+
+  .institutions-label {
+    max-width: none;
+    padding: 0 var(--gutter);
+  }
+
+  .inst {
+    font-size: 0.92rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Home — values, sheet index, beyond the lab
+   -------------------------------------------------------------------------- */
+
+.values {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 44px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line-strong);
+}
+
+.values li {
+  display: grid;
+  gap: 6px;
+  padding: 18px 18px 0 0;
+}
+
+.values li + li {
+  padding-left: 18px;
+  border-left: 1px solid var(--line);
+}
+
+.values b {
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-stretch: var(--wide);
+  letter-spacing: -0.02em;
+}
+
+.values b::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 10px;
+  border: 1.5px solid var(--accent-ink);
+  transform: rotate(45deg) translateY(-2px);
+}
+
+.values span {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+@media (max-width: 560px) {
+  .values {
+    grid-template-columns: 1fr;
+  }
+
+  .values li,
+  .values li + li {
+    padding: 14px 0;
+    border-left: 0;
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+.sheet-index {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line-strong);
+}
+
+.sheet-index a {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1.1fr) minmax(0, 1.6fr) 40px;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 4px;
+  border-bottom: 1px solid var(--line);
+  transition: background-color 0.3s var(--ease), padding 0.4s var(--ease);
+}
+
+.si-num {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--accent-ink);
+}
+
+.si-name {
+  font-size: clamp(1.4rem, 2.6vw, 2.1rem);
+  font-weight: 600;
+  font-stretch: var(--wide);
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+.si-desc {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.si-arrow {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  transition: transform 0.5s var(--ease), background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.sheet-index a:hover {
+  background: rgb(var(--ink-rgb) / 0.03);
+  padding-left: 14px;
+}
+
+.sheet-index a:hover .si-arrow {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--stage);
+  transform: rotate(-45deg);
+}
+
+@media (max-width: 720px) {
+  .sheet-index a {
+    grid-template-columns: 36px minmax(0, 1fr) 36px;
+    gap: 4px 14px;
+    padding: 18px 0;
+  }
+
+  .si-desc {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: 0.88rem;
+  }
+
+  .si-arrow {
+    grid-column: 3;
+    grid-row: 1 / 3;
+  }
+
+  .sheet-index a:hover {
+    padding-left: 0;
+  }
+}
+
+.beyond {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 36px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line-strong);
+  border-left: 1px solid var(--line);
+}
+
+.beyond li {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 132px;
+  padding: 20px 20px 22px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  transition: background-color 0.3s var(--ease);
+}
+
+.beyond li:hover {
+  background: rgb(var(--ink-rgb) / 0.03);
+}
+
+.beyond b {
+  font-size: 1.22rem;
+  font-weight: 600;
+  font-stretch: var(--wide);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.beyond span {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+@media (max-width: 960px) {
+  .beyond {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
+  .beyond li {
+    min-height: 0;
+    padding: 16px 14px 18px;
+  }
+
+  .beyond b {
+    font-size: 1.05rem;
   }
 }
 
@@ -2807,8 +3114,13 @@ html.intro-lock body {
   }
 
   .marquee-track,
-  .film-track {
+  .film-track,
+  .inst-track {
     animation: none !important;
+  }
+
+  .inst-strip {
+    overflow-x: auto;
   }
 
   .intro {

@@ -1281,6 +1281,17 @@ function initHeroEntrance() {
   playIntro(enter);
 }
 
+// The institutions strip loops, so it needs a second copy of its items.
+function initInstitutions() {
+  const track = document.querySelector(".inst-track");
+  if (!track || prefersReducedMotion()) return;
+  [...track.children].forEach((item) => {
+    const copy = item.cloneNode(true);
+    copy.setAttribute("aria-hidden", "true");
+    track.appendChild(copy);
+  });
+}
+
 // First visit per session: the site is "drafted" on a blueprint sheet, then
 // the sheet lifts away to reveal the hero. Click, key, or scroll skips it.
 const INTRO_KEY = "bk-intro-drafted";
@@ -1321,7 +1332,7 @@ function playIntro(onReveal) {
     <div class="intro-corner tl" style="--at: 0.3s"><b>Berk Kasimcan</b><span>Mechanical engineering</span></div>
     <div class="intro-corner tr" style="--at: 0.45s"><b>Sheet 01 / 06</b><span>Rev 2026.09</span></div>
     <div class="intro-corner bl" style="--at: 0.6s"><span>Johns Hopkins · George Mason</span><b>Vanderbilt</b></div>
-    <div class="intro-corner br" style="--at: 0.75s"><span>Robotics · Haptics</span><b>Healthcare</b></div>
+    <div class="intro-corner br" style="--at: 0.75s"><span>Robotics · Haptics</span><b>Biomechanics</b></div>
     <div class="intro-bar"></div>
   `;
   document.documentElement.classList.add("intro-lock");
@@ -1704,6 +1715,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initSpotlight();
   initCopyButtons();
   initHeroEntrance();
+  initInstitutions();
   setupRevealAnimations();
   syncProjectFromHash();
   window.addEventListener("popstate", syncProjectFromHash);
