@@ -2097,11 +2097,11 @@ body.intro-active #intro-overlay {
     border-radius: 16px;
   }
 
-  #arm-canvas {
-  touch-action: none;
-}
+  #lab-arm .lab-stage {
+    aspect-ratio: 1 / 1;
+  }
 
-.lab-stage-myo {
+  .lab-stage-myo {
     grid-template-columns: minmax(0, 1fr) 70px;
   }
 
