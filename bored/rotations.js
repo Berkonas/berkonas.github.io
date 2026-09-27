@@ -15,8 +15,8 @@ import {
   quatToEuler,
   matVec,
   qRandom,
-} from "./rotmath.js?v=20260927z";
-import { segmented, parseNumber, fmt, copyText, palette, fitCanvas } from "./ui.js?v=20260927z";
+} from "./rotmath.js?v=20260928c";
+import { segmented, parseNumber, fmt, copyText, palette, fitCanvas } from "./ui.js?v=20260928c";
 
 const DEG = Math.PI / 180;
 const PRIME = ["", "′", "″"];
@@ -24,6 +24,11 @@ const PRIME = ["", "′", "″"];
 export function init(root) {
   const $ = (sel) => root.querySelector(sel);
   const state = { q: [1, 0, 0, 0], az: 40 * DEG, el: 22 * DEG, digits: 6, format: "numpy" };
+  // Three fields to a row leave room for about seven characters on a phone.
+  if (window.matchMedia("(max-width: 520px)").matches) {
+    state.digits = 4;
+    $("#rot-precision").value = "4";
+  }
 
   // --- Fields ----------------------------------------------------------------
   function makeRow(container, labels, rep) {

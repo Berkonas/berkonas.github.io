@@ -57,6 +57,14 @@
   --shadow-2: 0 2px 6px rgb(var(--ink-rgb) / 0.06), 0 30px 60px -24px rgb(var(--ink-rgb) / 0.38);
 }
 
+/* Phones: labels and captions are set in rem, so nudge the base up a little
+   to keep the smallest text comfortably readable. Body copy is in px. */
+@media (max-width: 720px) {
+  html {
+    font-size: 106.25%;
+  }
+}
+
 @view-transition {
   navigation: auto;
 }
@@ -1128,9 +1136,72 @@ main {
 }
 
 .project-model canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   width: 100% !important;
   height: 100% !important;
   cursor: grab;
+}
+
+.model-launch {
+  position: absolute;
+  z-index: 2;
+  left: 14px;
+  bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.92);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--shadow-1);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: border-color 0.2s, transform 0.3s var(--ease);
+}
+
+.model-launch:hover {
+  border-color: var(--accent);
+}
+
+.model-launch:active {
+  transform: scale(0.97);
+}
+
+.model-launch small {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--muted);
+}
+
+.model-launch:disabled {
+  cursor: default;
+}
+
+.model-cube {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--accent-ink);
+  border-radius: 3px;
+  transform: rotate(45deg) skew(-8deg, -8deg);
+}
+
+.model-cube.is-spinning {
+  animation: cubeSpin 1s linear infinite;
+}
+
+@keyframes cubeSpin {
+  to {
+    transform: rotate(405deg) skew(-8deg, -8deg);
+  }
 }
 
 .model-loading {
@@ -2057,6 +2128,42 @@ main {
   border: 1px solid var(--line);
 }
 
+.resume-sheet {
+  position: relative;
+}
+
+/* Phone browsers show only the first page of an embedded PDF and won't
+   scroll it, so on touch screens the preview becomes a link to the file. */
+.resume-open {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .resume-open {
+    position: absolute;
+    inset: clamp(8px, 1.4vw, 14px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 24px;
+    border-radius: calc(var(--radius-lg) - 8px);
+    background: linear-gradient(180deg, transparent 55%, rgb(var(--ink-rgb) / 0.35));
+  }
+
+  .resume-open > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 20px;
+    border-radius: 10px;
+    background: var(--ink);
+    color: var(--on-stage);
+    font-weight: 500;
+    box-shadow: var(--shadow-2);
+  }
+}
+
 .resume-frame {
   width: 100%;
   height: min(1100px, 82vh);
@@ -2068,7 +2175,35 @@ main {
 
 @media (max-width: 720px) {
   .resume-frame {
-    height: 72vh;
+    height: min(72vh, 560px);
+  }
+
+  .resume-actions {
+    width: 100%;
+  }
+
+  .resume-actions .btn {
+    flex: 1;
+  }
+}
+
+/* Projects: the filter chips become one row you can swipe on phones. */
+@media (max-width: 640px) {
+  .filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 calc(var(--gutter) * -1) 24px;
+    padding: 2px var(--gutter);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-chip {
+    flex: none;
   }
 }
 
@@ -2532,8 +2667,25 @@ main {
 
 @media (max-width: 480px) {
   .honors {
-    grid-template-columns: 1fr;
-    row-gap: 28px;
+    column-gap: 16px;
+    row-gap: 30px;
+  }
+
+  .honors li {
+    padding-top: 16px;
+  }
+
+  .honor-figure {
+    margin-bottom: 8px;
+    font-size: 1.7rem;
+  }
+
+  .honors b {
+    font-size: 0.98rem;
+  }
+
+  .honors li > span:last-child {
+    font-size: 0.86rem;
   }
 }
 
@@ -2991,5 +3143,24 @@ html.intro-lock body {
   ::view-transition-old(*),
   ::view-transition-new(*) {
     animation: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Touch screens: every control at least 40px tall
+   -------------------------------------------------------------------------- */
+
+@media (pointer: coarse) {
+  .text-link {
+    min-height: 40px;
+  }
+
+  .copy-btn {
+    min-height: 40px;
+    padding: 0 16px;
+  }
+
+  .filter-chip {
+    min-height: 42px;
   }
 }

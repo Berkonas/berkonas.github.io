@@ -517,7 +517,7 @@ function getResponsiveImageCandidates(src) {
     return [];
   }
 
-  return [480, 960, 1440].map((width) => ({
+  return [480, 720, 960, 1440].map((width) => ({
     src: optimizedSrc.replace(/\.jpg$/i, `-${width}.jpg`),
     width,
   }));
@@ -555,7 +555,7 @@ function setImageSourceWithFallback(img, src, options = {}) {
       onHardFailure();
     }
   };
-  img.src = candidates[1]?.src || candidates[0]?.src || optimizedSrc;
+  img.src = candidates[2]?.src || candidates[0]?.src || optimizedSrc;
 }
 
 const HOME_FILM = [
@@ -869,21 +869,25 @@ function createWorkCard(project, index, options = {}) {
   media.className = "work-media";
 
   if (project.model && interactiveModel) {
-    media.classList.add("project-model");
+    // The cover stands in until someone asks for the 3D model (about 7 MB).
+    media.classList.add("project-model", "is-contain");
     media.dataset.model = project.model;
-    media.dataset.fallback = project.cover;
-    media.innerHTML = `
-      <div class="model-loading">Loading 3D model…</div>
-      <span class="model-badge">Interactive 3D · drag to orbit</span>
-      <button type="button" class="model-reset">Reset view</button>
-    `;
+    const img = document.createElement("img");
+    img.alt = "";
+    img.loading = "lazy";
+    setImageSourceWithFallback(img, project.cover, { sizes: "(max-width: 760px) 64vw, 50vw" });
+    media.appendChild(img);
+    media.insertAdjacentHTML(
+      "beforeend",
+      `<button type="button" class="model-launch"><span class="model-cube" aria-hidden="true"></span>View in 3D <small>7 MB</small></button>`,
+    );
   } else {
     if (/ur5-push-place|hydrogel|bike-hmm/.test(project.cover)) media.classList.add("is-contain");
     const img = document.createElement("img");
     img.alt = "";
     img.loading = "lazy";
     setImageSourceWithFallback(img, project.cover, {
-      sizes: "(max-width: 760px) 92vw, 50vw",
+      sizes: "(max-width: 760px) 64vw, 50vw",
     });
     media.appendChild(img);
   }
@@ -1032,7 +1036,7 @@ function renderProjects(filter = "All") {
   filtered.forEach((project, index) => {
     const card = createWorkCard(project, index, { interactiveModel: true });
     const open = (event) => {
-      if (event.target.closest(".project-model canvas, .model-reset")) return;
+      if (event.target.closest(".project-model canvas, .model-reset, .model-launch")) return;
       openProject(project);
     };
     card.addEventListener("click", open);
@@ -1090,7 +1094,7 @@ function renderFilm() {
     img.alt = index < HOME_FILM.length ? "Photo from the gallery" : "";
     img.loading = "lazy";
     img.height = 360;
-    setImageSourceWithFallback(img, src, { sizes: "360px", onHardFailure: () => item.remove() });
+    setImageSourceWithFallback(img, src, { sizes: "(max-width: 760px) 200px, 320px", onHardFailure: () => item.remove() });
     item.appendChild(img);
     if (index >= HOME_FILM.length) item.setAttribute("aria-hidden", "true");
     track.appendChild(item);
@@ -1407,39 +1411,45 @@ function openLightbox(sources, index = 0, label = "") {
 
 const modelViewers = new Map();
 
-function showModelFallback(container) {
-  if (container.querySelector("img")) return;
-  const fallback = container.dataset.fallback;
-  if (!fallback) return;
-  container.classList.remove("project-model");
-  container.classList.add("is-contain");
-  container.innerHTML = "";
-  const img = document.createElement("img");
-  img.alt = "";
-  setImageSourceWithFallback(img, fallback, { sizes: "(max-width: 760px) 92vw, 50vw" });
-  container.appendChild(img);
+function showModelFallback(container, message = "3D view unavailable here") {
+  const button = container.querySelector(".model-launch");
+  if (button) {
+    button.disabled = true;
+    button.textContent = message;
+  }
+}
+
+// three.js is only fetched the first time someone opens a model.
+let threeReady = null;
+function loadThree() {
+  if (!threeReady) {
+    threeReady = Promise.all([
+      import("three"),
+      import("three/addons/controls/OrbitControls.js"),
+      import("three/addons/loaders/GLTFLoader.js"),
+    ]).then(([core, { OrbitControls }, { GLTFLoader }]) => {
+      window.THREE = { ...core, OrbitControls, GLTFLoader };
+      return window.THREE;
+    });
+  }
+  return threeReady;
 }
 
 function initModelViewers() {
-  const containers = document.querySelectorAll(".project-model");
-  if (!containers.length) return;
-  if (!window.THREE || !window.THREE.GLTFLoader || !window.THREE.OrbitControls) {
-    containers.forEach(showModelFallback);
-    return;
-  }
-  // Only build a viewer (and fetch the 7 MB model) once its card is near the viewport.
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        observer.unobserve(entry.target);
-        createModelViewer(entry.target);
-      });
-    },
-    { rootMargin: "200px" },
-  );
-  containers.forEach((container) => {
-    if (!modelViewers.has(container)) observer.observe(container);
+  document.querySelectorAll(".project-model .model-launch").forEach((button) => {
+    button.addEventListener("click", async (event) => {
+      event.stopPropagation();
+      const container = button.closest(".project-model");
+      button.disabled = true;
+      button.innerHTML = `<span class="model-cube is-spinning" aria-hidden="true"></span>Loading 3D…`;
+      try {
+        await loadThree();
+      } catch (err) {
+        showModelFallback(container, "3D view couldn’t load");
+        return;
+      }
+      createModelViewer(container);
+    });
   });
 }
 
@@ -1510,25 +1520,28 @@ function createModelViewer(container) {
       controls.update();
       initialTarget.copy(controls.target);
       initialPos.copy(camera.position);
-      const loading = container.querySelector(".model-loading");
-      if (loading) loading.remove();
+      // Swap the cover for the live model.
+      container.classList.remove("is-contain");
+      container.classList.add("is-live");
+      container.querySelector("img")?.remove();
+      container.querySelector(".model-launch")?.remove();
+      container.insertAdjacentHTML(
+        "beforeend",
+        `<span class="model-badge">Interactive 3D · drag to orbit</span><button type="button" class="model-reset">Reset view</button>`,
+      );
+      container.querySelector(".model-reset").addEventListener("click", (event) => {
+        event.stopPropagation();
+        controls.target.copy(initialTarget);
+        camera.position.copy(initialPos);
+        controls.update();
+      });
     },
     undefined,
     () => {
-      const loading = container.querySelector(".model-loading");
-      if (loading) loading.textContent = "Model failed to load";
+      renderer.domElement.remove();
+      showModelFallback(container, "Model failed to load");
     },
   );
-
-  const resetButton = container.querySelector(".model-reset");
-  if (resetButton) {
-    resetButton.addEventListener("click", (event) => {
-      event.stopPropagation();
-      controls.target.copy(initialTarget);
-      camera.position.copy(initialPos);
-      controls.update();
-    });
-  }
 
   let visible = true;
   function animate() {

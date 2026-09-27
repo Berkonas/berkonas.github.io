@@ -587,8 +587,9 @@ code {
 
 .rep-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: 8px 10px;
   margin-bottom: 12px;
 }
 
@@ -656,7 +657,7 @@ code {
   top: 7px;
   left: 10px;
   font-family: var(--font-mono);
-  font-size: 0.64rem;
+  font-size: 0.68rem;
   letter-spacing: 0.02em;
   color: var(--muted);
   pointer-events: none;
@@ -726,7 +727,7 @@ code {
 
 @media (max-width: 960px) {
   .rot-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .viewport-col {
@@ -1014,7 +1015,7 @@ code {
 
 @media (max-width: 960px) {
   .seg-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .seg-side {
@@ -1264,5 +1265,113 @@ code {
 
   .scope-hint {
     display: none;
+  }
+}
+
+/* Touch screens: bigger targets for the small controls. */
+
+@media (pointer: coarse) {
+  .seg button {
+    min-height: 40px;
+    padding: 0 14px;
+  }
+
+  .seg-sm button {
+    min-height: 36px;
+    padding: 0 11px;
+  }
+
+  .seg-stack button {
+    min-height: 48px;
+  }
+
+  .copy-mini {
+    min-height: 36px;
+    padding: 0 14px;
+  }
+
+  .chip-btn {
+    min-height: 40px;
+    padding: 0 15px;
+  }
+
+  .input-unit input {
+    min-height: 40px;
+  }
+
+  .len-input {
+    min-height: 38px;
+    font-size: 16px;
+  }
+
+  .num input,
+  .input-unit input,
+  .tool select {
+    font-size: 16px; /* iOS zooms into anything smaller on focus */
+  }
+
+  .range-field input[type="range"] {
+    height: 36px;
+  }
+
+  .export-btn {
+    min-height: 52px;
+  }
+}
+
+/* Small phones: a little less padding so rows of numbers fit. */
+
+@media (max-width: 520px) {
+  .tool {
+    padding: 16px 14px 18px;
+    border-radius: 20px;
+  }
+
+  .rep {
+    padding: 12px 12px 10px;
+  }
+
+  .num input {
+    padding: 20px 8px 6px;
+  }
+
+  .num-row {
+    gap: 6px;
+  }
+}
+
+/* The segment table scrolls sideways on narrow screens; keep the names put. */
+
+.swipe-hint {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .swipe-hint {
+    display: block;
+    margin: 0 0 8px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .seg-table .seg-name {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--surface);
+    box-shadow: 1px 0 0 var(--line);
+  }
+
+  .seg-table thead th:first-child,
+  .seg-table tfoot .seg-name {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--paper);
+  }
+
+  .seg-table tbody tr.is-on .seg-name {
+    background: #f6f1e6;
   }
 }
