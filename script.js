@@ -507,6 +507,8 @@ const PROJECT_FILTERS = ["All", "Haptics", "Robotics", "Healthcare", "Data", "Ma
 const GALLERY_IMAGES = [
   { src: "assets/images/gallery/graduation-hackerman-hall.png", alt: "Graduation photo in front of Hackerman Hall" },
   { src: "assets/images/gallery/graduation-in-the-lab.png", alt: "In graduation robes, working at a laptop in the lab" },
+  { src: "assets/images/gallery/vanderbilt-graduate-school.png", alt: "At the Vanderbilt Graduate School welcome sign" },
+  { src: "assets/images/gallery/create-lab-outreach.png", alt: "CREATE lab outreach table with prostheses and an exosuit" },
   { src: "assets/images/gallery/haptics-lab-experiment.png", alt: "Running a haptics experiment at a lab workstation" },
   "assets/images/gallery/443B1D15-FF20-46BA-8F67-F5869B61B8DB.png",
   "assets/images/gallery/84425.png",
