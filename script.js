@@ -436,35 +436,40 @@ const PROJECTS = [
   {
     id: "migraine-wave",
     category: ["Healthcare", "Data", "Human-Centered Design"],
-    title: "MigraineWave: Personal macOS Pain Tracking App",
+    title: "MigraineWave: A Private Migraine Journal for Mac",
     blurb:
-      "Built a privacy-first macOS app for tracking migraine and chronic pain episodes with low-friction logging and clear trend visualization.",
-    cover: "assets/projects/migraine-app/SCR-20260206-sxeo.jpeg",
+      "A native macOS app for logging migraine episodes, tracking medication use, and exploring recorded patterns over time.",
+    cover: "assets/projects/migraine-app/01-today.jpg",
     media: [
-      { type: "image", src: "assets/projects/migraine-app/SCR-20260206-sxeo.jpeg" },
-      { type: "image", src: "assets/projects/migraine-app/SCR-20260206-sxhi.jpeg" },
-      { type: "image", src: "assets/projects/migraine-app/SCR-20260206-sxjt.jpeg" },
-      { type: "image", src: "assets/projects/migraine-app/SCR-20260206-syhn.jpeg" },
+      { type: "image", src: "assets/projects/migraine-app/01-today.jpg", alt: "Daily overview: a clear starting point for recent activity, summary metrics, and daily logging." },
+      { type: "image", src: "assets/projects/migraine-app/05-insights.jpg", alt: "Visualize trends: review severity over time and summary statistics across a selected date range." },
+      { type: "image", src: "assets/projects/migraine-app/02-quick-log.jpg", alt: "Record an episode: capture pain severity and context through dedicated logging controls." },
+      { type: "image", src: "assets/projects/migraine-app/03-history.jpg", alt: "Revisit the record: browse and filter earlier entries, then open a record to review its details." },
+      { type: "image", src: "assets/projects/migraine-app/04-medications.jpg", alt: "Medication history: keep medication timing and dose records in a dedicated view." },
+      { type: "image", src: "assets/projects/migraine-app/06-reports-settings.jpg", alt: "Reports and data: prepare a doctor-report PDF and export records for use outside the app." },
       { type: "youtube", id: "OzfOmHlkw-Y", title: "MigraineWave demo" },
     ],
+    mediaNote: "Screenshots use fictional demonstration data.",
     what:
-      "A native macOS application that lets users quickly log pain intensity with automatic timestamps and optional context, then review symptom history through wave-based visualizations designed for fast pattern recognition.",
+      "A native Mac app built around a simple workflow: record an episode, add context, and review patterns over time. The Today screen brings recent activity and a severity input into one place, while dedicated History, Medications, and Insights sections support more detailed review.",
     why:
-      "People with migraines often track symptoms in notes or spreadsheets, which makes trends harder to interpret. MigraineWave reduces logging friction and improves clarity while keeping sensitive health data local to the device.",
+      "Instead of scattered notes, MigraineWave organizes severity, timing, possible triggers, duration, and medication use in one calm, private workspace, making records easier to revisit and to summarize for a clinician visit. Its charts summarize what the user entered; they do not diagnose or establish causes.",
     highlights: [
-      "Custom pain-severity dial with fine-grained increments and smooth snapping",
-      "Fast, structured logging flow with optional medication, activity, and notes context",
-      "Wave-style time-series charts that preserve zero-pain days for honest trend tracking",
-      "Local-only persistence with no accounts, cloud sync, or third-party data services",
-      "Release-ready macOS packaging pipeline for local distribution and testing",
+      "Daily logging of timestamp and pain severity, with optional symptom, food, activity, trigger, duration, and medication details",
+      "At-a-glance dashboard of recent frequency, average severity, medication use, and commonly recorded triggers",
+      "Searchable, filterable, editable history plus dedicated medication dose records linked to migraine entries",
+      "Insights on severity trends, frequency, time-of-day patterns, triggers, and a calendar view across selectable date ranges",
+      "CSV and JSON export and a printable doctor-report PDF",
+      "Local-only storage on the Mac: no login, cloud sync, analytics, or network calls",
     ],
     tech: [
       "Swift",
       "SwiftUI",
-      "macOS",
+      "SwiftData",
+      "Swift Charts",
+      "AppKit",
       "Swift Package Manager",
-      "Local persistence",
-      "Data visualization",
+      "macOS 14+",
     ],
     links: [
       { label: "Watch demo", url: "https://youtu.be/OzfOmHlkw-Y" },
@@ -815,7 +820,7 @@ function createProjectCard(project) {
         mediaItem.appendChild(iframe);
       } else {
         const img = document.createElement("img");
-        img.alt = `${project.title} media`;
+        img.alt = item.alt || `${project.title} media`;
         img.loading = "lazy";
         setImageSourceWithFallback(img, item.src, {
           sizes: "(max-width: 720px) 92vw, (max-width: 1180px) 44vw, 360px",
@@ -827,6 +832,12 @@ function createProjectCard(project) {
       gallery.appendChild(mediaItem);
     });
     panelInner.appendChild(gallery);
+    if (project.mediaNote) {
+      const mediaNote = document.createElement("p");
+      mediaNote.className = "project-meta-line";
+      mediaNote.textContent = project.mediaNote;
+      panelInner.appendChild(mediaNote);
+    }
   }
 
   if (project.overviewParagraph) {
