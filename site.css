@@ -280,6 +280,16 @@ button {
   border-color: rgba(238, 236, 231, 0.28);
 }
 
+.inline-link {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 3px;
+}
+
+.inline-link:hover {
+  color: var(--accent-ink);
+}
+
 .text-link {
   display: inline-flex;
   align-items: center;
