@@ -314,7 +314,12 @@ export function createArm({ renderer, env, pal }) {
     ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
     const hit = new THREE.Vector3();
-    if (ray.ray.intersectPlane(tablePlane, hit)) {
+    // A block under the cursor wins over the table plane behind it.
+    const onCube = !carrying && ray.intersectObjects(cubes.filter((c) => !c.inBin).map((c) => c.mesh), false)[0];
+    if (onCube) {
+      pointer.set(onCube.object.position.x, 0, onCube.object.position.z);
+      lastInput = time;
+    } else if (ray.ray.intersectPlane(tablePlane, hit)) {
       const rr = Math.hypot(hit.x, hit.z);
       const maxR = 0.82;
       if (rr > maxR) hit.multiplyScalar(maxR / rr);
@@ -365,7 +370,7 @@ export function createArm({ renderer, env, pal }) {
     challenge = { t: 0, done: false };
     challengeBtn.textContent = "Restart";
     updateChallengeText();
-    setStatus("Clock's running. Click a block to pick it up, then click the orange tray to drop it in.", "good");
+    setStatus("Clock's running. Click a block to pick it up, then click the gold tray to drop it in.", "good");
   });
 
   // Pick and place as a queue of Cartesian waypoints.
@@ -445,10 +450,14 @@ export function createArm({ renderer, env, pal }) {
     clipped = sol.clipped;
     for (let i = 0; i < 4; i++) {
       const e = i === 0 ? wrap(sol.q[i] - q[i]) : sol.q[i] - q[i];
+      // Trapezoidal profile: accelerate, cruise at vmax, brake so v² = 2·a·e.
       const vdes = Math.sign(e) * Math.min(vmax, Math.sqrt(2 * amax * Math.abs(e)));
       v[i] += clamp(vdes - v[i], -amax * dt, amax * dt);
-      if (Math.abs(e) < 1e-4 && Math.abs(v[i]) < 1e-3) v[i] = 0;
-      q[i] += v[i] * dt;
+      // Land exactly on the target instead of overshooting on a coarse frame.
+      if (Math.abs(e) < 1e-4 || (v[i] * e > 0 && Math.abs(v[i] * dt) >= Math.abs(e))) {
+        q[i] += e;
+        v[i] = 0;
+      } else q[i] += v[i] * dt;
     }
     grip += clamp(gripTarget - grip, -dt * 4, dt * 4);
 
@@ -460,7 +469,7 @@ export function createArm({ renderer, env, pal }) {
       if (w.waited >= (w.wait || 0)) {
         if (w.then) w.then();
         seq.shift();
-        if (!seq.length && !challenge?.done) setStatus(carrying ? "Holding a block. Click where to put it: the orange tray scores." : "Hover over a block and click to pick it up.");
+        if (!seq.length && !challenge?.done) setStatus(carrying ? "Holding a block. Click where to put it: the gold tray scores." : "Hover over a block and click to pick it up.");
       }
     }
 

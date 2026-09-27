@@ -39,6 +39,7 @@ const GAMMA = 2; // force = FMAX · x^γ gives finer control at low forces
 const LIFT_CM = 8;
 const LIFT_T = 0.7;
 const HOLD_S = 1.6;
+const LIFT_MARGIN = 1.35; // friction safety factor required before the lift starts
 const FS = 1000; // EMG sample rate
 const SCOPE_N = 2500;
 const PHAL = [4.2, 2.6, 2.1]; // cm, proximal → distal
@@ -664,7 +665,7 @@ export function createMyo({ renderer, env, pal }) {
     const prevVel = hVel;
     if (phase === "grip") {
       const margin = force > 0 ? (2 * obj.mu * force) / (obj.m * G) : 0;
-      if (touching && margin >= 1.15) marginT += dt;
+      if (touching && margin >= LIFT_MARGIN) marginT += dt;
       else marginT = 0;
       attached = touching && force > 0.02;
       if (marginT > 0.25) {
@@ -752,6 +753,8 @@ export function createMyo({ renderer, env, pal }) {
         setStatus(`Touching. ${force.toFixed(1)} N of grip gives ${(2 * obj.mu * force).toFixed(2)} N of friction; it weighs ${(obj.m * G).toFixed(2)} N.`);
       } else if (force > obj.crush * 0.8) {
         setStatus(`Careful: ${force.toFixed(0)} N, it ${obj.how} at about ${obj.crush} N.`, "bad");
+      } else if (phase === "grip" && 2 * obj.mu * force < LIFT_MARGIN * obj.m * G) {
+        setStatus(`Holding it in place, safety factor ${((2 * obj.mu * force) / (obj.m * G)).toFixed(2)}. Lifting accelerates it, so squeeze to ${LIFT_MARGIN} or more.`);
       } else if (phase === "hold") {
         setStatus(`Holding. Keep it steady for ${Math.max(0, HOLD_S - phaseT).toFixed(1)} s.`, "good");
       } else {
@@ -843,7 +846,8 @@ export function createMyo({ renderer, env, pal }) {
       const each = fUsed / 2;
       arrows.fR.set(V(contact.x + 0.25, pyWorld, 1.4), V(0, 1, 0), scale(each));
       arrows.fL.set(V(-contact.x - 0.25, pyWorld, 1.4), V(0, 1, 0), scale(each));
-      labels.set(lblN, V(contact.x + len + 1.4, pyWorld + 1.2, 0), `N = ${n.toFixed(1)} N`);
+      // On a phone the grip gauge already reads N; keep the stage uncluttered.
+      labels.set(lblN, V(contact.x + len + 1.4, pyWorld + 1.2, 0), `N = ${n.toFixed(1)} N`, w >= 520);
       labels.set(lblF, V(-contact.x - 1.2, pyWorld + scale(each) + 2.4, 1.4), `f = ${fUsed.toFixed(2)} N (max 2μN ${fMax.toFixed(2)})`);
     } else {
       arrows.nR.hide();
@@ -955,7 +959,7 @@ export function createMyo({ renderer, env, pal }) {
       ctx.fillRect(x - 4, y - 1.5, bw + 8, 3);
       const margin = force > 0 ? (2 * obj.mu * force) / (obj.m * G) : 0;
       text(ctx, `${force.toFixed(1)}`, x - 2, h - 18, pal, { size: 12, weight: 600, color: tone });
-      text(ctx, `×${margin.toFixed(1)} grip`, x - 2, h - 5, pal, { size: 9, color: pal.muted });
+      text(ctx, `SF ${margin.toFixed(2)}`, x - 2, h - 5, pal, { size: 9, color: pal.muted });
     } else {
       text(ctx, "no", x - 2, h - 18, pal, { size: 10 });
       text(ctx, "feel", x - 2, h - 6, pal, { size: 10 });
