@@ -86,7 +86,7 @@ function start(host) {
   }
 
   // Glyphs are drawn on a small canvas and sampled per pin.
-  const glyphCenter = narrow ? [0.5, 0.13] : [0.69, 0.4];
+  const glyphCenter = narrow ? [0.5, 0.13] : [0.665, 0.4];
   const glyphs = [drawMonogram, drawRobotArm, drawHeartbeat].map((draw) => rasterize(draw, COLS, ROWS, glyphCenter, narrow));
 
   const matrix = new THREE.Matrix4();
