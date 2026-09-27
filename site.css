@@ -401,8 +401,25 @@ button {
   transition: transform 0.6s var(--ease);
 }
 
-.brand:hover .brand-mark {
-  transform: rotate(-90deg);
+.brand-mark svg {
+  width: 17px;
+  height: 17px;
+  overflow: visible;
+}
+
+.brand-mark path {
+  stroke-dasharray: 340;
+  stroke-dashoffset: 0;
+}
+
+.brand:hover .brand-mark path {
+  animation: markRedraw 0.9s var(--ease-in-out);
+}
+
+@keyframes markRedraw {
+  from {
+    stroke-dashoffset: 340;
+  }
 }
 
 .nav-links {
