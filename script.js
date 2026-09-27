@@ -563,11 +563,12 @@ function setImageSourceWithFallback(img, src, options = {}) {
   }
 
   img.onerror = () => {
-    if (!fallbackAttempted && optimizedSrc !== src) {
+    // Originals are not deployed, so fall back to the full-size optimized copy.
+    if (!fallbackAttempted && candidates.length) {
       fallbackAttempted = true;
       img.removeAttribute("srcset");
       img.removeAttribute("sizes");
-      img.src = src;
+      img.src = optimizedSrc;
       return;
     }
     if (typeof onHardFailure === "function") {
