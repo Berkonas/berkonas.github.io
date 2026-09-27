@@ -1,33 +1,3 @@
-const INTRO_VERSION = "20260422c";
-
-function getIntroSeenKey() {
-  return `introSeenSession:${INTRO_VERSION}`;
-}
-
-function resetLegacyIntroArtifacts() {
-  document.querySelectorAll(
-    [
-      ".intro-crosshair",
-      ".intro-visual-ring",
-      ".intro-ring-one",
-      ".intro-ring-two",
-      ".intro-shell",
-      ".intro-reveal",
-      ".intro-door-button",
-      ".intro-door",
-      ".door-panel",
-      ".door-cracks",
-      ".door-glow",
-      ".intro-caption",
-    ].join(", "),
-  ).forEach((node) => node.remove());
-
-  const overlay = document.getElementById("intro-overlay");
-  if (overlay) {
-    overlay.classList.remove("knock", "cracked", "opening", "fade-out");
-  }
-}
-
 const coursesData = [
   {
     category: "Robotics, Dynamics, and Control",
@@ -583,6 +553,28 @@ function setImageSourceWithFallback(img, src, options = {}) {
   img.src = candidates[1]?.src || candidates[0]?.src || optimizedSrc;
 }
 
+const FEATURED_PROJECT_IDS = ["haptic-belt", "ur5-push-place", "clinibooth", "harvard-fluidic-window"];
+
+const HOME_FILM = [
+  "assets/images/gallery/IMG_0108.png",
+  "assets/images/gallery/create-lab-outreach.png",
+  "assets/images/gallery/G0061829.png",
+  "assets/images/gallery/IMG_3098.png",
+  "assets/images/gallery/IMG_7080.png",
+  "assets/images/gallery/vanderbilt-graduate-school.png",
+  "assets/images/gallery/IMG_8022.png",
+  "assets/images/gallery/haptics-lab-experiment.png",
+  "assets/images/gallery/IMG_9671.png",
+  "assets/images/gallery/graduation-hackerman-hall.png",
+];
+
+const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function splitCourseName(name) {
+  const match = name.match(/^(.*?)\s*\(([^()]*\d[^()]*)\)\s*$/);
+  return match ? { title: match[1], code: match[2] } : { title: name, code: "" };
+}
+
 function createCourseCard(course) {
   const card = document.createElement("div");
   card.className = "course-card";
@@ -596,6 +588,7 @@ function createCourseCard(course) {
     : course.school.includes("George Mason University")
       ? "GMU"
       : "School";
+  const { title, code } = splitCourseName(course.name);
 
   const inner = document.createElement("div");
   inner.className = "course-card-inner";
@@ -603,24 +596,23 @@ function createCourseCard(course) {
   const front = document.createElement("div");
   front.className = "course-card-face course-card-front";
   front.innerHTML = `
-    <h3 class="clamp-2">${course.name}</h3>
-    <p class="course-instructor clamp-1">Instructor: ${course.instructor}</p>
-    <div class="course-divider"></div>
+    <span class="course-code">${code || schoolTag}</span>
+    <h3 class="clamp-3">${title}</h3>
+    <p class="course-instructor clamp-2">${course.instructor}</p>
     <div class="course-footer">
       <div class="course-tag">${schoolTag}</div>
-      <div class="course-hint">Click to flip</div>
+      <div class="course-hint">Flip ↻</div>
     </div>
   `;
 
   const back = document.createElement("div");
   back.className = "course-card-face course-card-back";
   back.innerHTML = `
-    <h3 class="clamp-2">${course.name}</h3>
+    <span class="course-code">${code || schoolTag}</span>
     <p class="course-school clamp-1">${course.school}</p>
-    <div class="course-divider"></div>
-    <p class="course-desc clamp-3">${course.description}</p>
+    <p class="course-desc clamp-4">${course.description}</p>
     <div class="course-footer">
-      <div class="course-hint">Click to flip back</div>
+      <div class="course-hint">Flip back ↺</div>
     </div>
   `;
 
@@ -648,12 +640,14 @@ function renderCourses() {
   const root = document.getElementById("courses-root");
   if (!root) return;
 
-  coursesData.forEach((section) => {
+  coursesData.forEach((section, index) => {
     const wrapper = document.createElement("section");
     wrapper.className = "courses-category";
+    wrapper.setAttribute("data-reveal", "");
 
     const title = document.createElement("h2");
-    title.textContent = section.category;
+    title.innerHTML = `<small>${String(index + 1).padStart(2, "0")} · ${section.courses.length} courses</small>`;
+    title.appendChild(document.createTextNode(section.category));
     wrapper.appendChild(title);
 
     const grid = document.createElement("div");
@@ -688,108 +682,46 @@ function createLink(link) {
   return a;
 }
 
-function createProjectCard(project) {
-  const card = document.createElement("article");
-  card.className = "project-card reveal";
+function createSectionTitle(text) {
+  const title = document.createElement("h4");
+  title.className = "project-section-title";
+  title.textContent = text;
+  return title;
+}
 
-  const button = document.createElement("button");
-  button.className = "project-toggle";
-  const panelId = `project-panel-${project.id}`;
-  button.setAttribute("aria-expanded", "false");
-  button.setAttribute("aria-controls", panelId);
+function createBulletSection(titleText, items) {
+  const section = document.createElement("div");
+  section.className = "project-section";
+  const list = document.createElement("ul");
+  items.forEach((item) => {
+    const li = document.createElement("li");
+    li.textContent = item;
+    list.appendChild(li);
+  });
+  section.appendChild(createSectionTitle(titleText));
+  section.appendChild(list);
+  return section;
+}
 
-  const header = document.createElement("div");
-  header.className = "project-header";
+function createParagraphSection(titleText, text) {
+  const section = document.createElement("div");
+  section.className = "project-section";
+  const paragraph = document.createElement("p");
+  paragraph.textContent = text;
+  section.appendChild(createSectionTitle(titleText));
+  section.appendChild(paragraph);
+  return section;
+}
 
-  const cover = document.createElement("div");
-  cover.className = "project-cover";
-
-  if (project.model) {
-    cover.classList.add("project-model");
-    cover.dataset.model = project.model;
-    cover.dataset.fallback = project.cover;
-    cover.innerHTML = `
-      <div class="model-loading">Loading 3D model...</div>
-      <div class="model-reset">Reset view</div>
-    `;
-  } else {
-    const coverImg = document.createElement("img");
-    coverImg.alt = `${project.title} cover`;
-    coverImg.loading = "lazy";
-    setImageSourceWithFallback(coverImg, project.cover, {
-      sizes: "(max-width: 720px) 92vw, 320px",
-    });
-    cover.appendChild(coverImg);
-  }
-
-  const meta = document.createElement("div");
-  meta.className = "project-meta";
-  const title = document.createElement("h3");
-  title.className = "clamp-2";
-  title.textContent = project.title;
-  meta.appendChild(title);
-
-  if (project.subtitle) {
-    const subtitle = document.createElement("div");
-    subtitle.className = "project-subtitle clamp-1";
-    subtitle.textContent = project.subtitle;
-    meta.appendChild(subtitle);
-  }
-
-  const blurb = document.createElement("p");
-  blurb.className = "project-blurb clamp-3";
-  blurb.textContent = project.blurb;
-  meta.appendChild(blurb);
-
-  const tagsRow = document.createElement("div");
-  tagsRow.className = "project-tags";
-  project.category.slice(0, 6).forEach((tag) => tagsRow.appendChild(createTag(tag)));
-  meta.appendChild(tagsRow);
-
-  const hint = document.createElement("div");
-  hint.className = "project-hint";
-  hint.textContent = "Click to expand";
-  meta.appendChild(hint);
-
-  header.appendChild(cover);
-  header.appendChild(meta);
-  button.appendChild(header);
-
-  const panel = document.createElement("div");
-  panel.className = "project-panel";
-  panel.id = panelId;
-  panel.setAttribute("role", "region");
-  panel.setAttribute("aria-hidden", "true");
-
-  const panelInner = document.createElement("div");
-  panelInner.className = "project-panel-inner";
-
-  if (project.metaLine || project.authorsLine) {
-    const hero = document.createElement("div");
-    hero.className = "project-hero";
-    const heroTitle = document.createElement("div");
-    const heroHeading = document.createElement("h4");
-    heroHeading.textContent = project.title;
-    heroTitle.appendChild(heroHeading);
-    if (project.metaLine) {
-      const metaLine = document.createElement("p");
-      metaLine.className = "project-meta-line";
-      metaLine.textContent = project.metaLine;
-      heroTitle.appendChild(metaLine);
-    }
-    if (project.authorsLine) {
-      const authorsLine = document.createElement("p");
-      authorsLine.className = "project-meta-line";
-      authorsLine.textContent = project.authorsLine;
-      heroTitle.appendChild(authorsLine);
-    }
-    hero.appendChild(heroTitle);
-    panelInner.appendChild(hero);
-  }
+// Everything a project says about itself, used inside the detail sheet.
+function buildProjectDetail(project) {
+  const body = document.createElement("div");
+  body.className = "project-panel-inner";
 
   if (project.media && project.media.length) {
     const gallery = document.createElement("div");
     gallery.className = "project-gallery";
+    const imageSources = project.media.filter((item) => item.type === "image").map((item) => item.src);
     project.media.forEach((item) => {
       const mediaItem = document.createElement("div");
       mediaItem.className = "project-gallery-item";
@@ -799,94 +731,46 @@ function createProjectCard(project) {
         video.controls = true;
         video.playsInline = true;
         video.preload = "none";
-        video.addEventListener("loadedmetadata", updateOpenPanels);
         mediaItem.appendChild(video);
       } else if (item.type === "youtube") {
         const iframe = document.createElement("iframe");
         const videoId = item.id || "";
-        iframe.src = videoId ? `https://www.youtube.com/embed/${videoId}` : item.src;
+        iframe.src = videoId ? `https://www.youtube-nocookie.com/embed/${videoId}` : item.src;
         iframe.title = item.title || `${project.title} video`;
         iframe.loading = "lazy";
         iframe.allow =
           "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
         iframe.referrerPolicy = "strict-origin-when-cross-origin";
         iframe.allowFullscreen = true;
-        iframe.addEventListener("load", updateOpenPanels);
         mediaItem.appendChild(iframe);
       } else {
         const img = document.createElement("img");
         img.alt = `${project.title} media`;
         img.loading = "lazy";
         setImageSourceWithFallback(img, item.src, {
-          sizes: "(max-width: 720px) 92vw, (max-width: 1180px) 44vw, 360px",
+          sizes: "(max-width: 720px) 92vw, 460px",
         });
-        img.addEventListener("load", updateOpenPanels);
-        img.addEventListener("click", () => openLightbox(item.src));
+        img.addEventListener("click", () =>
+          openLightbox(imageSources, imageSources.indexOf(item.src), project.title),
+        );
         mediaItem.appendChild(img);
       }
       gallery.appendChild(mediaItem);
     });
-    panelInner.appendChild(gallery);
+    body.appendChild(gallery);
   }
 
   if (project.overviewParagraph) {
-    const overview = document.createElement("div");
-    overview.className = "project-section";
-    const title = document.createElement("h4");
-    title.className = "project-section-title";
-    title.textContent = "Overview";
-    const paragraph = document.createElement("p");
-    paragraph.textContent = project.overviewParagraph;
-    overview.appendChild(title);
-    overview.appendChild(paragraph);
-    panelInner.appendChild(overview);
+    body.appendChild(createParagraphSection("Overview", project.overviewParagraph));
   }
-
   if (project.irParagraph) {
-    const ir = document.createElement("div");
-    ir.className = "project-section";
-    const title = document.createElement("h4");
-    title.className = "project-section-title";
-    title.textContent = "IR testing setup";
-    const paragraph = document.createElement("p");
-    paragraph.textContent = project.irParagraph;
-    ir.appendChild(title);
-    ir.appendChild(paragraph);
-    panelInner.appendChild(ir);
+    body.appendChild(createParagraphSection("IR testing setup", project.irParagraph));
   }
-
   if (project.builtBullets) {
-    const built = document.createElement("div");
-    built.className = "project-section";
-    const title = document.createElement("h4");
-    title.className = "project-section-title";
-    title.textContent = "What we built";
-    const list = document.createElement("ul");
-    project.builtBullets.forEach((item) => {
-      const li = document.createElement("li");
-      li.textContent = item;
-      list.appendChild(li);
-    });
-    built.appendChild(title);
-    built.appendChild(list);
-    panelInner.appendChild(built);
+    body.appendChild(createBulletSection("What we built", project.builtBullets));
   }
-
   if (project.resultsBullets) {
-    const results = document.createElement("div");
-    results.className = "project-section";
-    const title = document.createElement("h4");
-    title.className = "project-section-title";
-    title.textContent = "Key validation + results";
-    const list = document.createElement("ul");
-    project.resultsBullets.forEach((item) => {
-      const li = document.createElement("li");
-      li.textContent = item;
-      list.appendChild(li);
-    });
-    results.appendChild(title);
-    results.appendChild(list);
-    panelInner.appendChild(results);
+    body.appendChild(createBulletSection("Key validation + results", project.resultsBullets));
   }
 
   if (project.what || project.why) {
@@ -894,23 +778,19 @@ function createProjectCard(project) {
     textBlock.className = "project-text";
     if (project.what) {
       const what = document.createElement("p");
-      what.innerHTML = `<strong>What I built:</strong> ${project.what}`;
+      what.innerHTML = `<strong>What I built.</strong> ${project.what}`;
       textBlock.appendChild(what);
     }
     if (project.why) {
       const why = document.createElement("p");
-      why.innerHTML = `<strong>Why it matters:</strong> ${project.why}`;
+      why.innerHTML = `<strong>Why it matters.</strong> ${project.why}`;
       textBlock.appendChild(why);
     }
-    panelInner.appendChild(textBlock);
+    body.appendChild(textBlock);
   }
 
   if (project.subprojects && project.subprojects.length) {
-    const subTitle = document.createElement("h4");
-    subTitle.className = "project-section-title";
-    subTitle.textContent = "Subprojects";
-    panelInner.appendChild(subTitle);
-
+    body.appendChild(createSectionTitle("Subprojects"));
     const subWrap = document.createElement("div");
     subWrap.className = "project-subprojects";
     project.subprojects.forEach((sub) => {
@@ -925,19 +805,14 @@ function createProjectCard(project) {
       const subTools = document.createElement("div");
       subTools.className = "project-tech";
       sub.tools.forEach((tool) => subTools.appendChild(createTag(tool)));
-      subCard.appendChild(subHeading);
-      subCard.appendChild(subGoal);
-      subCard.appendChild(subDid);
-      subCard.appendChild(subTools);
+      subCard.append(subHeading, subGoal, subDid, subTools);
       subWrap.appendChild(subCard);
     });
-    panelInner.appendChild(subWrap);
+    body.appendChild(subWrap);
   }
 
   if (project.highlights && project.highlights.length) {
-    const highlightsTitle = document.createElement("h4");
-    highlightsTitle.className = "project-section-title";
-    highlightsTitle.textContent = "Technical highlights";
+    body.appendChild(createSectionTitle("Technical highlights"));
     const highlightsList = document.createElement("ul");
     highlightsList.className = "project-highlights";
     project.highlights.forEach((item) => {
@@ -945,69 +820,195 @@ function createProjectCard(project) {
       li.textContent = item;
       highlightsList.appendChild(li);
     });
-    panelInner.appendChild(highlightsTitle);
-    panelInner.appendChild(highlightsList);
+    body.appendChild(highlightsList);
   }
 
   if (project.tech && project.tech.length) {
-    const techTitle = document.createElement("h4");
-    techTitle.className = "project-section-title";
-    techTitle.textContent = "Tech";
+    body.appendChild(createSectionTitle("Tech"));
     const techRow = document.createElement("div");
     techRow.className = "project-tech";
     project.tech.forEach((tag) => techRow.appendChild(createTag(tag)));
-    panelInner.appendChild(techTitle);
-    panelInner.appendChild(techRow);
+    body.appendChild(techRow);
   }
 
-  if (project.links && project.links.length) {
+  const links = [...(project.links || []), ...(project.reportLink ? [project.reportLink] : [])];
+  if (links.length) {
     const linksRow = document.createElement("div");
     linksRow.className = "project-links";
-    project.links.forEach((link) => linksRow.appendChild(createLink(link)));
-    panelInner.appendChild(linksRow);
-  }
-  if (project.reportLink) {
-    const linksRow = document.createElement("div");
-    linksRow.className = "project-links";
-    linksRow.appendChild(createLink(project.reportLink));
-    panelInner.appendChild(linksRow);
+    links.forEach((link) => linksRow.appendChild(createLink(link)));
+    body.appendChild(linksRow);
   }
 
-  panel.appendChild(panelInner);
-  card.appendChild(button);
-  card.appendChild(panel);
+  return body;
+}
 
-  function togglePanel() {
-    const isExpanded = button.getAttribute("aria-expanded") === "true";
-    button.setAttribute("aria-expanded", String(!isExpanded));
-    panel.setAttribute("aria-hidden", String(isExpanded));
-    if (isExpanded) {
-      panel.style.maxHeight = "0px";
-      panel.classList.remove("open");
-    } else {
-      panel.classList.add("open");
-      panel.style.maxHeight = panel.scrollHeight + "px";
-      if (project.model) {
-        initModelViewers();
-      }
-    }
+function createWorkCard(project, index, options = {}) {
+  const { href, interactiveModel = false } = options;
+  const card = document.createElement(href ? "a" : "article");
+  card.className = "work-card";
+  card.style.setProperty("--i", index);
+  if (href) {
+    card.href = href;
+  } else {
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-haspopup", "dialog");
+    card.setAttribute("aria-label", `Open project: ${project.title}`);
   }
 
-  button.addEventListener("click", (event) => {
-    if (event.target.closest(".project-model") || event.target.closest(".model-reset")) {
-      return;
-    }
-    togglePanel();
-  });
-  button.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      togglePanel();
-    }
-  });
+  const media = document.createElement("div");
+  media.className = "work-media";
 
+  if (project.model && interactiveModel) {
+    media.classList.add("project-model");
+    media.dataset.model = project.model;
+    media.dataset.fallback = project.cover;
+    media.innerHTML = `
+      <div class="model-loading">Loading 3D model…</div>
+      <span class="model-badge">Interactive 3D · drag to orbit</span>
+      <button type="button" class="model-reset">Reset view</button>
+    `;
+  } else {
+    if (/ur5-push-place|hydrogel|bike-hmm/.test(project.cover)) media.classList.add("is-contain");
+    const img = document.createElement("img");
+    img.alt = "";
+    img.loading = "lazy";
+    setImageSourceWithFallback(img, project.cover, {
+      sizes: "(max-width: 760px) 92vw, 50vw",
+    });
+    media.appendChild(img);
+  }
+
+  const body = document.createElement("div");
+  body.className = "work-body";
+  body.innerHTML = `
+    <div class="work-top"><span>${String(index + 1).padStart(2, "0")}</span><span>${project.category.slice(0, 2).join(" · ")}</span></div>
+  `;
+  const title = document.createElement("h3");
+  title.textContent = project.title;
+  const blurb = document.createElement("p");
+  blurb.textContent = project.blurb;
+  const more = document.createElement("span");
+  more.className = "work-more";
+  more.innerHTML = `View project <span class="arrow" aria-hidden="true">→</span>`;
+  body.append(title, blurb, more);
+
+  card.append(media, body);
   return card;
 }
+
+// --- Project detail sheet --------------------------------------------------
+
+let sheetEl = null;
+let sheetReturnFocus = null;
+
+function ensureSheet() {
+  if (sheetEl) return sheetEl;
+  sheetEl = document.createElement("div");
+  sheetEl.className = "sheet";
+  sheetEl.innerHTML = `
+    <div class="sheet-backdrop" data-close></div>
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1">
+      <button type="button" class="sheet-close" data-close aria-label="Close project">✕</button>
+      <div class="sheet-content"></div>
+    </div>
+  `;
+  document.body.appendChild(sheetEl);
+  sheetEl.addEventListener("click", (event) => {
+    if (event.target.closest("[data-close]")) closeProject();
+  });
+  sheetEl.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeProject();
+    if (event.key === "Tab") {
+      const focusables = sheetEl.querySelectorAll(
+        'button, a[href], iframe, [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  });
+  return sheetEl;
+}
+
+function openProject(project, { updateHash = true } = {}) {
+  const sheet = ensureSheet();
+  sheetReturnFocus = document.activeElement;
+  const content = sheet.querySelector(".sheet-content");
+  content.innerHTML = "";
+
+  const head = document.createElement("header");
+  head.className = "sheet-head";
+  const tags = document.createElement("div");
+  tags.className = "project-tags";
+  project.category.forEach((tag) => tags.appendChild(createTag(tag)));
+  const heading = document.createElement("h2");
+  heading.id = "sheet-title";
+  heading.textContent = project.title;
+  head.append(tags, heading);
+  if (project.subtitle) {
+    const sub = document.createElement("p");
+    sub.className = "sheet-sub";
+    sub.textContent = project.subtitle;
+    head.appendChild(sub);
+  }
+  if (project.metaLine) {
+    const meta = document.createElement("p");
+    meta.className = "project-meta-line";
+    meta.style.marginTop = "14px";
+    meta.textContent = project.metaLine;
+    head.appendChild(meta);
+  }
+
+  const body = document.createElement("div");
+  body.className = "sheet-body";
+  body.appendChild(buildProjectDetail(project));
+  content.append(head, body);
+
+  const panel = sheet.querySelector(".sheet-panel");
+  panel.scrollTop = 0;
+  document.documentElement.style.overflow = "hidden";
+  sheet.classList.add("open");
+  requestAnimationFrame(() => panel.focus({ preventScroll: true }));
+
+  if (updateHash && location.hash !== `#${project.id}`) {
+    history.pushState(null, "", `#${project.id}`);
+  }
+}
+
+function closeProject({ fromHistory = false } = {}) {
+  if (!sheetEl || !sheetEl.classList.contains("open")) return;
+  sheetEl.classList.remove("open");
+  document.documentElement.style.overflow = "";
+  // Stop any playing embeds.
+  setTimeout(() => {
+    if (!sheetEl.classList.contains("open")) sheetEl.querySelector(".sheet-content").innerHTML = "";
+  }, 500);
+  if (!fromHistory && location.hash) {
+    history.pushState(null, "", location.pathname + location.search);
+  }
+  if (sheetReturnFocus && sheetReturnFocus.focus) sheetReturnFocus.focus({ preventScroll: true });
+}
+
+function syncProjectFromHash() {
+  if (!document.getElementById("projects-list")) return;
+  const id = decodeURIComponent(location.hash.slice(1));
+  const project = PROJECTS.find((item) => item.id === id);
+  if (project) {
+    openProject(project, { updateHash: false });
+  } else {
+    closeProject({ fromHistory: true });
+  }
+}
+
+// --- Projects page -----------------------------------------------------------
 
 function renderProjects(filter = "All") {
   const list = document.getElementById("projects-list");
@@ -1019,8 +1020,21 @@ function renderProjects(filter = "All") {
       ? PROJECTS
       : PROJECTS.filter((project) => project.category.includes(filter));
 
-  filtered.forEach((project) => list.appendChild(createProjectCard(project)));
-  setupRevealAnimations();
+  filtered.forEach((project, index) => {
+    const card = createWorkCard(project, index, { interactiveModel: true });
+    const open = (event) => {
+      if (event.target.closest(".project-model canvas, .model-reset")) return;
+      openProject(project);
+    };
+    card.addEventListener("click", open);
+    card.addEventListener("keydown", (event) => {
+      if ((event.key === "Enter" || event.key === " ") && event.target === card) {
+        event.preventDefault();
+        openProject(project);
+      }
+    });
+    list.appendChild(card);
+  });
   initModelViewers();
 }
 
@@ -1031,18 +1045,22 @@ function setupFilters() {
   let active = "All";
 
   PROJECT_FILTERS.forEach((label) => {
+    const count =
+      label === "All" ? PROJECTS.length : PROJECTS.filter((project) => project.category.includes(label)).length;
     const btn = document.createElement("button");
+    btn.type = "button";
     btn.className = "filter-chip";
-    btn.textContent = label;
-    btn.setAttribute("role", "tab");
-    btn.setAttribute("aria-selected", label === active ? "true" : "false");
+    btn.dataset.filter = label;
+    btn.innerHTML = `${label}<span class="count">${count}</span>`;
+    btn.setAttribute("aria-pressed", label === active ? "true" : "false");
     if (label === active) btn.classList.add("active");
 
     btn.addEventListener("click", () => {
       active = label;
       filtersEl.querySelectorAll(".filter-chip").forEach((chip) => {
-        chip.classList.toggle("active", chip.textContent === active);
-        chip.setAttribute("aria-selected", chip.textContent === active ? "true" : "false");
+        const isActive = chip.dataset.filter === active;
+        chip.classList.toggle("active", isActive);
+        chip.setAttribute("aria-pressed", String(isActive));
       });
       renderProjects(active);
     });
@@ -1050,11 +1068,213 @@ function setupFilters() {
   });
 }
 
+// --- Home ------------------------------------------------------------------
+
+function renderFeatured() {
+  const root = document.getElementById("featured-work");
+  if (!root) return;
+  FEATURED_PROJECT_IDS.map((id) => PROJECTS.find((project) => project.id === id))
+    .filter(Boolean)
+    .forEach((project, index) => {
+      const card = createWorkCard(project, index, { href: `projects.html#${project.id}` });
+      card.setAttribute("data-reveal", "");
+      card.style.setProperty("--d", `${(index % 2) * 0.1}s`);
+      root.appendChild(card);
+    });
+}
+
+function renderFilm() {
+  const track = document.getElementById("film-track");
+  if (!track) return;
+  // Two copies so the loop is seamless.
+  [...HOME_FILM, ...HOME_FILM].forEach((src, index) => {
+    const item = document.createElement("div");
+    item.className = "film-item";
+    const img = document.createElement("img");
+    img.alt = index < HOME_FILM.length ? "Photo from the gallery" : "";
+    img.loading = "lazy";
+    img.height = 360;
+    setImageSourceWithFallback(img, src, { sizes: "360px", onHardFailure: () => item.remove() });
+    item.appendChild(img);
+    if (index >= HOME_FILM.length) item.setAttribute("aria-hidden", "true");
+    track.appendChild(item);
+  });
+}
+
+function initStats() {
+  const sources = {
+    projects: PROJECTS.length,
+    courses: coursesData.reduce((total, section) => total + section.courses.length, 0),
+  };
+  const nums = document.querySelectorAll("[data-count], [data-count-source]");
+  nums.forEach((el) => {
+    const target = Number(sources[el.dataset.countSource] ?? el.dataset.count);
+    if (!Number.isFinite(target)) return;
+    el.dataset.target = target;
+    el.textContent = target;
+  });
+  if (prefersReducedMotion() || !("IntersectionObserver" in window)) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        observer.unobserve(entry.target);
+        const el = entry.target;
+        const target = Number(el.dataset.target);
+        const startTime = performance.now();
+        const duration = 1400;
+        const tick = (now) => {
+          const p = Math.min(1, (now - startTime) / duration);
+          el.textContent = Math.round(target * (1 - Math.pow(1 - p, 4)));
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        el.textContent = "0";
+        requestAnimationFrame(tick);
+      });
+    },
+    { threshold: 0.6 },
+  );
+  nums.forEach((el) => observer.observe(el));
+}
+
+function initWordReveal() {
+  const blocks = document.querySelectorAll("[data-words]");
+  if (!blocks.length) return;
+  const items = [];
+  blocks.forEach((block) => {
+    const walk = (node) => {
+      [...node.childNodes].forEach((child) => {
+        if (child.nodeType === Node.TEXT_NODE) {
+          const frag = document.createDocumentFragment();
+          child.textContent.split(/(\s+)/).forEach((part) => {
+            if (!part) return;
+            if (/^\s+$/.test(part)) {
+              frag.appendChild(document.createTextNode(part));
+            } else {
+              const span = document.createElement("span");
+              span.className = "w";
+              span.textContent = part;
+              frag.appendChild(span);
+            }
+          });
+          child.replaceWith(frag);
+        } else if (child.nodeType === Node.ELEMENT_NODE) {
+          walk(child);
+        }
+      });
+    };
+    walk(block);
+    items.push({ block, words: [...block.querySelectorAll(".w")] });
+  });
+
+  if (prefersReducedMotion()) {
+    items.forEach(({ words }) => words.forEach((word) => word.classList.add("on")));
+    return;
+  }
+
+  const update = () => {
+    const vh = window.innerHeight;
+    items.forEach(({ block, words }) => {
+      const rect = block.getBoundingClientRect();
+      const progress = Math.min(1, Math.max(0, (vh * 0.85 - rect.top) / (vh * 0.5)));
+      const lit = Math.round(progress * words.length);
+      words.forEach((word, index) => word.classList.toggle("on", index < lit));
+    });
+  };
+  onScrollFrame(update);
+}
+
+function initParallax() {
+  const frames = document.querySelectorAll("[data-parallax]");
+  const path = document.querySelector("[data-path]");
+  if (prefersReducedMotion()) return;
+  if (!frames.length && !path) return;
+  const update = () => {
+    const vh = window.innerHeight;
+    frames.forEach((frame) => {
+      const rect = frame.getBoundingClientRect();
+      const center = rect.top + rect.height / 2 - vh / 2;
+      const offset = Math.max(-1, Math.min(1, center / vh)) * -0.5 + 0.5;
+      frame.style.setProperty("--py", (offset * rect.height * 0.1).toFixed(1));
+    });
+    if (path) {
+      const rect = path.getBoundingClientRect();
+      const vertical = window.innerWidth <= 860;
+      const progress = vertical
+        ? (vh * 0.75 - rect.top) / rect.height
+        : (vh * 0.9 - rect.top) / (vh * 0.45);
+      const p = Math.min(1, Math.max(0, progress));
+      path.style.setProperty("--p", p.toFixed(3));
+      const steps = path.querySelectorAll("li");
+      steps.forEach((step, index) => {
+        step.classList.toggle("is-lit", p >= (index / Math.max(1, steps.length - 1)) * 0.98);
+      });
+    }
+  };
+  onScrollFrame(update);
+}
+
+function onScrollFrame(fn) {
+  let queued = false;
+  const run = () => {
+    queued = false;
+    fn();
+  };
+  const queue = () => {
+    if (!queued) {
+      queued = true;
+      requestAnimationFrame(run);
+    }
+  };
+  window.addEventListener("scroll", queue, { passive: true });
+  window.addEventListener("resize", queue);
+  fn();
+}
+
+function initSpotlight() {
+  document.querySelectorAll(".focus-card").forEach((card) => {
+    card.addEventListener("pointermove", (event) => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty("--mx", `${event.clientX - rect.left}px`);
+      card.style.setProperty("--my", `${event.clientY - rect.top}px`);
+    });
+  });
+}
+
+function initCopyButtons() {
+  document.querySelectorAll("[data-copy]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset.copy);
+        button.textContent = "Copied ✓";
+        button.classList.add("copied");
+      } catch (err) {
+        window.location.href = `mailto:${button.dataset.copy}`;
+        return;
+      }
+      setTimeout(() => {
+        button.textContent = "Copy";
+        button.classList.remove("copied");
+      }, 1800);
+    });
+  });
+}
+
+function initHeroEntrance() {
+  const hero = document.querySelector(".hero");
+  if (!hero) return;
+  const hint = hero.querySelector(".hint-text");
+  if (hint && window.matchMedia("(pointer: coarse)").matches) hint.textContent = "Tap the pins";
+  requestAnimationFrame(() => requestAnimationFrame(() => hero.classList.add("is-entered")));
+}
+
+// --- Shared ----------------------------------------------------------------
+
 function setupRevealAnimations() {
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const cards = document.querySelectorAll(".project-card.reveal");
-  if (prefersReducedMotion) {
-    cards.forEach((card) => card.classList.add("is-visible"));
+  const items = document.querySelectorAll("[data-reveal]:not(.is-in)");
+  if (prefersReducedMotion() || !("IntersectionObserver" in window)) {
+    items.forEach((item) => item.classList.add("is-in"));
     return;
   }
 
@@ -1062,192 +1282,291 @@ function setupRevealAnimations() {
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
+          entry.target.classList.add("is-in");
           observer.unobserve(entry.target);
         }
       });
     },
-    { threshold: 0.15 },
+    { threshold: 0.12, rootMargin: "0px 0px -6% 0px" },
   );
 
-  cards.forEach((card) => observer.observe(card));
+  items.forEach((item) => observer.observe(item));
 }
-
-function updateOpenPanels() {
-  document.querySelectorAll(".project-panel.open").forEach((panel) => {
-    panel.style.maxHeight = panel.scrollHeight + "px";
-  });
-}
-
-window.addEventListener("resize", updateOpenPanels);
 
 let lightboxEl = null;
-function openLightbox(src) {
-  if (!src) return;
+let lightboxState = { sources: [], index: 0, label: "" };
+
+function showLightboxImage() {
+  const { sources, index, label } = lightboxState;
+  const img = lightboxEl.querySelector("img");
+  const src = sources[index];
+  const entry = typeof src === "object" ? src : { src, alt: label || "Photo" };
+  img.alt = entry.alt || "Photo";
+  setImageSourceWithFallback(img, entry.src, { sizes: "100vw" });
+  const many = sources.length > 1;
+  lightboxEl.querySelector(".lightbox-prev").hidden = !many;
+  lightboxEl.querySelector(".lightbox-next").hidden = !many;
+  lightboxEl.querySelector(".lightbox-caption").textContent = many
+    ? `${String(index + 1).padStart(2, "0")} / ${String(sources.length).padStart(2, "0")}${label ? ` · ${label}` : ""}`
+    : label;
+}
+
+function stepLightbox(delta) {
+  const count = lightboxState.sources.length;
+  if (count < 2) return;
+  lightboxState.index = (lightboxState.index + delta + count) % count;
+  showLightboxImage();
+}
+
+function closeLightbox() {
+  if (!lightboxEl) return;
+  lightboxEl.classList.remove("open");
+  if (!sheetEl || !sheetEl.classList.contains("open")) {
+    document.documentElement.style.overflow = "";
+  }
+}
+
+function openLightbox(sources, index = 0, label = "") {
+  const list = Array.isArray(sources) ? sources : [sources];
+  if (!list.length || !list[index]) return;
   if (!lightboxEl) {
     lightboxEl = document.createElement("div");
     lightboxEl.className = "lightbox";
+    lightboxEl.setAttribute("role", "dialog");
+    lightboxEl.setAttribute("aria-modal", "true");
+    lightboxEl.setAttribute("aria-label", "Image viewer");
     lightboxEl.innerHTML = `
-      <button type="button" aria-label="Close image">Close</button>
-      <img alt="Project image preview" />
+      <img alt="" />
+      <button type="button" class="lightbox-btn lightbox-close" aria-label="Close image">✕</button>
+      <button type="button" class="lightbox-btn lightbox-prev" aria-label="Previous image">←</button>
+      <button type="button" class="lightbox-btn lightbox-next" aria-label="Next image">→</button>
+      <div class="lightbox-caption" aria-live="polite"></div>
     `;
     document.body.appendChild(lightboxEl);
     lightboxEl.addEventListener("click", (event) => {
-      if (event.target === lightboxEl || event.target.tagName === "BUTTON") {
-        lightboxEl.classList.remove("open");
+      if (event.target.closest(".lightbox-prev")) return stepLightbox(-1);
+      if (event.target.closest(".lightbox-next")) return stepLightbox(1);
+      if (event.target === lightboxEl || event.target.closest(".lightbox-close")) closeLightbox();
+    });
+    lightboxEl.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        closeLightbox();
       }
+      if (event.key === "ArrowLeft") stepLightbox(-1);
+      if (event.key === "ArrowRight") stepLightbox(1);
+    });
+    let touchX = null;
+    lightboxEl.addEventListener("touchstart", (event) => {
+      touchX = event.touches[0].clientX;
+    }, { passive: true });
+    lightboxEl.addEventListener("touchend", (event) => {
+      if (touchX === null) return;
+      const dx = event.changedTouches[0].clientX - touchX;
+      if (Math.abs(dx) > 50) stepLightbox(dx < 0 ? 1 : -1);
+      touchX = null;
     });
   }
-  const img = lightboxEl.querySelector("img");
-  setImageSourceWithFallback(img, src, { sizes: "100vw" });
+  lightboxState = { sources: list, index, label };
+  showLightboxImage();
+  document.documentElement.style.overflow = "hidden";
   lightboxEl.classList.add("open");
+  lightboxEl.querySelector(".lightbox-close").focus({ preventScroll: true });
 }
 
 const modelViewers = new Map();
 
+function showModelFallback(container) {
+  if (container.querySelector("img")) return;
+  const fallback = container.dataset.fallback;
+  if (!fallback) return;
+  container.classList.remove("project-model");
+  container.classList.add("is-contain");
+  container.innerHTML = "";
+  const img = document.createElement("img");
+  img.alt = "";
+  setImageSourceWithFallback(img, fallback, { sizes: "(max-width: 760px) 92vw, 50vw" });
+  container.appendChild(img);
+}
+
 function initModelViewers() {
+  const containers = document.querySelectorAll(".project-model");
+  if (!containers.length) return;
   if (!window.THREE || !window.THREE.GLTFLoader || !window.THREE.OrbitControls) {
-    document.querySelectorAll(".project-model").forEach((container) => {
-      if (container.querySelector("img")) return;
-      const fallback = container.dataset.fallback;
-      if (fallback) {
-        container.innerHTML = "";
-        const img = document.createElement("img");
-        img.alt = "Project cover";
-        setImageSourceWithFallback(img, fallback, {
-          sizes: "(max-width: 720px) 92vw, 320px",
-        });
-        container.appendChild(img);
-      }
-    });
+    containers.forEach(showModelFallback);
     return;
   }
-  document.querySelectorAll(".project-model").forEach((container) => {
-    if (modelViewers.has(container)) return;
-    const modelUrl = container.dataset.model;
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf4f7ff);
-
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.set(2, 2, 2);
-
-    renderer.setPixelRatio(window.devicePixelRatio || 1);
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.domElement.style.touchAction = "none";
-    renderer.domElement.style.cursor = "grab";
-    container.appendChild(renderer.domElement);
-    renderer.domElement.addEventListener("pointerdown", (event) => event.stopPropagation());
-    renderer.domElement.addEventListener("click", (event) => event.stopPropagation());
-    renderer.domElement.addEventListener("wheel", (event) => event.stopPropagation(), { passive: true });
-    renderer.domElement.addEventListener("pointerdown", () => {
-      renderer.domElement.style.cursor = "grabbing";
-    });
-    renderer.domElement.addEventListener("pointerup", () => {
-      renderer.domElement.style.cursor = "grab";
-    });
-    renderer.domElement.addEventListener("pointerleave", () => {
-      renderer.domElement.style.cursor = "grab";
-    });
-
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.enablePan = true;
-    controls.enableZoom = true;
-
-    const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1.1);
-    scene.add(hemi);
-
-    const dir = new THREE.DirectionalLight(0xffffff, 1.0);
-    dir.position.set(2, 2, 2);
-    scene.add(dir);
-
-    const loader = new THREE.GLTFLoader();
-    let initialTarget = new THREE.Vector3();
-    let initialPos = new THREE.Vector3();
-
-    loader.load(
-      modelUrl,
-      (gltf) => {
-        const model = gltf.scene;
-        scene.add(model);
-        const box = new THREE.Box3().setFromObject(model);
-        const size = box.getSize(new THREE.Vector3()).length();
-        const center = box.getCenter(new THREE.Vector3());
-        controls.target.copy(center);
-        camera.near = size / 100;
-        camera.far = size * 10;
-        camera.updateProjectionMatrix();
-        camera.position.copy(center).add(new THREE.Vector3(size / 2, size / 3, size / 2));
-        controls.update();
-        initialTarget.copy(controls.target);
-        initialPos.copy(camera.position);
-        const loading = container.querySelector(".model-loading");
-        if (loading) loading.remove();
-      },
-      undefined,
-      () => {
-        const loading = container.querySelector(".model-loading");
-        if (loading) loading.textContent = "Model failed to load";
-      },
-    );
-
-    const resetButton = container.querySelector(".model-reset");
-    if (resetButton) {
-      resetButton.addEventListener("click", (event) => {
-        event.stopPropagation();
-        controls.target.copy(initialTarget);
-        camera.position.copy(initialPos);
-        controls.update();
+  // Only build a viewer (and fetch the 7 MB model) once its card is near the viewport.
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        observer.unobserve(entry.target);
+        createModelViewer(entry.target);
       });
-    }
-
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const { width, height } = entry.contentRect;
-        if (width && height) {
-          camera.aspect = width / height;
-          camera.updateProjectionMatrix();
-          renderer.setSize(width, height);
-        }
-      }
-    });
-    resizeObserver.observe(container);
-
-    modelViewers.set(container, { renderer, scene, camera, controls, resizeObserver });
+    },
+    { rootMargin: "200px" },
+  );
+  containers.forEach((container) => {
+    if (!modelViewers.has(container)) observer.observe(container);
   });
+}
+
+function createModelViewer(container) {
+  if (modelViewers.has(container) || !container.isConnected) return;
+  const THREE = window.THREE;
+  const modelUrl = container.dataset.model;
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  } catch (err) {
+    showModelFallback(container);
+    return;
+  }
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+  camera.position.set(2, 2, 2);
+
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.domElement.style.touchAction = "pan-y";
+  container.prepend(renderer.domElement);
+  ["pointerdown", "click"].forEach((type) =>
+    renderer.domElement.addEventListener(type, (event) => event.stopPropagation()),
+  );
+  renderer.domElement.addEventListener("pointerdown", () => {
+    renderer.domElement.style.cursor = "grabbing";
+    controls.autoRotate = false;
+  });
+  ["pointerup", "pointerleave"].forEach((type) =>
+    renderer.domElement.addEventListener(type, () => {
+      renderer.domElement.style.cursor = "grab";
+    }),
+  );
+
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.enablePan = false;
+  controls.enableZoom = true;
+  controls.autoRotate = !prefersReducedMotion();
+  controls.autoRotateSpeed = 1.2;
+
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xc9c4ba, 2.2));
+  const key = new THREE.DirectionalLight(0xffffff, 2.4);
+  key.position.set(3, 4, 2);
+  scene.add(key);
+  const warm = new THREE.DirectionalLight(0xff8a5c, 1.1);
+  warm.position.set(-3, 1.5, -2);
+  scene.add(warm);
+
+  const loader = new THREE.GLTFLoader();
+  const initialTarget = new THREE.Vector3();
+  const initialPos = new THREE.Vector3();
+
+  loader.load(
+    modelUrl,
+    (gltf) => {
+      const model = gltf.scene;
+      scene.add(model);
+      const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3()).length();
+      const center = box.getCenter(new THREE.Vector3());
+      controls.target.copy(center);
+      camera.near = size / 100;
+      camera.far = size * 10;
+      camera.updateProjectionMatrix();
+      camera.position.copy(center).add(new THREE.Vector3(size * 0.85, size * 0.45, size * 0.85));
+      controls.update();
+      initialTarget.copy(controls.target);
+      initialPos.copy(camera.position);
+      const loading = container.querySelector(".model-loading");
+      if (loading) loading.remove();
+    },
+    undefined,
+    () => {
+      const loading = container.querySelector(".model-loading");
+      if (loading) loading.textContent = "Model failed to load";
+    },
+  );
+
+  const resetButton = container.querySelector(".model-reset");
+  if (resetButton) {
+    resetButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      controls.target.copy(initialTarget);
+      camera.position.copy(initialPos);
+      controls.update();
+    });
+  }
+
+  let visible = true;
+  function animate() {
+    if (!container.isConnected) {
+      renderer.dispose();
+      modelViewers.delete(container);
+      return;
+    }
+    requestAnimationFrame(animate);
+    if (!visible || document.hidden) return;
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+  }).observe(container);
+
+  const resizeObserver = new ResizeObserver((entries) => {
+    for (const entry of entries) {
+      const { width, height } = entry.contentRect;
+      if (width && height) {
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+      }
+    }
+  });
+  resizeObserver.observe(container);
+
+  modelViewers.set(container, { renderer, scene, camera, controls, resizeObserver });
 }
 
 function renderGallery() {
   const grid = document.getElementById("gallery-grid");
   if (!grid) return;
   grid.innerHTML = "";
-  GALLERY_IMAGES.forEach((entry) => {
-    const { src, alt } = typeof entry === "string" ? { src: entry, alt: "Gallery photo" } : entry;
+  const entries = GALLERY_IMAGES.map((entry) =>
+    typeof entry === "string" ? { src: entry, alt: "Gallery photo" } : entry,
+  );
+  entries.forEach(({ src, alt }, index) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "gallery-item";
+    button.style.setProperty("--i", Math.min(index, 16));
+    button.setAttribute("aria-label", `Open photo: ${alt}`);
     const img = document.createElement("img");
     img.alt = alt;
-    img.loading = "lazy";
+    img.loading = index < 8 ? "eager" : "lazy";
     setImageSourceWithFallback(img, src, {
-      sizes: "(max-width: 340px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 31vw, 24vw",
+      sizes: "(max-width: 760px) 46vw, (max-width: 1100px) 31vw, 24vw",
       onHardFailure: () => button.remove(),
     });
     button.appendChild(img);
-    button.addEventListener("click", () => openLightbox(src));
+    button.addEventListener("click", () => openLightbox(entries, index));
     grid.appendChild(button);
   });
 }
 
 function initMobileNav() {
+  const current = (location.pathname.split("/").pop() || "index.html").toLowerCase();
+  document.querySelectorAll(".nav-links a").forEach((link) => {
+    const target = (link.getAttribute("href") || "").toLowerCase();
+    if (target === current || (current === "" && target === "index.html")) {
+      link.setAttribute("aria-current", "page");
+    }
+  });
+
   document.querySelectorAll(".nav").forEach((nav) => {
     const toggle = nav.querySelector(".nav-toggle");
     const links = nav.querySelector(".nav-links");
@@ -1270,130 +1589,47 @@ function initMobileNav() {
       link.addEventListener("click", () => setOpen(false));
     });
 
+    document.addEventListener("click", (event) => {
+      if (!nav.contains(event.target)) setOpen(false);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && nav.classList.contains("nav-open")) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+
     window.addEventListener("resize", () => {
-      if (window.innerWidth > 860) {
+      if (window.innerWidth > 820) {
         setOpen(false);
       }
     });
   });
 }
 
-function initIntro() {
-  resetLegacyIntroArtifacts();
-
-  const overlay = document.getElementById("intro-overlay");
-  const hero = document.querySelector(".hero");
-  if (!hero || !overlay) return;
-
-  const root = document.documentElement;
-  const skipBtn = overlay.querySelector(".intro-skip");
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const shouldShow = root.classList.contains("intro-pending");
-  const introSeenKey = getIntroSeenKey();
-  const timeouts = [];
-  let finished = false;
-  let keyHandler;
-  let visibilityHandler;
-
-  const clearTimers = () => {
-    timeouts.forEach((id) => clearTimeout(id));
-    timeouts.length = 0;
-  };
-
-  const markSeen = () => {
-    try {
-      sessionStorage.setItem(introSeenKey, "true");
-    } catch (err) {
-      // ignore
-    }
-  };
-
-  const cleanup = () => {
-    clearTimers();
-    root.classList.remove("intro-pending");
-    document.body.classList.remove("intro-active");
-    overlay.classList.remove("is-visible", "is-exiting");
-    overlay.setAttribute("aria-hidden", "true");
-    if (keyHandler) {
-      window.removeEventListener("keydown", keyHandler);
-    }
-    if (visibilityHandler) {
-      document.removeEventListener("visibilitychange", visibilityHandler);
-    }
-  };
-
-  if (!shouldShow || prefersReducedMotion) {
-    cleanup();
-    return;
-  }
-
-  document.body.classList.add("intro-active");
-  overlay.setAttribute("aria-hidden", "false");
-
-  const isCompact = window.innerWidth < 780;
-  const introLength = isCompact ? 1950 : 2450;
-  const exitDuration = 760;
-
-  const finish = (immediate = false) => {
-    if (finished) return;
-    finished = true;
-    markSeen();
-    clearTimers();
-    if (immediate) {
-      cleanup();
-      return;
-    }
-    overlay.classList.add("is-exiting");
-    timeouts.push(setTimeout(cleanup, exitDuration));
-  };
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      if (!finished) {
-        overlay.classList.add("is-visible");
-      }
-    });
+function initYear() {
+  document.querySelectorAll("[data-year]").forEach((el) => {
+    el.textContent = new Date().getFullYear();
   });
-  timeouts.push(setTimeout(() => finish(), introLength));
-
-  if (skipBtn) {
-    skipBtn.addEventListener("click", () => finish());
-  }
-
-  overlay.addEventListener("click", (event) => {
-    if (event.target.closest(".intro-skip")) {
-      return;
-    }
-    finish();
-  });
-
-  keyHandler = (event) => {
-    if (event.key === "Escape" || event.key === "Enter" || event.key === " ") {
-      if (event.key !== "Escape") {
-        event.preventDefault();
-      }
-      finish();
-    }
-  };
-  visibilityHandler = () => {
-    if (document.hidden) {
-      finish(true);
-    }
-  };
-
-  window.addEventListener("keydown", keyHandler);
-  document.addEventListener("visibilitychange", visibilityHandler);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   initMobileNav();
+  initYear();
   renderCourses();
   setupFilters();
   renderProjects();
   renderGallery();
-  initIntro();
-});
-
-window.addEventListener("pageshow", () => {
-  resetLegacyIntroArtifacts();
+  renderFeatured();
+  renderFilm();
+  initStats();
+  initWordReveal();
+  initParallax();
+  initSpotlight();
+  initCopyButtons();
+  initHeroEntrance();
+  setupRevealAnimations();
+  syncProjectFromHash();
+  window.addEventListener("popstate", syncProjectFromHash);
 });

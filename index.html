@@ -2,93 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Berk Kasimcan | Portfolio</title>
-  <meta name="description" content="Mechanical engineer and researcher focused on robotics, haptics, and healthcare, building affordable, accessible systems that serve real people." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Berk Kasimcan | Robotics, Haptics, Healthcare</title>
+  <meta name="description" content="Berk Kasimcan is a mechanical engineer and Ph.D. researcher at Vanderbilt building human-centered systems across robotics, haptics, and healthcare." />
+  <meta name="theme-color" content="#0d0e11" />
   <link rel="canonical" href="https://berkonas.github.io/" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="assets/og/apple-touch-icon.png" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Berk Kasimcan" />
-  <meta property="og:title" content="Berk Kasimcan | Portfolio" />
-  <meta property="og:description" content="Mechanical engineer and researcher focused on robotics, haptics, and healthcare, building affordable, accessible systems that serve real people." />
+  <meta property="og:title" content="Berk Kasimcan | Robotics, Haptics, Healthcare" />
+  <meta property="og:description" content="Mechanical engineer and Ph.D. researcher at Vanderbilt building human-centered systems across robotics, haptics, and healthcare." />
   <meta property="og:url" content="https://berkonas.github.io/" />
-  <meta property="og:image" content="https://berkonas.github.io/assets/optimized/images/profile/IMG_0313-960.jpg" />
-  <meta property="og:image:alt" content="Portrait of Berk Kasimcan" />
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Berk Kasimcan | Portfolio" />
-  <meta name="twitter:description" content="Mechanical engineer and researcher focused on robotics, haptics, and healthcare, building affordable, accessible systems that serve real people." />
-  <meta name="twitter:image" content="https://berkonas.github.io/assets/optimized/images/profile/IMG_0313-960.jpg" />
-  <script>
-    (() => {
-      const INTRO_VERSION = "20260422c";
-      try {
-        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        const introSeenKey = `introSeenSession:${INTRO_VERSION}`;
-        if (!prefersReducedMotion && !sessionStorage.getItem(introSeenKey)) {
-          document.documentElement.classList.add("intro-pending");
-        }
-      } catch (err) {
-        // Ignore storage or media-query failures and fall back to loading the page normally.
-      }
-    })();
-  </script>
-  <link
-    rel="preload"
-    as="image"
-    href="assets/optimized/images/profile/IMG_0313-960.jpg"
-    imagesrcset="assets/optimized/images/profile/IMG_0313-480.jpg 480w, assets/optimized/images/profile/IMG_0313-960.jpg 960w, assets/optimized/images/profile/IMG_0313-1440.jpg 1440w, assets/optimized/images/profile/IMG_0313.jpg 1800w"
-    imagesizes="(max-width: 720px) 78vw, 360px"
-  />
+  <meta property="og:image" content="https://berkonas.github.io/assets/og/og-image.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Berk Kasimcan: Engineering you can feel. Robotics, haptics, healthcare." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Berk Kasimcan | Robotics, Haptics, Healthcare" />
+  <meta name="twitter:description" content="Mechanical engineer and Ph.D. researcher at Vanderbilt building human-centered systems across robotics, haptics, and healthcare." />
+  <meta name="twitter:image" content="https://berkonas.github.io/assets/og/og-image.jpg" />
+  <script>document.documentElement.classList.add("js");</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260927a" />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="site.css?v=20260927f" />
+  <link rel="modulepreload" href="https://unpkg.com/three@0.159.0/build/three.module.js" crossorigin />
 </head>
-<body>
-  <div id="intro-overlay" aria-hidden="true">
-    <button class="intro-skip" type="button" aria-label="Skip intro">Skip intro</button>
-    <div class="intro-noise" aria-hidden="true"></div>
-    <div class="intro-grid" aria-hidden="true"></div>
-    <div class="intro-beam" aria-hidden="true"></div>
-    <div class="intro-panel">
-      <div class="intro-topline">
-        <span>Berk Kasimcan</span>
-        <span>Portfolio</span>
-      </div>
-      <div class="intro-main">
-        <div class="intro-visual" aria-hidden="true">
-          <div class="intro-portrait-shell">
-            <img
-              src="assets/optimized/images/profile/IMG_0313-960.jpg"
-              srcset="assets/optimized/images/profile/IMG_0313-480.jpg 480w, assets/optimized/images/profile/IMG_0313-960.jpg 960w, assets/optimized/images/profile/IMG_0313-1440.jpg 1440w, assets/optimized/images/profile/IMG_0313.jpg 1800w"
-              sizes="(max-width: 780px) 48vw, 340px"
-              alt=""
-              width="2400"
-              height="3000"
-              decoding="async"
-              onerror="this.onerror=null;this.removeAttribute('srcset');this.removeAttribute('sizes');this.src='assets/optimized/images/profile/IMG_0313.jpg';"
-            />
-          </div>
-        </div>
-        <div class="intro-copy">
-          <p class="intro-kicker">Mechanical Engineer • Researcher</p>
-          <h2 class="intro-title">
-            <span>Robotics</span>
-            <span>Haptics</span>
-            <span>Healthcare</span>
-          </h2>
-          <p class="intro-summary">Human-centered systems built for real people.</p>
-        </div>
-      </div>
-      <div class="intro-status">
-        <span class="intro-status-dot"></span>
-        <span>Entering portfolio</span>
-      </div>
-    </div>
-  </div>
+<body class="home">
+  <a class="skip-link" href="#main">Skip to content</a>
   <div class="page">
     <header class="header">
-      <nav class="nav">
-        <a class="brand" href="index.html">Berk Kasimcan</a>
+      <nav class="nav" aria-label="Primary">
+        <a class="brand" href="index.html" aria-label="Berk Kasimcan, home"><span class="brand-mark" aria-hidden="true">BK</span><span class="brand-name">Berk Kasimcan</span></a>
         <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="site-nav-links">
           <span></span>
           <span></span>
@@ -105,113 +52,227 @@
       </nav>
     </header>
 
-    <section class="hero">
-      <div class="profile-block">
-        <div class="profile-frame">
-          <img
-            src="assets/optimized/images/profile/IMG_0313-960.jpg"
-            srcset="assets/optimized/images/profile/IMG_0313-480.jpg 480w, assets/optimized/images/profile/IMG_0313-960.jpg 960w, assets/optimized/images/profile/IMG_0313-1440.jpg 1440w, assets/optimized/images/profile/IMG_0313.jpg 1800w"
-            sizes="(max-width: 720px) 78vw, 360px"
-            alt="Berk Kasimcan portrait"
-            width="2400"
-            height="3000"
-            loading="eager"
-            fetchpriority="high"
-            decoding="async"
-            onerror="this.onerror=null;this.removeAttribute('srcset');this.removeAttribute('sizes');this.src='assets/optimized/images/profile/IMG_0313.jpg';"
-          />
-        </div>
-        <div class="profile-name">Berk Kasimcan</div>
-      </div>
-      <div class="hero-copy">
-        <h1>Human-centered engineering with a hands-on mindset.</h1>
-        <p>
-          Mechanical engineer and researcher focused on robotics, haptics, and healthcare.
-          I build affordable, accessible systems that serve real people.
-        </p>
-        <div class="cta-row">
-          <a class="button" href="projects.html">Explore Projects</a>
-          <a class="button secondary" href="resume.html">View Resume</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="card">
-        <h2>About Me</h2>
-        <p>
-          Welcome to my personal portfolio. My name is Berk Kasimcan, and I am a mechanical engineer and researcher
-          focused on building human-centered technologies at the intersection of robotics, haptics, and healthcare.
-          My work is driven by a simple goal: designing systems that are affordable, accessible, and useful for real people.
-          My goal is to combine mechanical and biomedical engineering skills to help people either with engineering solutions,
-          policy writing, or volunteering.
-        </p>
-        <p>
-          Beyond titles and degrees, I’m motivated by curiosity and hands-on problem solving. Whether I’m prototyping a new
-          haptic device, digging into interdisciplinary research, or experimenting in the kitchen, I enjoy learning by doing.
-          This website is a snapshot of my academic work, projects, and the interests that shape how I think and build.
-        </p>
-      </div>
-
-      <div class="stack">
-        <div class="card">
-          <h2>Academic History</h2>
-          <div class="info-list">
-             <div>
-              Ph.D in Mechanical Engineering
-              <span><br>@ Vanderbilt University (Current)</span>
-            </div>
-            <div>
-              Master of Science in Mechanical Engineering (Research)
-              <span><br>@ Johns Hopkins University (May 2026)</span>
-            </div>
-            <div>
-              Master of Science in Bioengineering (Co-Op)
-              <span><br>@ George Mason University (May 2025)</span>
-            </div>
-            <div>
-              Bachelor of Science in Bioengineering
-              <span><br>@ George Mason University (May 2024)</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>Professional Interests</h2>
-          <p>
-            Robotics, haptics, rehabilitation engineering, wearable devices, human-in-the-loop systems, experimental design,
-            medical devices, science and technology policy.
+    <main id="main">
+      <section class="hero on-stage" aria-label="Introduction">
+        <div class="hero-field" data-pin-field aria-hidden="true"></div>
+        <div class="wrap hero-inner">
+          <p class="eyebrow" data-enter style="--d: 0.1s">Mechanical Engineering Ph.D. · Vanderbilt University</p>
+          <h1 class="display">
+            <span class="line-mask"><span style="--d: 0.2s">Engineering</span></span>
+            <span class="line-mask"><span style="--d: 0.32s">you can <em>feel.</em></span></span>
+          </h1>
+          <p class="hero-sub" data-enter style="--d: 0.55s">
+            I’m <strong>Berk Kasimcan</strong>, a mechanical engineer and researcher working where robotics, haptics,
+            and healthcare meet. I build affordable, accessible systems that serve real people.
           </p>
-          <h2>Personal Interests</h2>
-          <p>
-            Formula 1 | Basketball | Soccer | Rocketry | Baking and Cooking | Music.
-          </p>
+          <div class="hero-cta" data-enter style="--d: 0.7s">
+            <a class="btn" href="projects.html">See the work <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn btn-ghost" href="resume.html">Résumé</a>
+          </div>
+          <div class="hero-meta" data-enter style="--d: 0.9s">
+            <div><b>Now</b><span>Ph.D., Vanderbilt</span></div>
+            <div><b>Before</b><span>Johns Hopkins · George Mason · Harvard Wyss</span></div>
+            <div class="hero-hint"><b>Interactive</b><span><i class="dot"></i><span class="hint-text">Move across the pins</span></span></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="marquee" aria-hidden="true">
+        <div class="marquee-track">
+          <span>Robotics</span><span>Haptics</span><span>Rehabilitation</span><span>Wearables</span><span>Medical devices</span><span>Human-in-the-loop</span><span>Biomechanics</span><span>Tech policy</span>
+          <span>Robotics</span><span>Haptics</span><span>Rehabilitation</span><span>Wearables</span><span>Medical devices</span><span>Human-in-the-loop</span><span>Biomechanics</span><span>Tech policy</span>
         </div>
       </div>
 
-      <div class="stack">
-        <div class="card">
-          <h2>Contact</h2>
-          <div class="info-list">
-            <div>LinkedIn: <span><a href="https://www.linkedin.com/in/berkonas21/" target="_blank" rel="noopener">linkedin.com/in/berkonas21</a></span></div>
-            <div>Email: <span><a href="mailto:berk.kasimcan@vanderbilt.edu">berk.kasimcan@vanderbilt.edu</a></span></div>
-          </div>
-        </div>
-        <div class="card">
-          <h2>Quick Links</h2>
-          <div class="info-list">
-            <div><a href="projects.html">Projects & Research</a></div>
-            <div><a href="gallery.html">Gallery</a></div>
-            <div><a href="resume.html">Resume</a></div>
-          </div>
-        </div>
-      </div>
-    </section>
+      <section class="section" id="about" aria-labelledby="about-title">
+        <div class="wrap about-grid">
+          <figure class="portrait" data-reveal="scale">
+            <div class="portrait-frame" data-parallax>
+              <img
+                src="assets/optimized/images/profile/IMG_0313-960.jpg"
+                srcset="assets/optimized/images/profile/IMG_0313-480.jpg 480w, assets/optimized/images/profile/IMG_0313-960.jpg 960w, assets/optimized/images/profile/IMG_0313-1440.jpg 1440w, assets/optimized/images/profile/IMG_0313.jpg 1800w"
+                sizes="(max-width: 900px) 92vw, 440px"
+                alt="Portrait of Berk Kasimcan smiling in a brown corduroy jacket"
+                width="1440"
+                height="1800"
+                loading="lazy"
+                decoding="async"
+                onerror="this.onerror=null;this.removeAttribute('srcset');this.removeAttribute('sizes');this.src='assets/optimized/images/profile/IMG_0313.jpg';"
+              />
+            </div>
+            <figcaption><span>Berk Kasimcan</span><span>Engineer · Researcher</span></figcaption>
+          </figure>
 
-    <footer class="footer">
-      Built by Berk Kasimcan • Robotics, Haptics, Healthcare
+          <div>
+            <p class="eyebrow" id="about-title" data-reveal>About</p>
+            <p class="statement" data-words>
+              My work is driven by a simple goal: designing systems that are <em>affordable,</em> <em>accessible,</em>
+              and genuinely useful for real people.
+            </p>
+            <div class="about-body">
+              <p data-reveal>
+                I’m a mechanical engineer and researcher building human-centered technology at the intersection of
+                robotics, haptics, and healthcare. I combine mechanical and biomedical engineering to help people, whether
+                that means an engineering solution, policy writing, or volunteering.
+              </p>
+              <p data-reveal>
+                Beyond titles and degrees, I’m motivated by curiosity and hands-on problem solving. Whether I’m prototyping
+                a new haptic device, digging into interdisciplinary research, or experimenting in the kitchen, I learn by
+                doing. This site is a snapshot of my work and the interests that shape how I think and build.
+              </p>
+            </div>
+            <div class="stats" data-reveal>
+              <div class="stat"><span class="stat-num" data-count="4">4</span><span class="stat-label">Degrees, B.S. to Ph.D.</span></div>
+              <div class="stat"><span class="stat-num" data-count="4" data-count-source="institutions">4</span><span class="stat-label">Universities &amp; labs</span></div>
+              <div class="stat"><span class="stat-num" data-count-source="projects">8</span><span class="stat-label">Featured projects</span></div>
+              <div class="stat"><span class="stat-num" data-count-source="courses">27</span><span class="stat-label">Courses counted</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" style="padding-top: 0" aria-labelledby="path-title">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow" data-reveal>The path so far</p>
+              <h2 class="h2" id="path-title" data-reveal>From bioengineering <em>to</em> robots that touch.</h2>
+            </div>
+          </div>
+          <ol class="path" data-path>
+            <li data-reveal style="--d: 0s">
+              <span class="path-year">2024</span>
+              <h3 class="path-degree">B.S. Bioengineering</h3>
+              <p class="path-school">George Mason University</p>
+            </li>
+            <li data-reveal style="--d: 0.08s">
+              <span class="path-year">2025</span>
+              <h3 class="path-degree">M.S. Bioengineering (Co-Op)</h3>
+              <p class="path-school">George Mason University</p>
+            </li>
+            <li data-reveal style="--d: 0.16s">
+              <span class="path-year">2026</span>
+              <h3 class="path-degree">M.S. Mechanical Engineering (Research)</h3>
+              <p class="path-school">Johns Hopkins University</p>
+            </li>
+            <li class="is-now" data-reveal style="--d: 0.24s">
+              <span class="path-year">Now</span>
+              <h3 class="path-degree">Ph.D. Mechanical Engineering</h3>
+              <p class="path-school">Vanderbilt University</p>
+              <span class="path-note">In progress</span>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section on-stage" aria-labelledby="focus-title">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow" data-reveal>What I work on</p>
+              <h2 class="h2" id="focus-title" data-reveal>Machines built around <em>people.</em></h2>
+            </div>
+          </div>
+          <div class="focus-grid">
+            <article class="focus-card" data-reveal style="--d: 0s">
+              <span class="focus-num">01</span>
+              <svg class="focus-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="24" cy="24" r="4"/><path d="M14 24a10 10 0 0 1 20 0M8 24a16 16 0 0 1 32 0"/><path d="M24 28v12"/></svg>
+              <h3>Haptics</h3>
+              <p>Interfaces that turn information into touch, from a vibrotactile navigation belt to studies of how people match intensity across senses.</p>
+            </article>
+            <article class="focus-card" data-reveal style="--d: 0.08s">
+              <span class="focus-num">02</span>
+              <svg class="focus-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 40h14"/><path d="M17 40V30l8-12 10 4"/><circle cx="17" cy="30" r="2.5"/><circle cx="25" cy="18" r="2.5"/><path d="M35 22l3-5M35 22l4 1"/></svg>
+              <h3>Robotics</h3>
+              <p>Kinematics, dynamics, and control for manipulators and human-in-the-loop systems, like resolved-rate and IK control on a UR5.</p>
+            </article>
+            <article class="focus-card" data-reveal style="--d: 0.16s">
+              <span class="focus-num">03</span>
+              <svg class="focus-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 40V24M18 24c0-4-4-6-4-10a4 4 0 0 1 8 0v10"/><path d="M22 20v-8a3 3 0 0 1 6 0v10M28 18a3 3 0 0 1 6 0v8c0 8-4 14-10 14"/></svg>
+              <h3>Rehab &amp; wearables</h3>
+              <p>Rehabilitation engineering, prosthetics, and wearable devices that restore and extend what bodies can do.</p>
+            </article>
+            <article class="focus-card" data-reveal style="--d: 0.24s">
+              <span class="focus-num">04</span>
+              <svg class="focus-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 26h8l4-10 6 20 5-14 3 4h10"/></svg>
+              <h3>Healthcare &amp; policy</h3>
+              <p>Medical devices, telemedicine, and the science and technology policy that gets them to the people who need them.</p>
+            </article>
+          </div>
+          <div class="interest-cloud" data-reveal>
+            <span class="chip">Robotics</span><span class="chip">Haptics</span><span class="chip">Rehabilitation engineering</span><span class="chip">Wearable devices</span><span class="chip">Human-in-the-loop systems</span><span class="chip">Experimental design</span><span class="chip">Medical devices</span><span class="chip">Science &amp; technology policy</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="work-title">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow" data-reveal>Selected work</p>
+              <h2 class="h2" id="work-title" data-reveal>Built, tested, <em>shipped.</em></h2>
+            </div>
+            <a class="btn btn-ghost" href="projects.html" data-reveal>All projects <span class="arrow" aria-hidden="true">→</span></a>
+          </div>
+          <div class="work-grid" id="featured-work"></div>
+        </div>
+      </section>
+
+      <section class="section" style="padding-top: 0" aria-labelledby="life-title">
+        <div class="wrap">
+          <p class="eyebrow" id="life-title" data-reveal>Off the clock</p>
+          <ul class="life-words" data-reveal>
+            <li><span>Formula 1</span></li>
+            <li><span>Basketball</span></li>
+            <li><span>Soccer</span></li>
+            <li><span>Rocketry</span></li>
+            <li><span>Baking &amp; cooking</span></li>
+            <li><span>Music</span></li>
+          </ul>
+        </div>
+        <a class="film" href="gallery.html" aria-label="Open the photo gallery" data-reveal="fade">
+          <div class="film-track" id="film-track"></div>
+        </a>
+      </section>
+
+      <section class="contact on-stage" id="contact" aria-labelledby="contact-title">
+        <div class="wrap">
+          <p class="eyebrow" data-reveal>Contact</p>
+          <h2 class="display" id="contact-title" data-reveal>Let’s build something that <em>helps.</em></h2>
+          <div class="contact-mail" data-reveal>
+            <a class="mail-link" href="mailto:berk.kasimcan@vanderbilt.edu">berk.kasimcan@vanderbilt.edu</a>
+            <button class="copy-btn" type="button" data-copy="berk.kasimcan@vanderbilt.edu">Copy</button>
+          </div>
+          <div class="contact-links" data-reveal>
+            <a class="btn" href="https://www.linkedin.com/in/berkonas21/" target="_blank" rel="noopener">LinkedIn <span class="arrow" aria-hidden="true">↗</span></a>
+            <a class="btn btn-ghost" href="assets/Kasimcan_Berk_CV.pdf" download>Download CV</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer on-stage">
+      <div class="wrap footer-row">
+        <span>© <span data-year>2026</span> Berk Kasimcan. Designed and built by hand.</span>
+        <nav class="footer-links" aria-label="Footer">
+          <a href="projects.html">Projects</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="https://www.linkedin.com/in/berkonas21/" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="#main">Back to top ↑</a>
+        </nav>
+      </div>
     </footer>
   </div>
-  <script src="script.js?v=20260927a" defer></script>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.159.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script src="script.js?v=20260927f" defer></script>
+  <script type="module" src="pin-field.js?v=20260927f"></script>
 </body>
 </html>
