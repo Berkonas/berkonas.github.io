@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Berk Kasimcan | Robotics, Haptics, Healthcare</title>
   <meta name="description" content="Berk Kasimcan is a mechanical engineer and Ph.D. researcher at Vanderbilt building human-centered systems across robotics, haptics, and healthcare." />
-  <meta name="theme-color" content="#0d0e11" />
+  <meta name="theme-color" content="#091526" />
   <link rel="canonical" href="https://berkonas.github.io/" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="assets/og/apple-touch-icon.png" />
@@ -14,7 +14,7 @@
   <meta property="og:title" content="Berk Kasimcan | Robotics, Haptics, Healthcare" />
   <meta property="og:description" content="Mechanical engineer and Ph.D. researcher at Vanderbilt building human-centered systems across robotics, haptics, and healthcare." />
   <meta property="og:url" content="https://berkonas.github.io/" />
-  <meta property="og:image" content="https://berkonas.github.io/assets/og/og-image.jpg" />
+  <meta property="og:image" content="https://berkonas.github.io/assets/og/og-image.jpg?v=2" />
   <meta property="og:image:type" content="image/jpeg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -22,12 +22,12 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Berk Kasimcan | Robotics, Haptics, Healthcare" />
   <meta name="twitter:description" content="Mechanical engineer and Ph.D. researcher at Vanderbilt building human-centered systems across robotics, haptics, and healthcare." />
-  <meta name="twitter:image" content="https://berkonas.github.io/assets/og/og-image.jpg" />
+  <meta name="twitter:image" content="https://berkonas.github.io/assets/og/og-image.jpg?v=2" />
   <script>document.documentElement.classList.add("js");</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="site.css?v=20260927g" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="site.css?v=20260927h" />
   <link rel="modulepreload" href="https://unpkg.com/three@0.159.0/build/three.module.js" crossorigin />
 </head>
 <body class="home">
@@ -87,24 +87,27 @@
       <section class="section" id="about" aria-labelledby="about-title">
         <div class="wrap about-grid">
           <figure class="portrait" data-reveal="scale">
-            <div class="portrait-frame" data-parallax>
-              <img
-                src="assets/optimized/images/profile/IMG_0313-960.jpg"
-                srcset="assets/optimized/images/profile/IMG_0313-480.jpg 480w, assets/optimized/images/profile/IMG_0313-960.jpg 960w, assets/optimized/images/profile/IMG_0313-1440.jpg 1440w, assets/optimized/images/profile/IMG_0313.jpg 1800w"
-                sizes="(max-width: 900px) 92vw, 440px"
-                alt="Portrait of Berk Kasimcan smiling in a brown corduroy jacket"
-                width="1440"
-                height="1800"
-                loading="lazy"
-                decoding="async"
-                onerror="this.onerror=null;this.removeAttribute('srcset');this.removeAttribute('sizes');this.src='assets/optimized/images/profile/IMG_0313.jpg';"
-              />
+            <div class="portrait-stage">
+              <span class="portrait-ticks" aria-hidden="true"></span>
+              <div class="portrait-frame" data-parallax>
+                <img
+                  src="assets/optimized/images/profile/IMG_0313-960.jpg"
+                  srcset="assets/optimized/images/profile/IMG_0313-480.jpg 480w, assets/optimized/images/profile/IMG_0313-960.jpg 960w, assets/optimized/images/profile/IMG_0313-1440.jpg 1440w, assets/optimized/images/profile/IMG_0313.jpg 1800w"
+                  sizes="(max-width: 900px) 92vw, 440px"
+                  alt="Portrait of Berk Kasimcan smiling in a brown corduroy jacket"
+                  width="1440"
+                  height="1800"
+                  loading="lazy"
+                  decoding="async"
+                  onerror="this.onerror=null;this.removeAttribute('srcset');this.removeAttribute('sizes');this.src='assets/optimized/images/profile/IMG_0313.jpg';"
+                />
+              </div>
             </div>
-            <figcaption><span>Berk Kasimcan</span><span>Engineer · Researcher</span></figcaption>
+            <figcaption><span>Fig. 01 · Berk Kasimcan</span><span>Nashville, TN</span></figcaption>
           </figure>
 
           <div>
-            <p class="eyebrow" id="about-title" data-reveal>About</p>
+            <p class="eyebrow" id="about-title" data-reveal><span class="idx">01</span> About</p>
             <p class="statement" data-words>
               My work is driven by a simple goal: designing systems that are <em>affordable,</em> <em>accessible,</em>
               and genuinely useful for real people.
@@ -135,7 +138,7 @@
         <div class="wrap">
           <div class="section-head">
             <div>
-              <p class="eyebrow" data-reveal>The path so far</p>
+              <p class="eyebrow" data-reveal><span class="idx">02</span> The path so far</p>
               <h2 class="h2" id="path-title" data-reveal>From bioengineering <em>to</em> robots that touch.</h2>
             </div>
           </div>
@@ -165,11 +168,11 @@
         </div>
       </section>
 
-      <section class="section on-stage" aria-labelledby="focus-title">
+      <section class="section on-stage grid-bg" aria-labelledby="focus-title">
         <div class="wrap">
           <div class="section-head">
             <div>
-              <p class="eyebrow" data-reveal>What I work on</p>
+              <p class="eyebrow" data-reveal><span class="idx">03</span> What I work on</p>
               <h2 class="h2" id="focus-title" data-reveal>Machines built around <em>people.</em></h2>
             </div>
           </div>
@@ -209,7 +212,7 @@
         <div class="wrap">
           <div class="section-head">
             <div>
-              <p class="eyebrow" data-reveal>Selected work</p>
+              <p class="eyebrow" data-reveal><span class="idx">04</span> Selected work</p>
               <h2 class="h2" id="work-title" data-reveal>Built, tested, <em>shipped.</em></h2>
             </div>
             <a class="btn btn-ghost" href="projects.html" data-reveal>All projects <span class="arrow" aria-hidden="true">→</span></a>
@@ -220,7 +223,7 @@
 
       <section class="section" style="padding-top: 0" aria-labelledby="life-title">
         <div class="wrap">
-          <p class="eyebrow" id="life-title" data-reveal>Off the clock</p>
+          <p class="eyebrow" id="life-title" data-reveal><span class="idx">05</span> Off the clock</p>
           <ul class="life-words" data-reveal>
             <li><span>Formula 1</span></li>
             <li><span>Basketball</span></li>
@@ -235,9 +238,9 @@
         </a>
       </section>
 
-      <section class="contact on-stage" id="contact" aria-labelledby="contact-title">
+      <section class="contact on-stage grid-bg" id="contact" aria-labelledby="contact-title">
         <div class="wrap">
-          <p class="eyebrow" data-reveal>Contact</p>
+          <p class="eyebrow" data-reveal><span class="idx">06</span> Contact</p>
           <h2 class="display" id="contact-title" data-reveal>Let’s build something that <em>helps.</em></h2>
           <div class="contact-mail" data-reveal>
             <a class="mail-link" href="mailto:berk.kasimcan@vanderbilt.edu">berk.kasimcan@vanderbilt.edu</a>
@@ -274,7 +277,7 @@
       }
     }
   </script>
-  <script src="script.js?v=20260927g" defer></script>
-  <script type="module" src="pin-field.js?v=20260927g"></script>
+  <script src="script.js?v=20260927h" defer></script>
+  <script type="module" src="pin-field.js?v=20260927h"></script>
 </body>
 </html>

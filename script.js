@@ -1277,7 +1277,71 @@ function initHeroEntrance() {
   if (!hero) return;
   const hint = hero.querySelector(".hint-text");
   if (hint && window.matchMedia("(pointer: coarse)").matches) hint.textContent = "Tap the pins";
-  requestAnimationFrame(() => requestAnimationFrame(() => hero.classList.add("is-entered")));
+  const enter = () => requestAnimationFrame(() => requestAnimationFrame(() => hero.classList.add("is-entered")));
+  playIntro(enter);
+}
+
+// First visit per session: the site is "drafted" on a blueprint sheet, then
+// the sheet lifts away to reveal the hero. Click, key, or scroll skips it.
+const INTRO_KEY = "bk-intro-drafted";
+
+function playIntro(onReveal) {
+  let seen = false;
+  try {
+    seen = sessionStorage.getItem(INTRO_KEY) === "1";
+    sessionStorage.setItem(INTRO_KEY, "1");
+  } catch (err) {
+    seen = false;
+  }
+  if (seen || prefersReducedMotion()) {
+    onReveal();
+    return;
+  }
+
+  // Monoline "BK" on a 120 unit sheet; lengths feed the stroke-draw animation.
+  const intro = document.createElement("div");
+  intro.className = "intro";
+  intro.setAttribute("aria-hidden", "true");
+  intro.innerHTML = `
+    <div class="intro-grid"></div>
+    <div class="intro-axis x"></div>
+    <div class="intro-axis y"></div>
+    <div class="intro-mark">
+      <svg viewBox="10 0 120 120">
+        <circle class="draw circle" cx="70" cy="60" r="58" style="--len: 365; --at: 0.15s; --dur: 1s" transform="rotate(-90 70 60)"/>
+        <path class="construct fade" d="M22 20H118M22 100H118" style="--at: 0.35s"/>
+        <path class="draw glyph" d="M22 100V20H44a18 18 0 0 1 0 36H22M22 56H48a22 22 0 0 1 0 44H22" style="--len: 330; --at: 0.45s; --dur: 0.95s"/>
+        <path class="draw glyph" d="M86 20V100M116 20L86 66M97.7 48.4L118 100" style="--len: 200; --at: 0.7s; --dur: 0.8s"/>
+        <path class="draw dim" d="M22 112H118M22 109V115M118 109V115" style="--len: 110; --at: 1s; --dur: 0.5s"/>
+        <text class="fade" x="70" y="121" text-anchor="middle" style="--at: 1.2s">B. KASIMCAN</text>
+        <path class="draw dim" d="M132 20V100M129 20H135M129 100H135" style="--len: 95; --at: 1.05s; --dur: 0.5s"/>
+        <text class="fade" x="137" y="62" style="--at: 1.25s">80.0</text>
+      </svg>
+    </div>
+    <div class="intro-corner tl" style="--at: 0.3s"><b>Berk Kasimcan</b><span>Mechanical engineering</span></div>
+    <div class="intro-corner tr" style="--at: 0.45s"><b>Sheet 01 / 06</b><span>Rev 2026.09</span></div>
+    <div class="intro-corner bl" style="--at: 0.6s"><span>Johns Hopkins · George Mason</span><b>Vanderbilt</b></div>
+    <div class="intro-corner br" style="--at: 0.75s"><span>Robotics · Haptics</span><b>Healthcare</b></div>
+    <div class="intro-bar"></div>
+  `;
+  document.documentElement.classList.add("intro-lock");
+  document.body.appendChild(intro);
+
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    intro.classList.add("is-leaving");
+    document.documentElement.classList.remove("intro-lock");
+    window.setTimeout(onReveal, 280);
+    window.setTimeout(() => intro.remove(), 1000);
+    window.removeEventListener("keydown", finish);
+    window.removeEventListener("wheel", finish);
+  };
+  intro.addEventListener("click", finish);
+  window.addEventListener("keydown", finish);
+  window.addEventListener("wheel", finish, { passive: true });
+  window.setTimeout(finish, 2000);
 }
 
 // --- Shared ----------------------------------------------------------------
@@ -1462,11 +1526,11 @@ function createModelViewer(container) {
   controls.autoRotate = !prefersReducedMotion();
   controls.autoRotateSpeed = 1.2;
 
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xc9c4ba, 2.2));
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xc4ccd8, 2.2));
   const key = new THREE.DirectionalLight(0xffffff, 2.4);
   key.position.set(3, 4, 2);
   scene.add(key);
-  const warm = new THREE.DirectionalLight(0xff8a5c, 1.1);
+  const warm = new THREE.DirectionalLight(0xd4ac5e, 1.1);
   warm.position.set(-3, 1.5, -2);
   scene.add(warm);
 
