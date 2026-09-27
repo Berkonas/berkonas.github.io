@@ -47,9 +47,23 @@
       Built by Berk Kasimcan • Projects
     </footer>
   </div>
-  <script src="https://unpkg.com/three@0.159.0/build/three.min.js" defer></script>
-  <script src="https://unpkg.com/three@0.159.0/examples/js/controls/OrbitControls.js" defer></script>
-  <script src="https://unpkg.com/three@0.159.0/examples/js/loaders/GLTFLoader.js" defer></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.159.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module">
+    // three.js dropped the examples/js/ globals in r148, so load the ES modules
+    // and expose them on window.THREE for script.js. Module scripts run in
+    // document order with deferred scripts, so this finishes before script.js.
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+    window.THREE = { ...THREE, OrbitControls, GLTFLoader };
+  </script>
   <script src="script.js?v=20260422c" defer></script>
 </body>
 </html>
