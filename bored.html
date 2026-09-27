@@ -4,23 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bored? | Berk Kasimcan</title>
-  <meta name="description" content="Three quick games with a Berk twist: a word puzzle, a snake run, and a rotating joke or quote." />
+  <meta name="description" content="Bionic Playground: control a myoelectric prosthetic hand, tune a prosthetic gait, and drive a robot arm, right in your browser." />
   <link rel="canonical" href="https://berkonas.github.io/bored.html" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Berk Kasimcan" />
   <meta property="og:title" content="Bored? | Berk Kasimcan" />
-  <meta property="og:description" content="Three quick games with a Berk twist: a word puzzle, a snake run, and a rotating joke or quote." />
+  <meta property="og:description" content="Bionic Playground: control a myoelectric prosthetic hand, tune a prosthetic gait, and drive a robot arm, right in your browser." />
   <meta property="og:url" content="https://berkonas.github.io/bored.html" />
   <meta property="og:image" content="https://berkonas.github.io/assets/optimized/images/profile/IMG_0313-960.jpg" />
   <meta property="og:image:alt" content="Portrait of Berk Kasimcan" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Bored? | Berk Kasimcan" />
-  <meta name="twitter:description" content="Three quick games with a Berk twist: a word puzzle, a snake run, and a rotating joke or quote." />
+  <meta name="twitter:description" content="Bionic Playground: control a myoelectric prosthetic hand, tune a prosthetic gait, and drive a robot arm, right in your browser." />
   <meta name="twitter:image" content="https://berkonas.github.io/assets/optimized/images/profile/IMG_0313-960.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260927b" />
+  <link rel="stylesheet" href="styles.css?v=20260927h" />
 </head>
 <body class="bored-page">
   <div class="page">
@@ -43,65 +43,175 @@
       </nav>
     </header>
 
-    <section class="section">
-      <h1 class="page-title">Bored? Let’s Play.</h1>
-      <p>
-        Three quick games with a Berk twist. Play a word puzzle, challenge a snake run, and get a rotating joke or quote.
-      </p>
+    <section class="section bionic">
+      <div class="bionic-hero">
+        <p class="bionic-eyebrow">Bored? Step into the lab.</p>
+        <h1 class="page-title">Bionic Playground</h1>
+        <p>
+          Three live simulations from the world I work in. Drive a prosthetic hand with your own "muscle" signal,
+          watch how a prosthetic leg changes the way someone walks, and take the controls of a robot arm.
+        </p>
+      </div>
 
-      <div class="stack games-stack">
-        <div class="card game-card" data-game="wordle">
-          <div class="game-head">
-            <h2>Wordle-ish</h2>
-            <button class="button secondary" id="wordle-reset" type="button">New Word</button>
+      <div class="lab-tabs" role="tablist" aria-label="Simulations">
+        <button class="lab-tab" type="button" role="tab" id="tab-myo" aria-controls="lab-myo" aria-selected="true" data-lab="myo">
+          <span class="lab-tab-kicker">01 · Prosthetics</span>
+          <span class="lab-tab-title">Myo Hand</span>
+          <span class="lab-tab-sub">Flex to grip. Don't crush the egg.</span>
+        </button>
+        <button class="lab-tab" type="button" role="tab" id="tab-gait" aria-controls="lab-gait" aria-selected="false" tabindex="-1" data-lab="gait">
+          <span class="lab-tab-kicker">02 · Biomechanics</span>
+          <span class="lab-tab-title">Gait Lab</span>
+          <span class="lab-tab-sub">Swap in a prosthetic knee and ankle.</span>
+        </button>
+        <button class="lab-tab" type="button" role="tab" id="tab-arm" aria-controls="lab-arm" aria-selected="false" tabindex="-1" data-lab="arm">
+          <span class="lab-tab-kicker">03 · Robotics</span>
+          <span class="lab-tab-title">Reach Bot</span>
+          <span class="lab-tab-sub">Inverse kinematics you can feel.</span>
+        </button>
+      </div>
+
+      <!-- Myo Hand -->
+      <div class="lab" id="lab-myo" role="tabpanel" aria-labelledby="tab-myo">
+        <div class="lab-stage lab-stage-myo">
+          <canvas id="myo-canvas" aria-label="Simulated EMG signal and a prosthetic hand gripping an object"></canvas>
+          <div class="flex-pad" id="flex-pad" role="slider" tabindex="0" aria-label="Muscle contraction" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="flex-pad-fill" id="flex-pad-fill"></div>
+            <span class="flex-pad-label">Flex</span>
+            <span class="flex-pad-hint">press higher = squeeze harder</span>
           </div>
-          <p class="game-sub">Guess the five-letter mystery word in six tries. Words rotate from Berk’s research vocabulary.</p>
-          <div id="wordle-board" class="wordle-board"></div>
-          <div id="wordle-keyboard" class="wordle-keyboard"></div>
-          <div id="wordle-status" class="game-status" aria-live="polite"></div>
         </div>
-
-        <div class="card game-card" data-game="snake">
-          <div class="game-head">
-            <h2>Snake Break</h2>
-            <button class="button secondary" id="snake-reset" type="button">New Game</button>
-          </div>
-          <p class="game-sub">Classic snake. Use arrow keys or WASD (or swipe on the board), grab the dots, don’t hit the wall.</p>
-          <div class="snake-wrap">
-            <canvas id="snake-canvas" width="420" height="420" aria-label="Snake game"></canvas>
-            <div class="snake-panel">
-              <div class="game-status" id="snake-status" aria-live="polite">Press an arrow key, WASD, or swipe to start.</div>
-              <div class="quote-card" id="snake-quote">Ready to chase the next idea.</div>
-              <div class="snake-score">Score: <span id="snake-score">0</span></div>
-              <div class="snake-pad" aria-label="Snake controls">
-                <button class="key" type="button" data-dir="up" aria-label="Up">▲</button>
-                <button class="key" type="button" data-dir="left" aria-label="Left">◀</button>
-                <button class="key" type="button" data-dir="down" aria-label="Down">▼</button>
-                <button class="key" type="button" data-dir="right" aria-label="Right">▶</button>
-              </div>
+        <aside class="lab-panel">
+          <div class="lab-readout">
+            <div>
+              <span class="lab-label">Object</span>
+              <strong id="myo-object">Tennis ball</strong>
+              <span class="lab-small" id="myo-band">Safe grip 5–30 N</span>
+            </div>
+            <div>
+              <span class="lab-label">Clean lifts</span>
+              <strong id="myo-score">0</strong>
+              <span class="lab-small" id="myo-best">Streak 0</span>
             </div>
           </div>
-        </div>
-
-        <div class="card game-card">
-          <div class="game-head">
-            <h2>Dad Joke / Quote of the Day</h2>
-            <button class="button secondary" id="joke-next" type="button">Another One</button>
+          <p class="lab-status" id="myo-status" aria-live="polite">Press and hold the Flex pad (or Space) to close the hand. Hold the grip in the green band to lift it.</p>
+          <label class="lab-toggle">
+            <input type="checkbox" id="myo-feedback" checked />
+            <span>Haptic feedback (force meter + phone buzz)</span>
+          </label>
+          <label class="lab-range">
+            <span>Smoothing window <b id="myo-window-val">150 ms</b></span>
+            <input type="range" id="myo-window" min="30" max="400" step="10" value="150" />
+          </label>
+          <label class="lab-range">
+            <span>Activation threshold <b id="myo-thr-val">12%</b></span>
+            <input type="range" id="myo-thr" min="4" max="40" step="1" value="12" />
+          </label>
+          <div class="lab-actions">
+            <button class="button secondary" type="button" id="myo-next">Skip object</button>
           </div>
-          <p class="game-sub">A rotating dose of fun at the bottom of the screen.</p>
-          <div class="joke-preview" id="joke-preview">Loading fun…</div>
+          <details class="lab-explain">
+            <summary>What's going on?</summary>
+            <p>
+              Myoelectric prostheses read the tiny electrical signal (EMG) your muscles make when they contract.
+              The raw signal is noisy, so it's rectified and smoothed into an envelope. Anything above a threshold
+              drives the motors in proportion to how hard you flex. A longer smoothing window means a calmer signal but a laggier hand.
+            </p>
+            <p>
+              Most prosthetic hands give no sense of touch, so users grip by eye. Turn off haptic feedback to feel how hard that is.
+            </p>
+          </details>
+        </aside>
+      </div>
+
+      <!-- Gait Lab -->
+      <div class="lab" id="lab-gait" role="tabpanel" aria-labelledby="tab-gait" hidden>
+        <div class="lab-stage">
+          <canvas id="gait-canvas" aria-label="Walking figure on a treadmill with hip, knee and ankle angle plots"></canvas>
         </div>
+        <aside class="lab-panel">
+          <div class="lab-seg" role="radiogroup" aria-label="Right leg">
+            <button type="button" role="radio" aria-checked="true" data-gait-mode="bio">Biological</button>
+            <button type="button" role="radio" aria-checked="false" data-gait-mode="passive">Passive prosthesis</button>
+            <button type="button" role="radio" aria-checked="false" data-gait-mode="powered">Powered prosthesis</button>
+          </div>
+          <div class="lab-readout lab-readout-3">
+            <div><span class="lab-label">Cadence</span><strong id="gait-cadence">0</strong><span class="lab-small">steps/min</span></div>
+            <div><span class="lab-label">Symmetry</span><strong id="gait-sym">100%</strong><span class="lab-small">step timing</span></div>
+            <div><span class="lab-label">Energy</span><strong id="gait-energy">Baseline</strong><span class="lab-small">vs. typical walker</span></div>
+          </div>
+          <p class="lab-status" id="gait-phase" aria-live="off">Right leg: mid stance</p>
+          <label class="lab-range">
+            <span>Walking speed <b id="gait-speed-val">1.3 m/s</b></span>
+            <input type="range" id="gait-speed" min="0.5" max="2" step="0.05" value="1.3" />
+          </label>
+          <label class="lab-range">
+            <span>Gait cycle <b id="gait-scrub-val">0%</b></span>
+            <input type="range" id="gait-scrub" min="0" max="100" step="0.5" value="0" aria-label="Scrub through the gait cycle" />
+          </label>
+          <div class="lab-actions">
+            <button class="button secondary" type="button" id="gait-play">Pause</button>
+            <label class="lab-toggle lab-toggle-inline"><input type="checkbox" id="gait-forces" checked /><span>Show forces</span></label>
+          </div>
+          <details class="lab-explain">
+            <summary>What's going on?</summary>
+            <p>
+              The joint curves follow the classic shape of healthy walking. A passive prosthetic knee stays straight
+              while it carries weight and the carbon foot can't push off, so the body vaults over a stiff leg and the
+              other side works harder. Powered knees and ankles add motors to put that push-off back.
+            </p>
+            <p>The energy and symmetry numbers are illustrative, based on typical ranges in gait research.</p>
+          </details>
+        </aside>
+      </div>
+
+      <!-- Reach Bot -->
+      <div class="lab" id="lab-arm" role="tabpanel" aria-labelledby="tab-arm" hidden>
+        <div class="lab-stage">
+          <canvas id="arm-canvas" aria-label="Robot arm that follows your pointer using inverse kinematics"></canvas>
+        </div>
+        <aside class="lab-panel">
+          <div class="lab-readout">
+            <div><span class="lab-label">Challenge</span><strong id="arm-score">–</strong><span class="lab-small" id="arm-best">Best 0</span></div>
+            <div><span class="lab-label">Gripper at</span><strong id="arm-pos">0, 0</strong><span class="lab-small">x, y in mm</span></div>
+          </div>
+          <p class="lab-status" id="arm-status" aria-live="polite">Move your cursor or drag on the stage. The arm solves inverse kinematics every frame.</p>
+          <div class="lab-seg" role="radiogroup" aria-label="Number of joints">
+            <button type="button" role="radio" aria-checked="false" data-arm-links="2">2 joints</button>
+            <button type="button" role="radio" aria-checked="true" data-arm-links="3">3 joints</button>
+            <button type="button" role="radio" aria-checked="false" data-arm-links="4">4 joints</button>
+          </div>
+          <label class="lab-range">
+            <span>Motor speed <b id="arm-speed-val">180°/s</b></span>
+            <input type="range" id="arm-speed" min="30" max="720" step="10" value="180" />
+          </label>
+          <label class="lab-range">
+            <span>Payload <b id="arm-load-val">1.0 kg</b></span>
+            <input type="range" id="arm-load" min="0" max="5" step="0.5" value="1" />
+          </label>
+          <div class="torque-bars" id="arm-torques" aria-label="Gravity torque at each joint"></div>
+          <div class="lab-actions">
+            <button class="button" type="button" id="arm-challenge">Start 30 s challenge</button>
+            <label class="lab-toggle lab-toggle-inline"><input type="checkbox" id="arm-ink" /><span>Ink trail</span></label>
+          </div>
+          <details class="lab-explain">
+            <summary>What's going on?</summary>
+            <p>
+              The arm uses FABRIK, an iterative inverse kinematics solver, to find joint angles that put the gripper
+              on your target. Each motor is speed limited, so it can't teleport. The bars show how much torque each
+              joint needs just to hold the arm and payload against gravity, which is why the base motor is always the biggest.
+            </p>
+          </details>
+        </aside>
       </div>
     </section>
 
-    <div class="joke-bar" id="joke-bar" aria-live="polite"></div>
-
     <footer class="footer">
-      Built by Berk Kasimcan • Bored Zone
+      Built by Berk Kasimcan • Bionic Playground
     </footer>
   </div>
 
   <script src="script.js?v=20260927a" defer></script>
-  <script src="bored.js?v=20260927a"></script>
+  <script src="bored.js?v=20260927c" defer></script>
 </body>
 </html>
