@@ -1,0 +1,17 @@
+# macOS Finder metadata
+.DS_Store
+
+# Original media stays on your machine, not in the repo.
+# The site serves resized copies from assets/optimized/ (see scripts/optimize-images.sh).
+assets/**/*.png
+assets/**/*.PNG
+assets/**/*.jpg
+assets/**/*.JPG
+assets/**/*.jpeg
+assets/**/*.JPEG
+assets/**/*.heic
+assets/**/*.HEIC
+assets/**/*.mp4
+assets/**/*.mov
+assets/**/*.MOV
+!assets/optimized/**
