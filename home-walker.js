@@ -4,6 +4,9 @@
 // standard anthropometric ratios. Johansson showed in 1973 that dots alone are
 // enough for people to see a person walking. Move the pointer to turn it;
 // hover to reveal the skeleton. Type "tr" or "us" (or triple-click) for a flag.
+// Behind it, one of the three cities in my story, drawn as a line elevation.
+// Once per visit it goes off script; type "dance" for another move.
+import { CITIES, STRIP, PEAK } from "./skylines.js?v=20260928b";
 
 // --- Kinematics --------------------------------------------------------------
 
@@ -160,6 +163,225 @@ function pose(p) {
   return { m, com, aR, heelR: at(R.heel, hR.z), heelL: at(L.heel, hL.z) };
 }
 
+// --- Off-script moves (easter egg) ---------------------------------------------
+// Once per page load the walker stops and does something else, then walks on.
+// Moves are keyframed joint angles on a small forward-kinematics skeleton;
+// the pelvis is then lifted so the lowest point of the body touches the floor.
+
+const smooth01 = (x) => x * x * (3 - 2 * x);
+const window01 = (u, a, b) => clamp((u - a) / (b - a), 0, 1);
+
+// Keyframes [[u, value], ...], eased between keys.
+function K(keys) {
+  return (u) => {
+    if (u <= keys[0][0]) return keys[0][1];
+    for (let i = 1; i < keys.length; i++) {
+      if (u <= keys[i][0]) {
+        const [u0, v0] = keys[i - 1];
+        const [u1, v1] = keys[i];
+        return v0 + (v1 - v0) * smooth01((u - u0) / (u1 - u0));
+      }
+    }
+    return keys[keys.length - 1][1];
+  };
+}
+
+const rotX = (p, a) => ({ x: p.x, y: p.y * Math.cos(a) - p.z * Math.sin(a), z: p.y * Math.sin(a) + p.z * Math.cos(a) });
+const rotY = (p, a) => ({ x: p.x * Math.cos(a) + p.z * Math.sin(a), y: p.y, z: -p.x * Math.sin(a) + p.z * Math.cos(a) });
+const rotZ = (p, a) => ({ x: p.x * Math.cos(a) - p.y * Math.sin(a), y: p.x * Math.sin(a) + p.y * Math.cos(a), z: p.z });
+const add = (a, b) => ({ x: a.x + b.x, y: a.y + b.y, z: a.z + b.z });
+
+const BASE = { hip: 0, hipAbd: 4, knee: 3, ankle: 0, sh: 0, shAbd: 8, elbow: 10 };
+
+// Joint angles in degrees. Per side: hip flexion (thigh forward), hip abduction,
+// knee flexion, ankle dorsiflexion, shoulder flexion (arm forward), shoulder
+// abduction (arm out to the side, 180 = overhead), elbow flexion. Whole body:
+// trunk lean, and pitch (backwards), yaw and roll of the pelvis.
+function skeleton(P) {
+  const lean = rad(P.lean ?? 3);
+  const upper = (p) => rotZ(p, -lean);
+  const pts = {};
+  for (const [s, key] of [[1, "R"], [-1, "L"]]) {
+    const J = { ...BASE, ...P, ...(P[key] || {}) };
+    // Leg in its sagittal plane, then swung out by abduction about the hip.
+    const a1 = rad(J.hip);
+    const a2 = a1 - rad(J.knee);
+    const Kp = [Math.sin(a1) * S.thigh, -Math.cos(a1) * S.thigh];
+    const Ap = [Kp[0] + Math.sin(a2) * S.shank, Kp[1] - Math.cos(a2) * S.shank];
+    const b = a2 + rad(J.ankle);
+    const foot = (lx, ly) => [Ap[0] + lx * Math.cos(b) - ly * Math.sin(b), Ap[1] + lx * Math.sin(b) + ly * Math.cos(b)];
+    const hip = { x: 0, y: 0, z: s * S.hipW };
+    const legPt = ([x, y]) => add(hip, rotX({ x, y, z: 0 }, -s * rad(J.hipAbd)));
+    pts[`hip${key}`] = hip;
+    pts[`kn${key}`] = legPt(Kp);
+    pts[`an${key}`] = legPt(Ap);
+    pts[`to${key}`] = legPt(foot(S.toe, -S.ankleH));
+    pts[`he${key}`] = legPt(foot(-S.heel, -S.ankleH));
+    // Arm, the same way from the shoulder, carried by the trunk's lean.
+    const sh = { x: 0, y: S.trunk - 0.03, z: s * S.shoulderW };
+    const f1 = rad(J.sh);
+    const f2 = f1 + rad(J.elbow);
+    const Ep = [Math.sin(f1) * S.upper, -Math.cos(f1) * S.upper];
+    const Wp = [Ep[0] + Math.sin(f2) * S.fore, Ep[1] - Math.cos(f2) * S.fore];
+    const armPt = ([x, y]) => upper(add(sh, rotX({ x, y, z: 0 }, -s * rad(J.shAbd))));
+    pts[`sh${key}`] = upper(sh);
+    pts[`el${key}`] = armPt(Ep);
+    pts[`wr${key}`] = armPt(Wp);
+  }
+  pts.head = upper({ x: 0.035, y: S.trunk + 0.2, z: 0 });
+  pts.com = upper({ x: 0.02, y: 0.1, z: 0 });
+
+  // Whole-body orientation, then drop onto the floor (plus any flight).
+  const world = {};
+  let low = Infinity;
+  for (const [name, p] of Object.entries(pts)) {
+    const q = rotY(rotZ(rotX(p, rad(P.roll || 0)), rad(P.pitch || 0)), rad(P.yaw || 0));
+    world[name] = q;
+    if (name !== "com") low = Math.min(low, q.y);
+  }
+  const lift = (P.lift || 0) - low;
+  for (const p of Object.values(world)) p.y += lift;
+  const { com, heR, heL, ...m } = world;
+  return { m, com, lift, aR: { pct: 0, knee: { ...BASE, ...P, ...(P.R || {}) }.knee } };
+}
+
+const parabola = (u, a, b, h) => {
+  const s = window01(u, a, b);
+  return s > 0 && s < 1 ? 4 * h * s * (1 - s) : 0;
+};
+
+const MOVES = [
+  {
+    id: "backflip",
+    label: "Backflip",
+    dur: 2.6,
+    params: (() => {
+      const hip = K([[0, 0], [0.22, 75], [0.33, -5], [0.45, 110], [0.6, 110], [0.72, 20], [0.8, 55], [1, 0]]);
+      const knee = K([[0, 3], [0.22, 100], [0.33, 5], [0.45, 130], [0.6, 130], [0.72, 20], [0.8, 80], [1, 3]]);
+      const ankle = K([[0, 0], [0.22, 25], [0.33, -30], [0.45, -10], [0.72, -10], [0.8, 20], [1, 0]]);
+      const sh = K([[0, 0], [0.22, -55], [0.33, 175], [0.45, 120], [0.6, 120], [0.72, 90], [0.82, 50], [1, 0]]);
+      const elbow = K([[0, 10], [0.22, 5], [0.33, 5], [0.45, 40], [0.6, 40], [0.8, 20], [1, 10]]);
+      const lean = K([[0, 3], [0.22, 35], [0.33, -5], [0.45, 10], [0.72, 10], [0.8, 30], [1, 3]]);
+      const pitch = K([[0, 0], [0.33, 0], [0.72, 360]]);
+      return (u) => ({ hip: hip(u), knee: knee(u), ankle: ankle(u), sh: sh(u), elbow: elbow(u), lean: lean(u), pitch: pitch(u), lift: parabola(u, 0.33, 0.72, 0.55) });
+    })(),
+  },
+  {
+    id: "moonwalk",
+    label: "Moonwalk",
+    dur: 4.2,
+    // Keep the head level through the foot switches, as a real moonwalk does.
+    smoothGround: true,
+    // The belt runs backwards while the feet glide: the classic illusion.
+    belt: (u) => -0.78 * K([[0, 0], [0.12, 1], [0.88, 1], [1, 0]])(u),
+    params: (() => {
+      const amp = K([[0, 0], [0.12, 1], [0.88, 1], [1, 0]]);
+      const leg = (psi, a) => {
+        const flat = psi < 0.5;
+        const hip = flat ? 12 - 27 * (psi / 0.5) : -15 + 27 * ((psi - 0.5) / 0.5);
+        const toe = smooth01(window01(psi, 0.4, 0.6)) * (1 - smooth01(window01(psi, 0.88, 1)));
+        return { hip: hip * a, knee: 3 + 35 * toe * a, ankle: -32 * toe * a };
+      };
+      return (u, t) => {
+        const a = amp(u);
+        const psi = (t / 1.12) % 1;
+        return {
+          R: leg(psi, a),
+          L: leg((psi + 0.5) % 1, a),
+          sh: -8 * a + 10 * a * Math.sin(2 * Math.PI * psi),
+          elbow: 10 + 25 * a,
+          lean: 3 - 7 * a,
+        };
+      };
+    })(),
+  },
+  {
+    id: "pirouette",
+    label: "Double pirouette",
+    dur: 2.8,
+    params: (() => {
+      const hipR = K([[0, 0], [0.18, 55], [0.85, 55], [1, 0]]);
+      const kneeR = K([[0, 3], [0.18, 115], [0.85, 115], [1, 3]]);
+      const abdR = K([[0, 4], [0.18, 40], [0.85, 40], [1, 4]]);
+      const ankleL = K([[0, 0], [0.18, -25], [0.85, -25], [1, 0]]);
+      const kneeL = K([[0, 3], [0.1, 22], [0.18, 3], [0.85, 3], [0.92, 22], [1, 3]]);
+      const sh = K([[0, 0], [0.15, 60], [0.25, 15], [0.8, 15], [1, 0]]);
+      const shAbd = K([[0, 8], [0.15, 30], [0.25, 165], [0.8, 165], [1, 8]]);
+      const elbow = K([[0, 10], [0.15, 60], [0.25, 25], [0.8, 25], [1, 10]]);
+      const yaw = K([[0, 0], [0.2, 0], [0.85, 720]]);
+      return (u) => ({
+        R: { hip: hipR(u), knee: kneeR(u), hipAbd: abdR(u) },
+        L: { ankle: ankleL(u), knee: kneeL(u) },
+        sh: sh(u),
+        shAbd: shAbd(u),
+        elbow: elbow(u),
+        yaw: yaw(u),
+      });
+    })(),
+  },
+  {
+    id: "starjumps",
+    label: "Star jumps",
+    dur: 2.6,
+    params: (() => {
+      const knee = K([[0, 3], [0.22, 45], [0.3, 0], [0.72, 0], [0.85, 40], [1, 3]]);
+      const hip = K([[0, 0], [0.22, 35], [0.3, 0], [0.72, 0], [0.85, 30], [1, 0]]);
+      const ankle = K([[0, 0], [0.22, 20], [0.3, -30], [0.7, -20], [0.85, 15], [1, 0]]);
+      const shAbd = K([[0, 8], [0.22, 20], [0.35, 165], [0.65, 165], [0.8, 20], [1, 8]]);
+      const hipAbd = K([[0, 4], [0.3, 4], [0.42, 32], [0.6, 32], [0.75, 4], [1, 4]]);
+      return (u) => {
+        const c = window01(u, 0.08, 0.9) * 2;
+        const f = c >= 2 ? 1 : c % 1;
+        if (u < 0.08 || u > 0.9) return {};
+        return { knee: knee(f), hip: hip(f), ankle: ankle(f), shAbd: shAbd(f), hipAbd: hipAbd(f), elbow: 5, lift: parabola(f, 0.3, 0.72, 0.32) };
+      };
+    })(),
+  },
+  {
+    id: "windmill",
+    label: "Windmill",
+    dur: 3.8,
+    params: (() => {
+      const pitch = K([[0, 0], [0.12, 0], [0.24, 88], [0.82, 88], [0.95, 0]]);
+      const knee = K([[0, 3], [0.12, 90], [0.24, 10], [0.82, 10], [0.9, 110], [1, 3]]);
+      const hip = K([[0, 0], [0.12, 80], [0.24, 75], [0.82, 75], [0.9, 100], [1, 0]]);
+      const abd = K([[0, 4], [0.24, 40], [0.82, 40], [0.95, 4]]);
+      const shAbd = K([[0, 8], [0.24, 90], [0.82, 90], [1, 8]]);
+      const sh = K([[0, 0], [0.24, 0], [0.9, 60], [1, 0]]);
+      const lean = K([[0, 3], [0.24, -10], [0.82, -10], [1, 3]]);
+      const yaw = K([[0, 0], [0.24, 0], [0.82, 900]]);
+      return (u, t) => {
+        const scissor = 16 * Math.sin(t * 9) * smooth01(window01(u, 0.24, 0.3)) * (1 - smooth01(window01(u, 0.76, 0.82)));
+        return {
+          pitch: pitch(u),
+          knee: knee(u),
+          hip: hip(u),
+          R: { hipAbd: abd(u) + scissor },
+          L: { hipAbd: abd(u) - scissor },
+          shAbd: shAbd(u),
+          sh: sh(u),
+          lean: lean(u),
+          yaw: yaw(u),
+        };
+      };
+    })(),
+  },
+  {
+    id: "hello",
+    label: "Hello",
+    dur: 3.2,
+    params: (() => {
+      const shAbdR = K([[0, 8], [0.22, 150], [0.78, 150], [1, 8]]);
+      const elbowR = K([[0, 10], [0.22, 35], [0.78, 35], [1, 10]]);
+      const turn = K([[0, 0], [0.18, 1], [0.82, 1], [1, 0]]);
+      return (u, t, act) => {
+        const wave = 18 * Math.sin(t * 11) * smooth01(window01(u, 0.22, 0.3)) * (1 - smooth01(window01(u, 0.7, 0.78)));
+        return { yaw: act.face * turn(u), R: { shAbd: shAbdR(u) + wave, elbow: elbowR(u), sh: 10 } };
+      };
+    })(),
+  },
+];
+
 const MARKERS = ["head", "shR", "shL", "elR", "elL", "wrR", "wrL", "hipR", "hipL", "knR", "knL", "anR", "anL", "toR", "toL"];
 const BONES = [
   ["shR", "shL"],
@@ -262,6 +484,18 @@ function start(host) {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const hero = host.closest(".hero") || host;
 
+  // Each visit shows the next city and the next move, so return visits differ.
+  let visit = { city: Math.floor(Math.random() * CITIES.length), move: Math.floor(Math.random() * MOVES.length) };
+  try {
+    const saved = JSON.parse(localStorage.getItem("bk-walker") || "null");
+    if (saved) visit = { city: (saved.city + 1) % CITIES.length, move: (saved.move + 1) % MOVES.length };
+    localStorage.setItem("bk-walker", JSON.stringify(visit));
+  } catch (err) {
+    /* storage blocked: the random pick stands */
+  }
+  const city = CITIES[visit.city % CITIES.length];
+  let nextMove = visit.move % MOVES.length;
+
   const css = getComputedStyle(document.documentElement);
   const rgb = (name, fallback) => (css.getPropertyValue(name).trim() || fallback).split(/\s+/).join(", ");
   const INK = rgb("--on-stage-rgb", "232 237 244");
@@ -355,8 +589,9 @@ function start(host) {
   window.addEventListener("keydown", (e) => {
     if (e.target.closest && e.target.closest("input, textarea, select, [contenteditable]")) return;
     if (!/^[a-z]$/i.test(e.key)) return;
-    typed = (typed + e.key.toLowerCase()).slice(-2);
-    if (typed === "tr" || typed === "us") raiseFlag(typed);
+    typed = (typed + e.key.toLowerCase()).slice(-5);
+    if (typed.endsWith("tr") || typed.endsWith("us")) raiseFlag(typed.slice(-2));
+    if (typed === "dance") startMove();
   });
 
   const now = () => performance.now() / 1000;
@@ -365,12 +600,34 @@ function start(host) {
   const history = []; // recent poses in belt coordinates, for trails
   let lastT = 0;
   let lastReadout = 0;
+  let belt = STRIDE * FREQ; // m/s under the feet
+  let act = null; // the move in progress
+  let enteredAt = 0;
+  const moveDelay = 2.6 + Math.random() * 2.4;
+  let movesPlayed = 0;
+
+  function startMove() {
+    if (reduceMotion.matches || act) return;
+    const move = MOVES[nextMove];
+    nextMove = (nextMove + 1) % MOVES.length;
+    // "face" turns the walker toward the camera, for moves that greet you.
+    act = { move, t0: now(), face: (view.yaw * 180) / Math.PI - 90 };
+    movesPlayed++;
+    wake();
+  }
 
   function step(t) {
     const dt = lastT ? Math.min(0.05, t - lastT) : 1 / 60;
     lastT = t;
-    phase = (phase + FREQ * dt) % 1;
-    walked += STRIDE * FREQ * dt;
+    if (!enteredAt && hero.classList.contains("is-entered")) enteredAt = t;
+    if (!movesPlayed && enteredAt && t - enteredAt > moveDelay) startMove();
+    const u = act ? (t - act.t0) / act.move.dur : 0;
+    if (act && u >= 1) act = null;
+    // The gait pauses during a move and picks up where it left off.
+    if (!act) phase = (phase + FREQ * dt) % 1;
+    const target = act ? (act.move.belt ? act.move.belt(u) : 0) : STRIDE * FREQ;
+    belt += (target - belt) * (1 - Math.exp(-dt * 6));
+    walked += belt * dt;
 
     // With no pointer for a while the figure turns slowly on its own.
     if (t - pointer.last > 4) {
@@ -383,7 +640,22 @@ function start(host) {
     bonesTarget = pointer.inside || tapBones ? 1 : 0;
     bones += (bonesTarget - bones) * (1 - Math.exp(-dt * 5));
 
-    const ps = pose(phase);
+    let ps = pose(phase);
+    if (act) {
+      const el = t - act.t0;
+      const mv = skeleton(act.move.params(u, el, act));
+      if (act.move.smoothGround) {
+        act.ground = act.ground == null ? mv.lift : act.ground + (mv.lift - act.ground) * (1 - Math.exp(-dt / 0.25));
+        const dy = act.ground - mv.lift;
+        Object.values(mv.m).forEach((p) => (p.y += dy));
+        mv.com.y += dy;
+      }
+      const w = smooth01(clamp(el / 0.4, 0, 1)) * smooth01(clamp((act.move.dur - el) / 0.45, 0, 1));
+      const mix = (a, b) => ({ x: a.x + (b.x - a.x) * w, y: a.y + (b.y - a.y) * w, z: a.z + (b.z - a.z) * w });
+      const m = {};
+      MARKERS.forEach((name) => (m[name] = mix(ps.m[name], mv.m[name])));
+      ps = { m, com: mix(ps.com, mv.com), aR: { pct: ps.aR.pct, knee: ps.aR.knee + (mv.aR.knee - ps.aR.knee) * w }, label: act.move.label };
+    }
     history.push({ w: walked, m: ps.m, com: ps.com });
     while (history.length && walked - history[0].w > 1.5) history.shift();
     return ps;
@@ -393,6 +665,7 @@ function start(host) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, Hc);
 
+    drawSkyline();
     drawGround();
     drawTrails();
 
@@ -467,8 +740,73 @@ function start(host) {
     if (readout && t - lastReadout > 0.12) {
       lastReadout = t;
       const a = ps.aR;
-      readout.textContent = `Gait cycle ${String(Math.round(a.pct)).padStart(2, "0")}% · R knee ${a.knee.toFixed(1)}° · ${(STRIDE * FREQ).toFixed(2)} m/s`;
+      readout.textContent = ps.label
+        ? `Off script: ${ps.label.toLowerCase()} · R knee ${a.knee.toFixed(1)}°`
+        : `Gait cycle ${String(Math.round(a.pct)).padStart(2, "0")}% · R knee ${a.knee.toFixed(1)}° · ${(STRIDE * FREQ).toFixed(2)} m/s`;
     }
+  }
+
+  // The city, far behind: it sits on the horizon, shifts as the view turns,
+  // and drifts slowly the other way as the walker walks.
+  const sky = document.createElement("canvas");
+  const skyCtx = sky.getContext("2d");
+
+  function drawSkyline() {
+    if (sky.width !== canvas.width || sky.height !== canvas.height) {
+      sky.width = canvas.width;
+      sky.height = canvas.height;
+    }
+    const g = skyCtx;
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, W, Hc);
+    const scale = Math.min((W * 1.3) / STRIP, (Hc * 0.5) / PEAK);
+    const far = project({ x: -1.6 * Math.sin(view.yaw), y: 0, z: -1.6 * Math.cos(view.yaw) });
+    const base = far.y - 2;
+    const span = STRIP * scale;
+    const offset = -((view.yaw * k) / D) - walked * 5;
+    let x0 = ((offset % span) + span) % span - span;
+    g.lineJoin = "round";
+    g.lineCap = "round";
+    for (; x0 < W; x0 += span) {
+      g.save();
+      g.translate(x0, base);
+      g.scale(scale, scale);
+      g.lineWidth = 1 / scale;
+      g.strokeStyle = `rgba(${BLUE}, 0.11)`;
+      g.beginPath();
+      city.detail(g);
+      g.stroke();
+      g.strokeStyle = `rgba(${BLUE}, 0.26)`;
+      g.beginPath();
+      city.draw(g);
+      g.stroke();
+      g.restore();
+    }
+    // Fade the edges and the sky so the drawing melts into the hero.
+    g.globalCompositeOperation = "destination-in";
+    const fx = g.createLinearGradient(0, 0, W, 0);
+    fx.addColorStop(0, "rgba(0,0,0,0)");
+    fx.addColorStop(0.18, "rgba(0,0,0,1)");
+    fx.addColorStop(0.82, "rgba(0,0,0,1)");
+    fx.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = fx;
+    g.fillRect(0, 0, W, Hc);
+    const fy = g.createLinearGradient(0, base - PEAK * scale, 0, base + 6);
+    fy.addColorStop(0, "rgba(0,0,0,0.35)");
+    fy.addColorStop(1, "rgba(0,0,0,1)");
+    g.fillStyle = fy;
+    g.fillRect(0, 0, W, Hc);
+    g.globalCompositeOperation = "source-over";
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(sky, 0, 0);
+    ctx.restore();
+
+    ctx.font = `500 10px "IBM Plex Mono", ui-monospace, monospace`;
+    ctx.fillStyle = `rgba(${INK}, 0.38)`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText(`${city.name.toUpperCase()} · ${city.coords}`, 4, Hc - 8);
   }
 
   // A drafting grid on the floor that runs backwards like a treadmill belt.
