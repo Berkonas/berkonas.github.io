@@ -12,16 +12,18 @@
 .bionic .page-title {
   margin: 0 0 22px;
   font-weight: 600;
-  font-size: clamp(2.6rem, 7vw, 6rem);
+  font-stretch: var(--wide);
+  font-size: clamp(2.4rem, 6.4vw, 5.6rem);
   line-height: 0.98;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.04em;
 }
 
 .bionic .page-title em {
-  font-family: var(--font-serif);
   font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.02em;
+  font-weight: 300;
+  font-stretch: 100%;
+  letter-spacing: -0.03em;
+  color: var(--accent-ink);
 }
 
 .bionic .bionic-hero p:not(.bionic-eyebrow) {
@@ -47,7 +49,7 @@
   --sky: var(--paper-2);
   --mist: var(--paper);
   --shadow: var(--shadow-2);
-  --lab-bg: #0b1320;
+  --lab-bg: var(--stage);
   --lab-line: rgba(140, 180, 240, 0.14);
   --lab-cyan: #5cc8ff;
   --lab-green: #3ddc97;

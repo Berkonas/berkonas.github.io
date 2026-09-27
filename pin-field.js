@@ -37,24 +37,24 @@ function start(host) {
   host.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x0d0e11, 14, 34);
+  scene.fog = new THREE.Fog(0x091526, 14, 34);
 
   const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
 
-  scene.add(new THREE.HemisphereLight(0xe8ebf2, 0x0d0e11, 1.6));
-  const key = new THREE.DirectionalLight(0xfff1e6, 2.2);
+  scene.add(new THREE.HemisphereLight(0xe6edf7, 0x091526, 1.6));
+  const key = new THREE.DirectionalLight(0xf4f1ea, 2.2);
   key.position.set(-6, 12, 8);
   scene.add(key);
-  const rim = new THREE.DirectionalLight(0x9db8ff, 0.9);
+  const rim = new THREE.DirectionalLight(0x76aade, 1.1);
   rim.position.set(6, 4, -10);
   scene.add(rim);
-  const glow = new THREE.PointLight(0xff5b24, 0, 7, 1.6);
+  const glow = new THREE.PointLight(0xd4ac5e, 0, 7, 1.6);
   glow.position.set(0, 1.4, 0);
   scene.add(glow);
 
   const geometry = new THREE.CylinderGeometry(0.14, 0.14, 1, 14, 1);
   geometry.translate(0, 0.5, 0);
-  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.42, metalness: 0.28 });
+  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.38, metalness: 0.22 });
   const pins = new THREE.InstancedMesh(geometry, material, COUNT);
   pins.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   scene.add(pins);
@@ -62,6 +62,16 @@ function start(host) {
   const field = new THREE.Group();
   field.add(pins);
   scene.add(field);
+
+  // Blueprint ground: a drafting grid under the pins, four pin pitches per cell.
+  const cell = GAP * 4;
+  const cells = narrow ? 16 : 26;
+  const grid = new THREE.GridHelper(cell * cells, cells, 0x76aade, 0x76aade);
+  grid.material.transparent = true;
+  grid.material.opacity = 0.16;
+  grid.material.depthWrite = false;
+  grid.position.y = 0.002;
+  field.add(grid);
 
   // Pin positions (field-local) and animated state.
   const px = new Float32Array(COUNT);
@@ -76,14 +86,14 @@ function start(host) {
   }
 
   // Glyphs are drawn on a small canvas and sampled per pin.
-  const glyphCenter = narrow ? [0.5, 0.13] : [0.665, 0.4];
+  const glyphCenter = narrow ? [0.5, 0.13] : [0.69, 0.4];
   const glyphs = [drawMonogram, drawRobotArm, drawHeartbeat].map((draw) => rasterize(draw, COLS, ROWS, glyphCenter, narrow));
 
   const matrix = new THREE.Matrix4();
   const color = new THREE.Color();
-  const graphite = new THREE.Color(0x353942);
-  const steel = new THREE.Color(0x8a8f9c);
-  const accent = new THREE.Color(0xff5b24);
+  const graphite = new THREE.Color(0x1c2b42);
+  const steel = new THREE.Color(0x7d8ea8);
+  const accent = new THREE.Color(0xf0c878);
 
   // Pointer state in field-local coordinates.
   const pointer = { x: 0, z: 0, active: 0, target: 0, lastMove: -10, has: false };
@@ -363,7 +373,7 @@ function rasterize(draw, cols, rows, center, narrow) {
 
 // Units are pin cells. Everything is drawn around (0, 0).
 function drawMonogram(ctx, u) {
-  ctx.font = `600 ${17 * u}px Geist, "Helvetica Neue", Arial, sans-serif`;
+  ctx.font = `700 ${17 * u}px Archivo, "Helvetica Neue", Arial, sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText("BK", 0, u * 0.8);
