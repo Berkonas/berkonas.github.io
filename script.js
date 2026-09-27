@@ -1232,7 +1232,7 @@ function renderGallery() {
     img.alt = "Gallery photo";
     img.loading = "lazy";
     setImageSourceWithFallback(img, src, {
-      sizes: "(max-width: 720px) 92vw, (max-width: 1100px) 44vw, 30vw",
+      sizes: "(max-width: 340px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 31vw, 24vw",
       onHardFailure: () => button.remove(),
     });
     button.appendChild(img);
