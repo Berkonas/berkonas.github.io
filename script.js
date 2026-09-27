@@ -505,6 +505,9 @@ const PROJECTS = [
 const PROJECT_FILTERS = ["All", "Haptics", "Robotics", "Healthcare", "Data", "Machine Learning"];
 
 const GALLERY_IMAGES = [
+  { src: "assets/images/gallery/graduation-hackerman-hall.png", alt: "Graduation photo in front of Hackerman Hall" },
+  { src: "assets/images/gallery/graduation-in-the-lab.png", alt: "In graduation robes, working at a laptop in the lab" },
+  { src: "assets/images/gallery/haptics-lab-experiment.png", alt: "Running a haptics experiment at a lab workstation" },
   "assets/images/gallery/443B1D15-FF20-46BA-8F67-F5869B61B8DB.png",
   "assets/images/gallery/84425.png",
   "assets/images/gallery/G0061829.png",
@@ -1224,12 +1227,13 @@ function renderGallery() {
   const grid = document.getElementById("gallery-grid");
   if (!grid) return;
   grid.innerHTML = "";
-  GALLERY_IMAGES.forEach((src) => {
+  GALLERY_IMAGES.forEach((entry) => {
+    const { src, alt } = typeof entry === "string" ? { src: entry, alt: "Gallery photo" } : entry;
     const button = document.createElement("button");
     button.type = "button";
     button.className = "gallery-item";
     const img = document.createElement("img");
-    img.alt = "Gallery photo";
+    img.alt = alt;
     img.loading = "lazy";
     setImageSourceWithFallback(img, src, {
       sizes: "(max-width: 340px) 92vw, (max-width: 760px) 46vw, (max-width: 1100px) 31vw, 24vw",
