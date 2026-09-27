@@ -558,8 +558,6 @@ function setImageSourceWithFallback(img, src, options = {}) {
   img.src = candidates[1]?.src || candidates[0]?.src || optimizedSrc;
 }
 
-const FEATURED_PROJECT_IDS = ["haptic-belt", "ur5-push-place", "clinibooth", "harvard-fluidic-window"];
-
 const HOME_FILM = [
   "assets/images/gallery/IMG_0108.png",
   "assets/images/gallery/create-lab-outreach.png",
@@ -1081,19 +1079,6 @@ function setupFilters() {
 
 // --- Home ------------------------------------------------------------------
 
-function renderFeatured() {
-  const root = document.getElementById("featured-work");
-  if (!root) return;
-  FEATURED_PROJECT_IDS.map((id) => PROJECTS.find((project) => project.id === id))
-    .filter(Boolean)
-    .forEach((project, index) => {
-      const card = createWorkCard(project, index, { href: `projects.html#${project.id}` });
-      card.setAttribute("data-reveal", "");
-      card.style.setProperty("--d", `${(index % 2) * 0.1}s`);
-      root.appendChild(card);
-    });
-}
-
 function renderFilm() {
   const track = document.getElementById("film-track");
   if (!track) return;
@@ -1110,43 +1095,6 @@ function renderFilm() {
     if (index >= HOME_FILM.length) item.setAttribute("aria-hidden", "true");
     track.appendChild(item);
   });
-}
-
-function initStats() {
-  const sources = {
-    projects: PROJECTS.length,
-    courses: coursesData.reduce((total, section) => total + section.courses.length, 0),
-  };
-  const nums = document.querySelectorAll("[data-count], [data-count-source]");
-  nums.forEach((el) => {
-    const target = Number(sources[el.dataset.countSource] ?? el.dataset.count);
-    if (!Number.isFinite(target)) return;
-    el.dataset.target = target;
-    el.textContent = target;
-  });
-  if (prefersReducedMotion() || !("IntersectionObserver" in window)) return;
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        observer.unobserve(entry.target);
-        const el = entry.target;
-        const target = Number(el.dataset.target);
-        const startTime = performance.now();
-        const duration = 1400;
-        const tick = (now) => {
-          const p = Math.min(1, (now - startTime) / duration);
-          el.textContent = Math.round(target * (1 - Math.pow(1 - p, 4)));
-          if (p < 1) requestAnimationFrame(tick);
-        };
-        el.textContent = "0";
-        requestAnimationFrame(tick);
-      });
-    },
-    { threshold: 0.6 },
-  );
-  nums.forEach((el) => observer.observe(el));
 }
 
 function initWordReveal() {
@@ -1198,9 +1146,7 @@ function initWordReveal() {
 
 function initParallax() {
   const frames = document.querySelectorAll("[data-parallax]");
-  const path = document.querySelector("[data-path]");
-  if (prefersReducedMotion()) return;
-  if (!frames.length && !path) return;
+  if (prefersReducedMotion() || !frames.length) return;
   const update = () => {
     const vh = window.innerHeight;
     frames.forEach((frame) => {
@@ -1209,21 +1155,43 @@ function initParallax() {
       const offset = Math.max(-1, Math.min(1, center / vh)) * -0.5 + 0.5;
       frame.style.setProperty("--py", (offset * rect.height * 0.1).toFixed(1));
     });
-    if (path) {
-      const rect = path.getBoundingClientRect();
-      const vertical = window.innerWidth <= 860;
-      const progress = vertical
-        ? (vh * 0.75 - rect.top) / rect.height
-        : (vh * 0.9 - rect.top) / (vh * 0.45);
-      const p = Math.min(1, Math.max(0, progress));
-      path.style.setProperty("--p", p.toFixed(3));
-      const steps = path.querySelectorAll("li");
-      steps.forEach((step, index) => {
-        step.classList.toggle("is-lit", p >= (index / Math.max(1, steps.length - 1)) * 0.98);
-      });
-    }
   };
   onScrollFrame(update);
+}
+
+// Path chart: year ticks and a "today" line. Bars place themselves in CSS
+// from their dates; this only adds the axis and keeps the chart current.
+function initTimeline() {
+  const chart = document.querySelector("[data-timeline]");
+  if (!chart) return;
+  const date = new Date();
+  const now = date.getFullYear() + date.getMonth() / 12 + (date.getDate() - 1) / 365;
+  const start = Number(getComputedStyle(chart).getPropertyValue("--start")) || 2021.5;
+  const end = Math.max(Number(getComputedStyle(chart).getPropertyValue("--end")) || 2027.5, Math.round(now + 0.75));
+  chart.style.setProperty("--end", end);
+  chart.style.setProperty("--now", now.toFixed(3));
+
+  const axis = chart.querySelector(".chart-axis");
+  const track = document.createElement("div");
+  track.className = "axis-track";
+  for (let year = Math.ceil(start); year < end; year += 1) {
+    const tick = document.createElement("span");
+    tick.className = "tick";
+    tick.style.setProperty("--at", year);
+    // A year label right beside "Now" would collide with it.
+    tick.innerHTML = Math.abs(year - now) < 0.3 ? "" : `<span>${year}</span>`;
+    track.appendChild(tick);
+  }
+  const today = document.createElement("span");
+  today.className = "tick is-now";
+  today.style.setProperty("--at", now.toFixed(3));
+  today.innerHTML = "<span>Now</span>";
+  track.appendChild(today);
+  axis.appendChild(track);
+
+  chart.querySelectorAll(".chart-rows").forEach((list) => {
+    [...list.children].forEach((row, index) => row.style.setProperty("--i", index));
+  });
 }
 
 function onScrollFrame(fn) {
@@ -1241,16 +1209,6 @@ function onScrollFrame(fn) {
   window.addEventListener("scroll", queue, { passive: true });
   window.addEventListener("resize", queue);
   fn();
-}
-
-function initSpotlight() {
-  document.querySelectorAll(".focus-card").forEach((card) => {
-    card.addEventListener("pointermove", (event) => {
-      const rect = card.getBoundingClientRect();
-      card.style.setProperty("--mx", `${event.clientX - rect.left}px`);
-      card.style.setProperty("--my", `${event.clientY - rect.top}px`);
-    });
-  });
 }
 
 function initCopyButtons() {
@@ -1275,21 +1233,8 @@ function initCopyButtons() {
 function initHeroEntrance() {
   const hero = document.querySelector(".hero");
   if (!hero) return;
-  const hint = hero.querySelector(".hint-text");
-  if (hint && window.matchMedia("(pointer: coarse)").matches) hint.textContent = "Tap the pins";
   const enter = () => requestAnimationFrame(() => requestAnimationFrame(() => hero.classList.add("is-entered")));
   playIntro(enter);
-}
-
-// The institutions strip loops, so it needs a second copy of its items.
-function initInstitutions() {
-  const track = document.querySelector(".inst-track");
-  if (!track || prefersReducedMotion()) return;
-  [...track.children].forEach((item) => {
-    const copy = item.cloneNode(true);
-    copy.setAttribute("aria-hidden", "true");
-    track.appendChild(copy);
-  });
 }
 
 // First visit per session: the site is "drafted" on a blueprint sheet, then
@@ -1707,15 +1652,12 @@ document.addEventListener("DOMContentLoaded", () => {
   setupFilters();
   renderProjects();
   renderGallery();
-  renderFeatured();
   renderFilm();
-  initStats();
   initWordReveal();
   initParallax();
-  initSpotlight();
+  initTimeline();
   initCopyButtons();
   initHeroEntrance();
-  initInstitutions();
   setupRevealAnimations();
   syncProjectFromHash();
   window.addEventListener("popstate", syncProjectFromHash);

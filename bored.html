@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Bored? | Berk Kasimcan</title>
-  <meta name="description" content="Bionic Playground: 3D simulations of a myoelectric prosthetic hand, prosthetic gait and a UR5-sized robot arm, built on real physics." />
+  <title>Bored? The Workbench | Berk Kasimcan</title>
+  <meta name="description" content="Three free tools for robotics, biomechanics and haptics: a rotation converter, a body segment parameter calculator (de Leva 1996), and a vibrotactile pattern designer with WAV and Arduino export." />
   <meta name="theme-color" content="#091526" />
   <link rel="canonical" href="https://berkonas.github.io/bored.html" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="assets/og/apple-touch-icon.png" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Berk Kasimcan" />
-  <meta property="og:title" content="Bored? | Berk Kasimcan" />
-  <meta property="og:description" content="Bionic Playground: 3D simulations of a myoelectric prosthetic hand, prosthetic gait and a UR5-sized robot arm, built on real physics." />
+  <meta property="og:title" content="The Workbench | Berk Kasimcan" />
+  <meta property="og:description" content="Free tools for robotics, biomechanics and haptics: rotations, body segment parameters, and vibrotactile patterns." />
   <meta property="og:url" content="https://berkonas.github.io/bored.html" />
   <meta property="og:image" content="https://berkonas.github.io/assets/og/og-image.jpg?v=3" />
   <meta property="og:image:type" content="image/jpeg" />
@@ -20,16 +20,15 @@
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="Berk Kasimcan: Engineering you can feel. Robotics, haptics, biomechanics." />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Bored? | Berk Kasimcan" />
-  <meta name="twitter:description" content="Bionic Playground: 3D simulations of a myoelectric prosthetic hand, prosthetic gait and a UR5-sized robot arm, built on real physics." />
+  <meta name="twitter:title" content="The Workbench | Berk Kasimcan" />
+  <meta name="twitter:description" content="Free tools for robotics, biomechanics and haptics: rotations, body segment parameters, and vibrotactile patterns." />
   <meta name="twitter:image" content="https://berkonas.github.io/assets/og/og-image.jpg?v=3" />
   <script>document.documentElement.classList.add("js");</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="site.css?v=20260927j" />
-  <link rel="stylesheet" href="bored.css?v=20260927j" />
-  <link rel="modulepreload" href="https://unpkg.com/three@0.159.0/build/three.module.js" crossorigin />
+  <link rel="stylesheet" href="site.css?v=20260927z" />
+  <link rel="stylesheet" href="bored.css?v=20260927z" />
 </head>
 <body class="bored-page">
   <a class="skip-link" href="#main">Skip to content</a>
@@ -55,232 +54,339 @@
 
     <main id="main">
       <section class="wrap page-head grid-bg">
-        <p class="eyebrow" data-reveal><span class="idx">06</span> Bored? Step into the lab</p>
-        <h1 class="display" data-reveal>Bionic <em>playground.</em></h1>
+        <p class="eyebrow" data-reveal>Bored? Here’s the workbench</p>
+        <h1 class="display" data-reveal>Small tools, <em>built properly.</em></h1>
         <p class="lede" data-reveal>
-          Three working simulations from the world I research. Drive a prosthetic hand with a muscle signal, watch what
-          a prosthetic knee does to a walk, and run a robot arm built to UR5 dimensions. Every number on screen comes
-          from the physics running underneath it.
+          Three instruments I kept wishing existed while doing research: one each for robotics, biomechanics, and
+          haptics. They are exact, fast, and free. Everything runs in your browser, and nothing you type leaves it.
         </p>
         <dl class="titleblock" data-reveal>
           <div><dt>Sheet</dt><dd>06 / 06</dd></div>
-          <div><dt>Drawing</dt><dd>Bionic playground</dd></div>
-          <div><dt>Scope</dt><dd>Prosthetics · Gait · Robotics</dd></div>
+          <div><dt>Drawing</dt><dd>Workbench</dd></div>
+          <div><dt>Scope</dt><dd>Rotations · Body segments · Haptics</dd></div>
           <div><dt>Rev</dt><dd>2026.09</dd></div>
           <div class="tb-mark"><dt>Drawn by B. Kasimcan</dt><dd>36.14° N · 86.80° W</dd></div>
         </dl>
       </section>
 
-      <section class="wrap bionic" aria-label="Simulations">
-        <div class="lab-tabs" role="tablist" aria-label="Simulations">
-          <button class="lab-tab" type="button" role="tab" id="tab-myo" aria-controls="lab-myo" aria-selected="true" data-lab="myo">
-            <span class="lab-tab-kicker">01 · Prosthetics</span>
-            <span class="lab-tab-title">Myo Hand</span>
-            <span class="lab-tab-sub">Grip with a muscle signal. Friction decides the rest.</span>
+      <section class="wrap bench" aria-label="Tools">
+        <div class="bench-tabs" role="tablist" aria-label="Tools">
+          <button class="bench-tab" type="button" role="tab" id="tab-rotations" aria-controls="tool-rotations" aria-selected="true" data-tool="rotations">
+            <span class="bench-tab-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16V5M16 16l9.5 5.5M16 16l-9.5 5.5"/><path d="M22.5 7.5a10 10 0 0 1 3.4 9" /><path d="M26.6 13.8l-.7 2.7-2.6-1.1"/></svg></span>
+            <span class="bench-tab-kicker">01 · Robotics</span>
+            <span class="bench-tab-title">Rotation converter</span>
+            <span class="bench-tab-sub">Quaternions, matrices, Euler angles and axis–angle, kept in sync.</span>
           </button>
-          <button class="lab-tab" type="button" role="tab" id="tab-gait" aria-controls="lab-gait" aria-selected="false" tabindex="-1" data-lab="gait">
-            <span class="lab-tab-kicker">02 · Biomechanics</span>
-            <span class="lab-tab-title">Gait Lab</span>
-            <span class="lab-tab-sub">Swap in a prosthetic knee and watch the forces change.</span>
+          <button class="bench-tab" type="button" role="tab" id="tab-segments" aria-controls="tool-segments" aria-selected="false" tabindex="-1" data-tool="segments">
+            <span class="bench-tab-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="5.5" r="2.5"/><path d="M16 9v10M16 19l-3 9M16 19l3 9M11 11.5l5-1 5 1M11 11.5l-1.5 7M21 11.5l1.5 7"/><circle cx="16" cy="15" r="1.4"/></svg></span>
+            <span class="bench-tab-kicker">02 · Biomechanics</span>
+            <span class="bench-tab-title">Body segment calculator</span>
+            <span class="bench-tab-sub">Segment lengths, masses, centers of mass and inertias from height and weight.</span>
           </button>
-          <button class="lab-tab" type="button" role="tab" id="tab-arm" aria-controls="lab-arm" aria-selected="false" tabindex="-1" data-lab="arm">
-            <span class="lab-tab-kicker">03 · Robotics</span>
-            <span class="lab-tab-title">Reach Bot</span>
-            <span class="lab-tab-sub">A UR5-sized arm with exact inverse kinematics.</span>
+          <button class="bench-tab" type="button" role="tab" id="tab-haptics" aria-controls="tool-haptics" aria-selected="false" tabindex="-1" data-tool="haptics">
+            <span class="bench-tab-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16h3l2-6 3 12 3-9 2 5 2-3 2 2 2-1h7"/></svg></span>
+            <span class="bench-tab-kicker">03 · Haptics</span>
+            <span class="bench-tab-title">Vibration pattern designer</span>
+            <span class="bench-tab-sub">Draw a vibrotactile pattern, feel it, and export it for your hardware.</span>
           </button>
         </div>
 
-        <!-- 01 · Myo Hand -->
-        <div class="lab" id="lab-myo" role="tabpanel" aria-labelledby="tab-myo">
-          <div class="lab-stage on-stage">
-            <div class="stage-view">
-              <div class="stage-3d" role="img" aria-label="3D prosthetic hand gripping an object, with force arrows"></div>
-              <div class="stage-labels" aria-hidden="true"></div>
-              <canvas class="hud hud-scope" id="myo-scope" aria-hidden="true"></canvas>
-              <canvas class="hud hud-gauge" id="myo-gauge" aria-hidden="true"></canvas>
-              <div class="flex-pad" id="flex-pad" role="slider" tabindex="0" aria-label="Muscle contraction" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                <div class="flex-pad-fill" id="flex-pad-fill"></div>
-                <span class="flex-pad-label">Flex</span>
-                <span class="flex-pad-hint">Press higher to squeeze harder</span>
-              </div>
-              <p class="stage-hint">Drag to orbit · Space also flexes</p>
-            </div>
-          </div>
-          <aside class="lab-panel">
-            <div class="lab-readout">
-              <div>
-                <span class="lab-label">Object</span>
-                <strong id="myo-object">Soda can</strong>
-                <span class="lab-small" id="myo-mass">370 g · μ 0.45</span>
-              </div>
-              <div>
-                <span class="lab-label">Safe grip</span>
-                <strong id="myo-band">4.0–40 N</strong>
-                <span class="lab-small">slip ← → crush</span>
-              </div>
-              <div>
-                <span class="lab-label">Clean lifts</span>
-                <strong id="myo-score">0</strong>
-                <span class="lab-small" id="myo-best">Streak 0</span>
-              </div>
-            </div>
-            <p class="lab-status" id="myo-status" aria-live="polite">Press and hold the Flex pad to close the hand.</p>
-            <div class="lab-toggles">
-              <label class="lab-toggle"><input type="checkbox" id="myo-feedback" checked /><span>Grip feedback</span></label>
-              <label class="lab-toggle"><input type="checkbox" id="myo-forces" checked /><span>Free-body forces</span></label>
-            </div>
-            <label class="lab-range">
-              <span>RMS window <b id="myo-window-val">150 ms</b></span>
-              <input type="range" id="myo-window" min="30" max="400" step="10" value="150" />
-            </label>
-            <label class="lab-range">
-              <span>Activation threshold <b id="myo-thr-val">12%</b></span>
-              <input type="range" id="myo-thr" min="4" max="40" step="1" value="12" />
-            </label>
-            <div class="lab-actions">
-              <button class="btn btn-ghost btn-sm" type="button" id="myo-next">Next object</button>
-            </div>
-            <details class="lab-explain">
-              <summary>The science</summary>
-              <p>
-                <b>Signal.</b> Surface EMG is band-limited noise (about 20–450 Hz) whose amplitude grows with muscle
-                activation. The hand takes its RMS over a sliding window; anything above the threshold becomes a motor
-                command. Longer windows are calmer but lag.
-              </p>
-              <p>
-                <b>Grip.</b> Two opposing contacts hold an object only while friction can carry its weight:
-                <span class="eq">2μN ≥ m(g + a)</span>. Below that it slides out. Above the object's breaking load it
-                cracks, bursts or buckles. Lifting follows a minimum-jerk path, the smooth profile people use.
-              </p>
-              <p>
-                Most prosthetic hands give no sense of touch, so users grip by eye. Switch off grip feedback to feel
-                how hard that is. Masses and friction are typical values; breaking loads are approximate.
-              </p>
-            </details>
-          </aside>
-        </div>
-
-        <!-- 02 · Gait Lab -->
-        <div class="lab" id="lab-gait" role="tabpanel" aria-labelledby="tab-gait" hidden>
-          <div class="lab-stage on-stage">
-            <div class="stage-view">
-              <div class="stage-3d" role="img" aria-label="3D walker on a treadmill with ground reaction force arrows"></div>
-              <div class="stage-labels" aria-hidden="true"></div>
-              <div class="stage-tools lab-seg" role="radiogroup" aria-label="Camera">
-                <button type="button" role="radio" aria-checked="true" data-cam="three">3/4</button>
-                <button type="button" role="radio" aria-checked="false" data-cam="side">Side</button>
-                <button type="button" role="radio" aria-checked="false" data-cam="front">Front</button>
-              </div>
-              <p class="stage-hint">Drag to orbit</p>
-            </div>
-            <canvas class="stage-plots" id="gait-plots" aria-label="Hip, knee and ankle angles and vertical ground force over the gait cycle"></canvas>
-          </div>
-          <aside class="lab-panel">
-            <div class="lab-seg" role="radiogroup" aria-label="Right leg">
-              <button type="button" role="radio" aria-checked="true" data-gait-mode="bio">Biological</button>
-              <button type="button" role="radio" aria-checked="false" data-gait-mode="passive">Passive knee</button>
-              <button type="button" role="radio" aria-checked="false" data-gait-mode="powered">Powered knee</button>
-            </div>
-            <div class="lab-readout lab-readout-3">
-              <div><span class="lab-label">Speed</span><strong id="gait-v">1.30</strong><span class="lab-small">m/s</span></div>
-              <div><span class="lab-label">Cadence</span><strong id="gait-cadence">0</strong><span class="lab-small">steps/min</span></div>
-              <div><span class="lab-label">Symmetry</span><strong id="gait-sym">100%</strong><span class="lab-small">stance time</span></div>
-              <div><span class="lab-label">Peak force</span><strong id="gait-peak">1.0×</strong><span class="lab-small">body weight</span></div>
-              <div><span class="lab-label">Stride</span><strong id="gait-stride">1.40</strong><span class="lab-small">m</span></div>
-              <div><span class="lab-label">Legend</span><strong class="legend"><i class="dot dot-r"></i>R <i class="dot dot-l"></i>L</strong><span class="lab-small">dashed: typical</span></div>
-            </div>
-            <p class="lab-status" id="gait-phase" aria-live="off">Right leg: mid stance</p>
-            <label class="lab-range">
-              <span>Walking speed <b id="gait-speed-val">1.30 m/s</b></span>
-              <input type="range" id="gait-speed" min="0.6" max="1.9" step="0.05" value="1.3" />
-            </label>
-            <label class="lab-range">
-              <span>Gait cycle <b id="gait-scrub-val">0%</b></span>
-              <input type="range" id="gait-scrub" min="0" max="100" step="0.5" value="8" aria-label="Scrub through the gait cycle" />
-            </label>
-            <div class="lab-actions">
-              <button class="btn btn-ghost btn-sm" type="button" id="gait-play">Pause</button>
-              <label class="lab-toggle"><input type="checkbox" id="gait-forces" checked /><span>Forces</span></label>
-            </div>
-            <details class="lab-explain">
-              <summary>The science</summary>
-              <p>
-                <b>Motion.</b> Hip, knee and ankle follow the average angles measured in gait labs for healthy adults,
-                on a body built from standard anthropometric ratios (1.75 m, 75 kg). The white dots are the reflective
-                markers a motion-capture system would track.
-              </p>
-              <p>
-                <b>Force.</b> The ground force isn't drawn from a template. It is Newton's second law on the model's
-                own centre of mass, <span class="eq">F = m(g + a)</span>, shared between the feet while both are down.
-                The gold line is that centre of mass vaulting over each leg like an inverted pendulum.
-              </p>
-              <p>
-                <b>Prosthesis.</b> A passive knee must stay straight while it carries weight, and a carbon foot can't
-                push off. The body vaults higher over the stiff leg and timing goes lopsided. A powered knee and ankle
-                put much of that motion back.
-              </p>
-            </details>
-          </aside>
-        </div>
-
-        <!-- 03 · Reach Bot -->
-        <div class="lab" id="lab-arm" role="tabpanel" aria-labelledby="tab-arm" hidden>
-          <div class="lab-stage on-stage">
-            <div class="stage-view">
-              <div class="stage-3d stage-3d-touch" role="img" aria-label="3D robot arm on a table with blocks and a tray"></div>
-              <div class="stage-labels" aria-hidden="true"></div>
-              <div class="stage-tools lab-seg" role="radiogroup" aria-label="Camera">
-                <button type="button" role="radio" aria-checked="true" data-cam="three">3/4</button>
-                <button type="button" role="radio" aria-checked="false" data-cam="top">Top</button>
-                <button type="button" role="radio" aria-checked="false" data-cam="side">Side</button>
-              </div>
-              <p class="stage-hint">Point to move · click a block to pick · right-drag or two fingers to orbit</p>
-            </div>
-          </div>
-          <aside class="lab-panel">
-            <div class="lab-readout">
-              <div><span class="lab-label">Sorted</span><strong id="arm-score">–</strong><span class="lab-small" id="arm-best">Best –</span></div>
-              <div class="joint-grid" id="arm-joints"></div>
-            </div>
-            <p class="lab-status" id="arm-status" aria-live="polite">Hover over a block and click to pick it up. Drop it in the gold tray.</p>
+        <!-- 01 · Rotation converter -->
+        <article class="tool" id="tool-rotations" role="tabpanel" aria-labelledby="tab-rotations">
+          <header class="tool-head">
             <div>
-              <span class="lab-label">Holding torque vs. rating (N·m)</span>
-              <div class="torque-bars" id="arm-torques"></div>
+              <h2 class="tool-title">Rotation converter</h2>
+              <p class="tool-desc">Type an orientation in any form and every other form updates. Drag the frame to rotate it by hand. Fields accept expressions such as <code>pi/4</code> or <code>sqrt(2)/2</code>.</p>
             </div>
-            <label class="lab-range">
-              <span>Joint speed limit <b id="arm-speed-val">120°/s</b></span>
-              <input type="range" id="arm-speed" min="30" max="180" step="10" value="120" />
-            </label>
-            <label class="lab-range">
-              <span>Payload <b id="arm-load-val">0.0 kg</b></span>
-              <input type="range" id="arm-load" min="0" max="5" step="0.5" value="0" />
-            </label>
-            <div class="lab-actions">
-              <button class="btn btn-sm" type="button" id="arm-challenge">Sort 5 blocks, timed</button>
-              <label class="lab-toggle"><input type="checkbox" id="arm-envelope" /><span>Reach envelope</span></label>
+            <div class="tool-settings">
+              <label class="mini-field"><span>Precision</span>
+                <select id="rot-precision"><option value="4">4 decimals</option><option value="6" selected>6 decimals</option><option value="9">9 decimals</option></select>
+              </label>
+              <label class="mini-field"><span>Copy as</span>
+                <select id="rot-format"><option value="plain">Plain</option><option value="numpy" selected>NumPy</option><option value="matlab">MATLAB</option><option value="latex">LaTeX</option></select>
+              </label>
             </div>
-            <details class="lab-explain">
-              <summary>The science</summary>
-              <p>
-                <b>Kinematics.</b> Link lengths and masses match a Universal Robots UR5. Inverse kinematics is solved in
-                closed form: the base turns toward the target, the shoulder and elbow form a triangle solved with the
-                law of cosines, and the wrist cancels their angles so the gripper points straight down.
-              </p>
-              <p>
-                <b>Motion.</b> Every joint follows a trapezoidal velocity profile: accelerate, cruise at the speed limit,
-                decelerate. That's how industrial controllers move without jerking the arm.
-              </p>
-              <p>
-                <b>Torque.</b> The bars are the static torque each joint needs just to hold the arm up,
-                <span class="eq">τ = Σ m·g·x</span>, against the UR5's rated 150 N·m. Stretch out with 5 kg and watch
-                the shoulder climb. The wrist reads zero because a gripper hanging straight down loads its axis with
-                no lever arm.
-              </p>
-            </details>
-          </aside>
-        </div>
+          </header>
 
-        <noscript><p class="lab-status">These simulations need JavaScript and WebGL.</p></noscript>
+          <div class="rot-grid">
+            <div class="viewport-col">
+              <div class="viewport on-stage" id="rot-view">
+                <canvas id="rot-canvas" role="img" aria-label="3D view of the rotated coordinate frame"></canvas>
+                <div class="viewport-tools seg seg-dark" role="radiogroup" aria-label="Drag mode">
+                  <button type="button" role="radio" aria-checked="true" data-drag="rotate">Rotate frame</button>
+                  <button type="button" role="radio" aria-checked="false" data-drag="orbit">Orbit view</button>
+                </div>
+                <p class="viewport-readout" id="rot-readout" aria-live="polite">Identity</p>
+              </div>
+              <div class="preset-row" aria-label="Presets">
+                <button class="chip-btn" type="button" data-rot-preset="identity">Identity</button>
+                <button class="chip-btn" type="button" data-rot-preset="x90">+90° X</button>
+                <button class="chip-btn" type="button" data-rot-preset="y90">+90° Y</button>
+                <button class="chip-btn" type="button" data-rot-preset="z90">+90° Z</button>
+                <button class="chip-btn" type="button" data-rot-preset="random">Random</button>
+                <button class="chip-btn" type="button" data-rot-preset="inverse">Invert</button>
+              </div>
+              <p class="legend-line"><i class="sw sw-x"></i>x′ <i class="sw sw-y"></i>y′ <i class="sw sw-z"></i>z′ rotated frame · dashed: world frame, Z up · <i class="sw sw-axis"></i>rotation axis</p>
+            </div>
+
+            <div class="rep-col">
+              <section class="rep" data-rep="quat" aria-labelledby="rep-quat-title">
+                <header class="rep-head">
+                  <h3 id="rep-quat-title">Quaternion</h3>
+                  <div class="seg seg-sm" role="radiogroup" aria-label="Component order">
+                    <button type="button" role="radio" aria-checked="true" data-qorder="wxyz">w, x, y, z</button>
+                    <button type="button" role="radio" aria-checked="false" data-qorder="xyzw">x, y, z, w</button>
+                  </div>
+                  <button class="copy-mini" type="button" data-copy-rep="quat">Copy</button>
+                </header>
+                <div class="num-row num-row-4" id="rot-quat"></div>
+                <p class="rep-note" id="rot-quat-note">Scalar first (Hamilton, as in MATLAB and Eigen’s constructor). ROS and SciPy put w last.</p>
+              </section>
+
+              <section class="rep" data-rep="matrix" aria-labelledby="rep-matrix-title">
+                <header class="rep-head">
+                  <h3 id="rep-matrix-title">Rotation matrix</h3>
+                  <button class="copy-mini" type="button" data-copy-rep="matrix">Copy</button>
+                </header>
+                <div class="num-row num-row-3 matrix" id="rot-matrix"></div>
+                <p class="rep-note" id="rot-matrix-note">Columns are the rotated frame’s axes expressed in the world frame.</p>
+              </section>
+
+              <section class="rep" data-rep="euler" aria-labelledby="rep-euler-title">
+                <header class="rep-head">
+                  <h3 id="rep-euler-title">Euler angles</h3>
+                  <button class="copy-mini" type="button" data-copy-rep="euler">Copy</button>
+                </header>
+                <div class="rep-options">
+                  <div class="seg seg-sm" role="radiogroup" aria-label="Convention">
+                    <button type="button" role="radio" aria-checked="true" data-euler-kind="intrinsic">Intrinsic</button>
+                    <button type="button" role="radio" aria-checked="false" data-euler-kind="extrinsic">Extrinsic</button>
+                  </div>
+                  <label class="mini-field inline"><span class="sr-only">Sequence</span>
+                    <select id="rot-seq">
+                      <optgroup label="Tait–Bryan">
+                        <option value="ZYX" selected>Z-Y-X (yaw, pitch, roll)</option>
+                        <option value="XYZ">X-Y-Z</option>
+                        <option value="XZY">X-Z-Y</option>
+                        <option value="YXZ">Y-X-Z</option>
+                        <option value="YZX">Y-Z-X</option>
+                        <option value="ZXY">Z-X-Y</option>
+                      </optgroup>
+                      <optgroup label="Proper Euler">
+                        <option value="ZXZ">Z-X-Z</option>
+                        <option value="ZYZ">Z-Y-Z</option>
+                        <option value="XYX">X-Y-X</option>
+                        <option value="XZX">X-Z-X</option>
+                        <option value="YXY">Y-X-Y</option>
+                        <option value="YZY">Y-Z-Y</option>
+                      </optgroup>
+                    </select>
+                  </label>
+                  <div class="seg seg-sm" role="radiogroup" aria-label="Angle unit">
+                    <button type="button" role="radio" aria-checked="true" data-unit="deg">deg</button>
+                    <button type="button" role="radio" aria-checked="false" data-unit="rad">rad</button>
+                  </div>
+                </div>
+                <div class="num-row num-row-3" id="rot-euler"></div>
+                <p class="rep-note" id="rot-euler-note"></p>
+              </section>
+
+              <section class="rep" data-rep="axis" aria-labelledby="rep-axis-title">
+                <header class="rep-head">
+                  <h3 id="rep-axis-title">Axis–angle</h3>
+                  <button class="copy-mini" type="button" data-copy-rep="axis">Copy</button>
+                </header>
+                <div class="num-row num-row-4" id="rot-axis"></div>
+                <p class="rep-subhead">Rotation vector <span>θ · axis, in radians</span></p>
+                <div class="num-row num-row-3" id="rot-rotvec"></div>
+              </section>
+            </div>
+          </div>
+
+          <details class="tool-notes">
+            <summary>Conventions and method</summary>
+            <div class="notes-grid">
+              <p><b>Frames.</b> Rotations are active and right-handed. A matrix <span class="eq">R</span> maps vectors in the rotated frame to the world frame, so its columns are the rotated axes. Quaternions follow the Hamilton convention, <span class="eq">q = w + xi + yj + zk</span>, and <span class="eq">q</span> and <span class="eq">−q</span> are the same rotation.</p>
+              <p><b>Euler angles.</b> Intrinsic Z-Y-X means rotate about Z, then about the new Y′, then about the new X″: <span class="eq">R = R<sub>z</sub>(α) R<sub>y</sub>(β) R<sub>x</sub>(γ)</span>. Extrinsic X-Y-Z rotates about the fixed axes and produces the same matrix. At gimbal lock the outer angles are not unique; one of them is set to zero.</p>
+              <p><b>Matrices you type</b> are checked for orthonormality. If one is slightly off, as measured or rounded data often is, it is snapped to the nearest rotation by polar decomposition. A reflection (det&nbsp;&lt;&nbsp;0) is rejected.</p>
+            </div>
+          </details>
+        </article>
+
+        <!-- 02 · Body segment calculator -->
+        <article class="tool" id="tool-segments" role="tabpanel" aria-labelledby="tab-segments" hidden>
+          <header class="tool-head">
+            <div>
+              <h2 class="tool-title">Body segment calculator</h2>
+              <p class="tool-desc">Segment parameters for a model or an inverse-dynamics script, from de Leva’s adjustment of Zatsiorsky’s gamma-scan data. Lengths are scaled from stature; type a measured length into any row to use it instead.</p>
+            </div>
+            <div class="tool-settings">
+              <button class="btn btn-ghost btn-sm" type="button" id="seg-csv">Download CSV</button>
+              <label class="mini-field"><span>Copy as</span>
+                <select id="seg-format"><option value="matlab">MATLAB struct</option><option value="python" selected>Python dict</option><option value="json">JSON</option></select>
+              </label>
+              <button class="btn btn-sm" type="button" id="seg-copy">Copy</button>
+            </div>
+          </header>
+
+          <div class="seg-grid">
+            <div class="seg-side">
+              <div class="subject">
+                <div class="field">
+                  <span class="field-label">Sex</span>
+                  <div class="seg" role="radiogroup" aria-label="Sex">
+                    <button type="button" role="radio" aria-checked="true" data-sex="M">Male</button>
+                    <button type="button" role="radio" aria-checked="false" data-sex="F">Female</button>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="field-label" for="seg-height">Stature</label>
+                  <div class="input-unit">
+                    <input id="seg-height" type="text" inputmode="decimal" value="175" autocomplete="off" />
+                    <div class="seg seg-sm" role="radiogroup" aria-label="Stature unit">
+                      <button type="button" role="radio" aria-checked="true" data-hunit="cm">cm</button>
+                      <button type="button" role="radio" aria-checked="false" data-hunit="in">in</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="field-label" for="seg-mass">Body mass</label>
+                  <div class="input-unit">
+                    <input id="seg-mass" type="text" inputmode="decimal" value="75" autocomplete="off" />
+                    <div class="seg seg-sm" role="radiogroup" aria-label="Mass unit">
+                      <button type="button" role="radio" aria-checked="true" data-munit="kg">kg</button>
+                      <button type="button" role="radio" aria-checked="false" data-munit="lb">lb</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <figure class="body-figure">
+                <svg id="seg-figure" viewBox="0 0 240 420" role="img" aria-label="Front-view schematic of the body segments, with each segment’s center of mass"></svg>
+                <figcaption id="seg-caption">Hover a row to find its segment. <span class="com-key" aria-hidden="true"></span> center of mass.</figcaption>
+              </figure>
+            </div>
+
+            <div class="seg-table-wrap">
+              <table class="seg-table" id="seg-table">
+                <caption class="sr-only">Body segment parameters</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Segment</th>
+                    <th scope="col" class="n">Length <small>m</small></th>
+                    <th scope="col" class="n">Mass <small>kg</small></th>
+                    <th scope="col" class="n">CM <small>m from origin</small></th>
+                    <th scope="col" class="n" title="About the sagittal (anterior–posterior) axis">I<sub>sag</sub> <small>kg·m²</small></th>
+                    <th scope="col" class="n" title="About the transverse (medial–lateral) axis">I<sub>trans</sub> <small>kg·m²</small></th>
+                    <th scope="col" class="n" title="About the longitudinal axis">I<sub>long</sub> <small>kg·m²</small></th>
+                  </tr>
+                </thead>
+                <tbody id="seg-body"></tbody>
+                <tfoot>
+                  <tr id="seg-total"></tr>
+                </tfoot>
+              </table>
+              <p class="table-note">Limb rows are for one side. Moments of inertia are about each segment’s own center of mass. The three trunk parts sum to the whole trunk.</p>
+            </div>
+          </div>
+
+          <details class="tool-notes">
+            <summary>Data, endpoints and method</summary>
+            <div class="notes-grid">
+              <p><b>Source.</b> de Leva P. (1996). Adjustments to Zatsiorsky–Seluyanov’s segment inertia parameters. <i>Journal of Biomechanics</i> 29(9): 1223–1230, Table 4. Reference subjects: 100 men (1.741 m, 73.0 kg) and 15 women (1.735 m, 61.9 kg), young adults.</p>
+              <p><b>Scaling.</b> Masses are the published fractions of body mass. Lengths are the reference lengths scaled by stature. Centers of mass and radii of gyration are fractions of each length, so a measured length changes them too: <span class="eq">I = m (r · L)²</span>.</p>
+              <p><b>Endpoints.</b> VERT vertex · MIDG mid-gonion · SUPR suprasternale · XYPH xiphoid · OMPH omphalion · MIDH midpoint of the hip joint centers · SJC, EJC, WJC, HJC, KJC shoulder, elbow, wrist, hip, knee joint centers · MET3 third metacarpale · LMAL lateral malleolus · HEEL · TTIP tip of the longest toe. Centers of mass are measured from the first endpoint listed.</p>
+            </div>
+          </details>
+        </article>
+
+        <!-- 03 · Vibration pattern designer -->
+        <article class="tool" id="tool-haptics" role="tabpanel" aria-labelledby="tab-haptics" hidden>
+          <header class="tool-head">
+            <div>
+              <h2 class="tool-title">Vibration pattern designer</h2>
+              <p class="tool-desc">Shape the envelope by dragging its points, pick an actuator and a carrier, then play it. Export a WAV to drive a voice-coil tactor through an audio amplifier, or an Arduino array for a motor driver.</p>
+            </div>
+            <div class="tool-settings">
+              <button class="btn btn-sm hap-play" type="button" id="hap-play"><span class="play-glyph" aria-hidden="true"></span><span class="play-label">Play</span></button>
+              <button class="btn btn-ghost btn-sm" type="button" id="hap-vibrate" hidden>Vibrate phone</button>
+            </div>
+          </header>
+
+          <div class="hap-presets" role="group" aria-label="Presets">
+            <span class="field-label">Start from</span>
+            <button class="chip-btn" type="button" data-hap-preset="tap">Tap</button>
+            <button class="chip-btn" type="button" data-hap-preset="double">Double tap</button>
+            <button class="chip-btn" type="button" data-hap-preset="heartbeat">Heartbeat</button>
+            <button class="chip-btn" type="button" data-hap-preset="ramp">Ramp up</button>
+            <button class="chip-btn" type="button" data-hap-preset="alert">Alert</button>
+            <button class="chip-btn" type="button" data-hap-preset="wave">Swell</button>
+          </div>
+
+          <div class="scope on-stage">
+            <canvas id="hap-canvas" role="img" aria-label="Vibration waveform with an editable amplitude envelope"></canvas>
+            <p class="scope-hint">Drag points · click the line to add one · double-click a point to remove it</p>
+          </div>
+
+          <div class="hap-grid">
+            <div class="hap-block">
+              <span class="field-label">Actuator</span>
+              <div class="seg seg-stack" role="radiogroup" aria-label="Actuator">
+                <button type="button" role="radio" aria-checked="true" data-actuator="lra"><b>LRA</b><span>Linear resonant, one frequency</span></button>
+                <button type="button" role="radio" aria-checked="false" data-actuator="vc"><b>Voice coil</b><span>Tactor, wide band</span></button>
+                <button type="button" role="radio" aria-checked="false" data-actuator="erm"><b>ERM</b><span>Spinning mass, amplitude only</span></button>
+              </div>
+            </div>
+            <div class="hap-block">
+              <label class="range-field">
+                <span>Carrier <b id="hap-freq-val">175 Hz</b></span>
+                <input type="range" id="hap-freq" min="40" max="400" step="1" value="175" />
+                <span class="range-marks" aria-hidden="true"><i style="--at: 0.5833">Pacinian peak ≈ 250 Hz</i></span>
+              </label>
+              <label class="range-field">
+                <span>Sweep to <b id="hap-freq2-val">Off</b></span>
+                <input type="range" id="hap-freq2" min="0" max="400" step="1" value="0" />
+              </label>
+            </div>
+            <div class="hap-block">
+              <label class="range-field">
+                <span>Duration <b id="hap-dur-val">600 ms</b></span>
+                <input type="range" id="hap-dur" min="40" max="3000" step="10" value="600" />
+              </label>
+              <div class="hap-pair">
+                <label class="range-field">
+                  <span>Repeat <b id="hap-rep-val">1×</b></span>
+                  <input type="range" id="hap-rep" min="1" max="8" step="1" value="1" />
+                </label>
+                <label class="range-field">
+                  <span>Gap <b id="hap-gap-val">200 ms</b></span>
+                  <input type="range" id="hap-gap" min="0" max="1500" step="10" value="200" />
+                </label>
+              </div>
+            </div>
+            <div class="hap-block hap-export">
+              <span class="field-label">Export</span>
+              <div class="export-grid">
+                <button class="export-btn" type="button" data-export="wav"><b>WAV file</b><span>48 kHz, for an amplifier</span></button>
+                <button class="export-btn" type="button" data-export="arduino"><b>Arduino</b><span>PWM array and player</span></button>
+                <button class="export-btn" type="button" data-export="vibrate"><b>Vibration API</b><span>navigator.vibrate()</span></button>
+                <button class="export-btn" type="button" data-export="json"><b>JSON</b><span>The pattern itself</span></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="hap-stats" id="hap-stats" aria-live="polite"></div>
+
+          <details class="tool-notes">
+            <summary>Actuators and perception</summary>
+            <div class="notes-grid">
+              <p><b>LRAs</b> only vibrate strongly near their resonance, commonly 150–235 Hz, so the carrier is locked to it and the envelope does the work. <b>ERMs</b> tie frequency to amplitude and need tens of milliseconds to spin up, so very short pulses feel soft. <b>Voice-coil tactors</b> follow any waveform and are usually driven by an audio amplifier, which is what the WAV export is for.</p>
+              <p><b>Skin.</b> The Pacinian corpuscles that sense vibration are most sensitive around 200–300 Hz; below about 50 Hz the sensation shifts to flutter. Laptop speakers reproduce little under 150 Hz, so preview low carriers on headphones.</p>
+              <p><b>Arduino export</b> writes one PWM duty value every 5 ms. Drive the motor through a transistor or a driver IC, never straight from the pin.</p>
+            </div>
+          </details>
+        </article>
+
+        <noscript><p class="tool-desc">These tools need JavaScript.</p></noscript>
       </section>
     </main>
 
@@ -297,15 +403,8 @@
     </footer>
   </div>
 
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.159.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/"
-      }
-    }
-  </script>
-  <script src="script.js?v=20260927j" defer></script>
-  <script type="module" src="bored.js?v=20260927j"></script>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="script.js?v=20260927z" defer></script>
+  <script type="module" src="bored.js?v=20260927z"></script>
 </body>
 </html>

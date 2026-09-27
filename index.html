@@ -27,8 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="site.css?v=20260927j" />
-  <link rel="modulepreload" href="https://unpkg.com/three@0.159.0/build/three.module.js" crossorigin />
+  <link rel="stylesheet" href="site.css?v=20260927z" />
 </head>
 <body class="home">
   <a class="skip-link" href="#main">Skip to content</a>
@@ -54,49 +53,40 @@
 
     <main id="main">
       <section class="hero on-stage" aria-label="Introduction">
-        <div class="hero-field" data-pin-field aria-hidden="true"></div>
-        <div class="wrap hero-inner">
-          <p class="eyebrow" data-enter style="--d: 0.1s">Mechanical Engineering Ph.D. · Vanderbilt University</p>
-          <h1 class="display">
-            <span class="line-mask"><span style="--d: 0.2s">Engineering</span></span>
-            <span class="line-mask"><span style="--d: 0.32s">you can <em>feel.</em></span></span>
-          </h1>
-          <p class="hero-sub" data-enter style="--d: 0.55s">
-            I’m <strong>Berk Kasimcan</strong>, a mechanical engineer and researcher working across robotics, haptics,
-            and biomechanics. I build technology that is affordable, accessible, and open, so it reaches real people.
-          </p>
-          <div class="hero-cta" data-enter style="--d: 0.7s">
-            <a class="btn" href="projects.html">See the work <span class="arrow" aria-hidden="true">→</span></a>
-            <a class="btn btn-ghost" href="resume.html">Résumé</a>
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow" data-enter style="--d: 0.1s">Ph.D. researcher · Mechanical Engineering · Vanderbilt</p>
+            <h1 class="display">
+              <span class="line-mask"><span style="--d: 0.2s">Engineering</span></span>
+              <span class="line-mask"><span style="--d: 0.32s">you can <em>feel.</em></span></span>
+            </h1>
+            <p class="hero-sub" data-enter style="--d: 0.55s">
+              I’m <strong>Berk Kasimcan</strong>. I design haptic interfaces, robots, and wearable devices around the
+              people who use them, and I build them to be affordable enough to reach those people.
+            </p>
+            <div class="hero-cta" data-enter style="--d: 0.7s">
+              <a class="btn" href="projects.html">See the work <span class="arrow" aria-hidden="true">→</span></a>
+              <a class="btn btn-ghost" href="resume.html">Résumé</a>
+            </div>
           </div>
-          <div class="hero-meta" data-enter style="--d: 0.9s">
-            <div><b>Now</b><span>Ph.D., Vanderbilt</span></div>
-            <div><b>Before</b><span>Johns Hopkins · George Mason</span></div>
-            <div><b>Focus</b><span>Robotics · Haptics · Biomechanics</span></div>
-          </div>
-        </div>
-      </section>
 
-      <div class="marquee" aria-hidden="true">
-        <div class="marquee-track">
-          <span>Robotics</span><span>Haptics</span><span>Biomechanics</span><span>Rehabilitation</span><span>Open source</span><span>Accessibility</span><span>Science policy</span><span>Diplomacy</span>
-          <span>Robotics</span><span>Haptics</span><span>Biomechanics</span><span>Rehabilitation</span><span>Open source</span><span>Accessibility</span><span>Science policy</span><span>Diplomacy</span>
+          <figure class="hero-figure" data-enter style="--d: 0.45s">
+            <div class="walker" data-walker role="img" aria-label="A point-light walker: fifteen dots moving like a person walking"></div>
+            <figcaption class="walker-caption">
+              <span class="walker-title"><b>Fig. 1</b> Point-light walker</span>
+              <span class="walker-readout" data-walker-readout aria-hidden="true">Gait cycle 08% · R knee 12.0° · 1.19 m/s</span>
+              <span class="walker-note">Fifteen markers on normative gait kinematics. Dots alone are enough to see a person
+                (Johansson, 1973). Move to turn it, hover for the skeleton.</span>
+            </figcaption>
+          </figure>
         </div>
-      </div>
 
-      <section class="institutions" aria-labelledby="inst-title">
-        <p class="institutions-label mono" id="inst-title">Trained and worked at</p>
-        <div class="inst-strip">
-          <ul class="inst-track">
-            <li class="inst"><b>VU</b><span>Vanderbilt University</span></li>
-            <li class="inst"><b>JHU</b><span>Johns Hopkins University</span></li>
-            <li class="inst"><b>HU</b><span>Harvard University</span></li>
-            <li class="inst"><b>GMU</b><span>George Mason University</span></li>
-            <li class="inst"><b>UM</b><span>University of Michigan</span></li>
-            <li class="inst"><b>UO</b><span>University of Otago</span></li>
-            <li class="inst"><b>IN</b><span>Inova Neurosurgery</span></li>
-            <li class="inst"><b>CB</b><span>Clinibooth</span></li>
-          </ul>
+        <div class="wrap">
+          <dl class="hero-meta" data-enter style="--d: 0.9s">
+            <div><dt>Now</dt><dd>Ph.D., Vanderbilt · Zelik Lab</dd></div>
+            <div><dt>Before</dt><dd>Johns Hopkins · George Mason</dd></div>
+            <div><dt>Focus</dt><dd>Robotics · Haptics · Biomechanics</dd></div>
+          </dl>
         </div>
       </section>
 
@@ -119,11 +109,11 @@
                 />
               </div>
             </div>
-            <figcaption><span>Fig. 01 · Berk Kasimcan</span><span>Nashville, TN</span></figcaption>
+            <figcaption><span>Berk Kasimcan</span><span>Nashville, TN</span></figcaption>
           </figure>
 
           <div>
-            <p class="eyebrow" id="about-title" data-reveal><span class="idx">01</span> About</p>
+            <p class="eyebrow" id="about-title" data-reveal>About</p>
             <p class="statement" data-words>
               I build technology that is <em>affordable,</em> <em>accessible,</em> and <em>open,</em> so it reaches
               the people who need it most.
@@ -140,74 +130,140 @@
                 Campaign’s Young Professional Program. I volunteer, teach when I can, and I’m always building a project of my own.
               </p>
             </div>
-            <ul class="values" data-reveal>
-              <li><b>Affordable</b><span>Built to be made and afforded widely</span></li>
-              <li><b>Accessible</b><span>Designed with the people who use it</span></li>
-              <li><b>Open</b><span>Shared so others can build on it</span></li>
-            </ul>
+            <dl class="facts" data-reveal>
+              <div><dt>Research</dt><dd>Haptic feedback, wearable biomechanics, rehabilitation and assistive devices</dd></div>
+              <div><dt>Toolbox</dt><dd>Mechanism design, embedded sensing and control, instrumentation, statistics</dd></div>
+              <div><dt>Languages</dt><dd>English, Turkish, Spanish</dd></div>
+            </dl>
           </div>
         </div>
       </section>
 
-      <section class="section on-stage grid-bg" aria-labelledby="focus-title">
+      <section class="section work-section" aria-labelledby="work-title">
         <div class="wrap">
           <div class="section-head">
             <div>
-              <p class="eyebrow" data-reveal><span class="idx">02</span> What I work on</p>
-              <h2 class="h2" id="focus-title" data-reveal>Machines built around <em>people.</em></h2>
+              <p class="eyebrow" data-reveal>Selected work</p>
+              <h2 class="h2" id="work-title" data-reveal>Machines built around <em>people.</em></h2>
             </div>
+            <a class="text-link" href="projects.html" data-reveal>All projects <span aria-hidden="true">→</span></a>
           </div>
-          <div class="focus-grid">
-            <article class="focus-card" data-reveal style="--d: 0s">
-              <span class="focus-num">01</span>
-              <svg class="focus-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 40h14"/><path d="M17 40V30l8-12 10 4"/><circle cx="17" cy="30" r="2.5"/><circle cx="25" cy="18" r="2.5"/><path d="M35 22l3-5M35 22l4 1"/></svg>
-              <h3>Robotics</h3>
-              <p>Mechanism design, embedded sensing, and closed-loop control for manipulators and human-in-the-loop systems.</p>
-            </article>
-            <article class="focus-card" data-reveal style="--d: 0.08s">
-              <span class="focus-num">02</span>
-              <svg class="focus-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="24" cy="24" r="4"/><path d="M14 24a10 10 0 0 1 20 0M8 24a16 16 0 0 1 32 0"/><path d="M24 28v12"/></svg>
-              <h3>Haptics</h3>
-              <p>Interfaces that turn information into touch, from a vibrotactile navigation belt to cross-modal studies for hand rehabilitation.</p>
-            </article>
-            <article class="focus-card" data-reveal style="--d: 0.16s">
-              <span class="focus-num">03</span>
-              <svg class="focus-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="22" cy="8" r="3"/><path d="M22 12l-2 12 6 7-3 11M20 24l-6 8-4 10"/><path d="M21 15l-7 5M21 15l8 3"/><path d="M8 42h8M19 42h8"/></svg>
-              <h3>Biomechanics</h3>
-              <p>How people move, and the assistive and rehabilitation devices that help them move better. My Ph.D. focus at Vanderbilt.</p>
-            </article>
-            <article class="focus-card" data-reveal style="--d: 0.24s">
-              <span class="focus-num">04</span>
-              <svg class="focus-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 18L24 8l16 10"/><path d="M8 18h32M10 40h28M8 44h32"/><path d="M13 22v14M21 22v14M27 22v14M35 22v14"/></svg>
-              <h3>Policy &amp; diplomacy</h3>
-              <p>Science policy and diplomacy, from JHU’s Science Policy and Diplomacy Group to the ONE Campaign’s Young Professional Program.</p>
-            </article>
+
+          <div class="bento">
+            <a class="tile tile-hero" href="projects.html#haptic-belt" data-reveal>
+              <div class="tile-media">
+                <img src="assets/optimized/projects/haptic-belt/cover-960.jpg" srcset="assets/optimized/projects/haptic-belt/cover-480.jpg 480w, assets/optimized/projects/haptic-belt/cover-960.jpg 960w, assets/optimized/projects/haptic-belt/cover-1440.jpg 1440w, assets/optimized/projects/haptic-belt/cover.jpg 1800w" sizes="(max-width: 860px) 92vw, 680px" alt="The haptic feedback belt: a green strap with vibration motors and a white control box" width="1800" height="1350" loading="lazy" decoding="async" />
+              </div>
+              <div class="tile-body">
+                <p class="tile-kicker">Haptics · Johns Hopkins</p>
+                <h3>A belt that points the way by touch</h3>
+                <p>A vibrotactile belt that turns heading and distance into vibration on the waist, with UWB ranging and IMU heading for navigation without sight or sound.</p>
+                <span class="tile-more">Read the project <span aria-hidden="true">→</span></span>
+              </div>
+            </a>
+
+            <a class="tile" href="projects.html#ur5-push-place" data-reveal style="--d: 0.08s">
+              <div class="tile-media is-contain">
+                <img src="assets/optimized/projects/ur5-push-place/cover-960.jpg" srcset="assets/optimized/projects/ur5-push-place/cover-480.jpg 480w, assets/optimized/projects/ur5-push-place/cover-960.jpg 960w, assets/optimized/projects/ur5-push-place/cover-1440.jpg 1440w, assets/optimized/projects/ur5-push-place/cover.jpg 1800w" sizes="(max-width: 860px) 92vw, 480px" alt="Rendering of a UR5e collaborative robot arm" width="1800" height="943" loading="lazy" decoding="async" />
+              </div>
+              <div class="tile-body">
+                <p class="tile-kicker">Robotics · Johns Hopkins</p>
+                <h3>UR5e push-and-place</h3>
+                <p>Resolved-rate control and inverse kinematics, compared on the same manipulation task.</p>
+              </div>
+            </a>
+
+            <a class="tile" href="projects.html#haptics-cross-modal" data-reveal style="--d: 0.16s">
+              <div class="tile-media">
+                <img src="assets/optimized/projects/haptics-cross-modal/cover-960.jpg" srcset="assets/optimized/projects/haptics-cross-modal/cover-480.jpg 480w, assets/optimized/projects/haptics-cross-modal/cover-960.jpg 960w, assets/optimized/projects/haptics-cross-modal/cover-1440.jpg 1440w, assets/optimized/projects/haptics-cross-modal/cover.jpg 1800w" sizes="(max-width: 860px) 92vw, 480px" alt="A participant running a pinch-force haptics experiment at a lab workstation" width="1800" height="1350" loading="lazy" decoding="async" />
+              </div>
+              <div class="tile-body">
+                <p class="tile-kicker">Haptics research · HAMR Lab</p>
+                <h3>Cross-modal matching</h3>
+                <p>How people match intensity across vision, vibration, and pressure, for hand rehabilitation.</p>
+              </div>
+            </a>
+
+            <a class="tile tile-wide" href="projects.html#clinibooth" data-reveal>
+              <div class="tile-media">
+                <img src="assets/optimized/projects/clinibooth/cover-960.jpg" srcset="assets/optimized/projects/clinibooth/cover-480.jpg 480w, assets/optimized/projects/clinibooth/cover-960.jpg 960w, assets/optimized/projects/clinibooth/cover-1440.jpg 1440w, assets/optimized/projects/clinibooth/cover.jpg 1800w" sizes="(max-width: 860px) 92vw, 580px" alt="Berk standing in front of the Clinibooth telemedicine booth prototype" width="1800" height="1350" loading="lazy" decoding="async" />
+              </div>
+              <div class="tile-body">
+                <p class="tile-kicker">MedTech · Clinibooth</p>
+                <h3>A telemedicine diagnostic booth</h3>
+                <p>Led design of the company’s first booth: 100+ CAD and 3D-print iterations to fit EKG, spirometry, and strep testing into one accessible space.</p>
+              </div>
+            </a>
+
+            <a class="tile tile-wide" href="projects.html#migraine-wave" data-reveal style="--d: 0.08s">
+              <div class="tile-media is-screen">
+                <img src="assets/optimized/projects/migraine-app/01-today-960.jpg" srcset="assets/optimized/projects/migraine-app/01-today-480.jpg 480w, assets/optimized/projects/migraine-app/01-today-960.jpg 960w, assets/optimized/projects/migraine-app/01-today-1440.jpg 1440w, assets/optimized/projects/migraine-app/01-today.jpg 1800w" sizes="(max-width: 860px) 92vw, 580px" alt="The MigraineWave Today screen on macOS, with severity, medication and trigger summaries" width="1800" height="1329" loading="lazy" decoding="async" />
+              </div>
+              <div class="tile-body">
+                <p class="tile-kicker">Software · Personal project</p>
+                <h3>MigraineWave for Mac</h3>
+                <p>A private, local-only migraine journal in SwiftUI, with trend insights and a doctor-ready report.</p>
+              </div>
+            </a>
           </div>
         </div>
       </section>
 
-      <section class="section" aria-labelledby="index-title">
+      <section class="section on-stage grid-bg path-section" aria-labelledby="path-title">
         <div class="wrap">
           <div class="section-head">
             <div>
-              <p class="eyebrow" data-reveal><span class="idx">03</span> Sheet index</p>
-              <h2 class="h2" id="index-title" data-reveal>Where to <em>next.</em></h2>
+              <p class="eyebrow" data-reveal>Path</p>
+              <h2 class="h2" id="path-title" data-reveal>Where I’ve <em>trained.</em></h2>
+            </div>
+            <p class="lede" data-reveal>Six universities and three industry teams since 2021. Degrees on top, research and industry below.</p>
+          </div>
+
+          <div class="chart" data-timeline data-reveal style="--start: 2021.5; --end: 2027.5; --now: 2026.74">
+            <div class="chart-axis" aria-hidden="true"></div>
+            <p class="chart-group">Degrees</p>
+            <ol class="chart-rows">
+              <li class="row is-degree" style="--from: 2021.58; --to: 2024.42"><span class="row-label"><b>B.S. Bioengineering</b><span>George Mason · Honors College</span></span><span class="row-track"><span class="bar"></span></span><span class="row-date">2021–24</span></li>
+              <li class="row is-degree" style="--from: 2024.58; --to: 2025.42"><span class="row-label"><b>M.S. Bioengineering</b><span>George Mason · GPA 4.00</span></span><span class="row-track"><span class="bar"></span></span><span class="row-date">2024–25</span></li>
+              <li class="row is-degree" style="--from: 2025.33; --to: 2026.42"><span class="row-label"><b>M.S. Mechanical Engineering</b><span>Johns Hopkins · HAMR Lab · GPA 4.00</span></span><span class="row-track"><span class="bar"></span></span><span class="row-date">2025–26</span></li>
+              <li class="row is-degree is-ongoing" style="--from: 2026.58; --to: 2030.42"><span class="row-label"><b>Ph.D. Mechanical Engineering</b><span>Vanderbilt · Zelik Lab, CREATE</span></span><span class="row-track"><span class="bar"></span></span><span class="row-date">2026–30</span></li>
+            </ol>
+            <p class="chart-group">Research and industry</p>
+            <ol class="chart-rows">
+              <li class="row" style="--from: 2022.42; --to: 2024.08"><span class="row-label"><b>Prostate IR Centers USA</b><span>R&amp;D intern · training models</span></span><span class="row-track"><span class="bar"></span></span><span class="row-date">2022–24</span></li>
+              <li class="row" style="--from: 2022.92; --to: 2023.08"><span class="row-label"><b>University of Otago</b><span>Cakmak Lab · ear morphology</span></span><span class="row-track"><span class="bar"></span></span><span class="row-date">2022–23</span></li>
+              <li class="row" style="--from: 2023.0; --to: 2024.42"><span class="row-label"><b>Johns Hopkins, McCann Lab</b><span>ML-assisted therapeutic support</span></span><span class="row-track"><span class="bar"></span></span><span class="row-date">2023–24</span></li>
+              <li class="row" style="--from: 2023.33; --to: 2023.67"><span class="row-label"><b>University of Michigan</b><span>Shtein Lab · NSF REU</span></span><span class="row-track"><span class="bar"></span></span><span class="row-date">2023</span></li>
+              <li class="row" style="--from: 2023.58; --to: 2024.5"><span class="row-label"><b>George Mason, ImPoWeR Lab</b><span>Hand tactile-proprioceptive assessment</span></span><span class="row-track"><span class="bar"></span></span><span class="row-date">2023–24</span></li>
+              <li class="row" style="--from: 2024.42; --to: 2024.67"><span class="row-label"><b>Harvard, Wyss Institute</b><span>Aizenberg Group · liquid windows</span></span><span class="row-track"><span class="bar"></span></span><span class="row-date">2024</span></li>
+              <li class="row" style="--from: 2024.58; --to: 2025.0"><span class="row-label"><b>Clinibooth</b><span>Design lead · diagnostic booth</span></span><span class="row-track"><span class="bar"></span></span><span class="row-date">2024</span></li>
+              <li class="row" style="--from: 2025.0; --to: 2025.5"><span class="row-label"><b>Inova Neurosurgery</b><span>Outcomes analytics</span></span><span class="row-track"><span class="bar"></span></span><span class="row-date">2025</span></li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section class="section honors-section" aria-labelledby="honors-title">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow" data-reveal>Recognition</p>
+              <h2 class="h2" id="honors-title" data-reveal>A few things I’m <em>proud of.</em></h2>
             </div>
           </div>
-          <ol class="sheet-index" data-reveal>
-            <li><a href="projects.html"><span class="si-num">02</span><span class="si-name">Projects</span><span class="si-desc">Haptic belts, UR5 control, a telemedicine booth, and more</span><span class="si-arrow" aria-hidden="true">→</span></a></li>
-            <li><a href="courses.html"><span class="si-num">03</span><span class="si-name">Highlighted courses</span><span class="si-desc">Robotics, haptics, biomechanics, and policy coursework</span><span class="si-arrow" aria-hidden="true">→</span></a></li>
-            <li><a href="gallery.html"><span class="si-num">04</span><span class="si-name">Gallery</span><span class="si-desc">Labs, conferences, outreach, and travel</span><span class="si-arrow" aria-hidden="true">→</span></a></li>
-            <li><a href="resume.html"><span class="si-num">05</span><span class="si-name">Résumé</span><span class="si-desc">The full CV, ready to download</span><span class="si-arrow" aria-hidden="true">→</span></a></li>
-            <li><a href="bored.html"><span class="si-num">06</span><span class="si-name">Bored?</span><span class="si-desc">A 3D playground: prosthetic hand, gait lab, robot arm</span><span class="si-arrow" aria-hidden="true">→</span></a></li>
+          <ol class="honors">
+            <li data-reveal><span class="honor-figure">1 <small>of</small> 1</span><b>Chair Award</b><span>George Mason Bioengineering, 2024. The department’s highest award, given to one student.</span></li>
+            <li data-reveal style="--d: 0.06s"><span class="honor-figure">Best</span><b>Poster presentation</b><span>Yale Biomedical Engineering Conference, 2023, among top student projects from 25 schools.</span></li>
+            <li data-reveal style="--d: 0.12s"><span class="honor-figure">9 <small>of</small> 1,000+</span><b>Stu Shea Peraton Scholar</b><span>One of nine selected from more than a thousand applicants, 2023.</span></li>
+            <li data-reveal style="--d: 0.18s"><span class="honor-figure">First</span><b>ONE Campaign cohort</b><span>Inaugural scholar, Young Professional Program in science policy and advocacy, 2026.</span></li>
           </ol>
         </div>
       </section>
 
-      <section class="section" style="padding-top: 0" aria-labelledby="life-title">
+      <section class="section beyond-section" aria-labelledby="life-title">
         <div class="wrap">
-          <p class="eyebrow" id="life-title" data-reveal><span class="idx">04</span> Beyond the lab</p>
-          <h2 class="h2" data-reveal>What keeps me <em>curious.</em></h2>
+          <p class="eyebrow" data-reveal>Beyond the lab</p>
+          <h2 class="h2" id="life-title" data-reveal>What keeps me <em>curious.</em></h2>
           <ul class="beyond" data-reveal>
             <li><b>Formula 1 &amp; cars</b><span>The engineering behind every race weekend</span></li>
             <li><b>Rocketry</b><span>NASA Student Launch team, 2020–2021</span></li>
@@ -226,7 +282,7 @@
 
       <section class="contact on-stage grid-bg" id="contact" aria-labelledby="contact-title">
         <div class="wrap">
-          <p class="eyebrow" data-reveal><span class="idx">05</span> Contact</p>
+          <p class="eyebrow" data-reveal>Contact</p>
           <h2 class="display" id="contact-title" data-reveal>Let’s build something that <em>helps.</em></h2>
           <div class="contact-mail" data-reveal>
             <a class="mail-link" href="mailto:berk.kasimcan@vanderbilt.edu">berk.kasimcan@vanderbilt.edu</a>
@@ -255,15 +311,7 @@
     </footer>
   </div>
 
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.159.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/"
-      }
-    }
-  </script>
-  <script src="script.js?v=20260927j" defer></script>
-  <script type="module" src="pin-field.js?v=20260927j"></script>
+  <script src="script.js?v=20260927z" defer></script>
+  <script type="module" src="home-walker.js?v=20260927z"></script>
 </body>
 </html>
