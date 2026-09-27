@@ -3,7 +3,13 @@ const WORDS = [
   "MAKES",
   "WORKS",
   "ROBOT",
-  "HAPTIC",
+  "SERVO",
+  "MOTOR",
+  "DRONE",
+  "LASER",
+  "PIXEL",
+  "BUILD",
+  "SENSE",
   "IDEAS",
   "INPUT",
   "LOOPS",
@@ -83,9 +89,21 @@ const JOKES = [
   "Always learning. Occasionally sleeping.",
   "Think twice. Code once.",
   "Life is short. Make cool stuff.",
-  "Dad Joke of the Day loading...",
 ];
 
+// Both games share the physical keyboard, so keys go to whichever game was used last.
+let activeGame = "wordle";
+
+document.querySelectorAll(".game-card[data-game]").forEach((card) => {
+  card.addEventListener("pointerdown", () => {
+    activeGame = card.dataset.game;
+  });
+  card.addEventListener("focusin", () => {
+    activeGame = card.dataset.game;
+  });
+});
+
+// Wordle
 const wordleBoard = document.getElementById("wordle-board");
 const wordleKeyboard = document.getElementById("wordle-keyboard");
 const wordleStatus = document.getElementById("wordle-status");
@@ -94,12 +112,14 @@ const wordleReset = document.getElementById("wordle-reset");
 let secretWord = "";
 let currentGuess = "";
 let guesses = [];
-const maxGuesses = 5;
+let wordleDone = false;
+const maxGuesses = 6;
 const wordLength = 5;
 let keyboardState = {};
 
 function pickWord() {
-  secretWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+  const choices = WORDS.filter((word) => word.length === wordLength && word !== secretWord);
+  secretWord = choices[Math.floor(Math.random() * choices.length)];
 }
 
 function buildBoard() {
@@ -128,9 +148,14 @@ function buildKeyboard() {
     rowEl.className = "keyboard-row";
     row.forEach((key) => {
       const btn = document.createElement("button");
-      btn.className = "key";
-      btn.textContent = key === "BACK" ? "Back" : key;
-      btn.addEventListener("click", () => handleKey(key));
+      btn.type = "button";
+      btn.className = key.length > 1 ? "key key-wide" : "key";
+      btn.dataset.key = key;
+      btn.textContent = key === "BACK" ? "Back" : key === "ENTER" ? "Enter" : key;
+      btn.addEventListener("click", () => {
+        activeGame = "wordle";
+        handleKey(key);
+      });
       rowEl.appendChild(btn);
     });
     wordleKeyboard.appendChild(rowEl);
@@ -138,9 +163,7 @@ function buildKeyboard() {
 }
 
 function handleKey(key) {
-  if (guesses.length >= maxGuesses) {
-    return;
-  }
+  if (wordleDone) return;
 
   if (key === "ENTER") {
     submitGuess();
@@ -163,6 +186,7 @@ function renderCurrentGuess() {
   if (!row) return;
   [...row.children].forEach((cell, idx) => {
     cell.textContent = currentGuess[idx] || "";
+    cell.classList.toggle("filled", Boolean(currentGuess[idx]));
   });
 }
 
@@ -191,22 +215,21 @@ function colorGuess(guess) {
 }
 
 function updateKeyboard(guess, colors) {
+  const priority = { correct: 3, present: 2, absent: 1 };
   for (let i = 0; i < guess.length; i += 1) {
     const letter = guess[i];
     const status = colors[i];
-    const priority = { correct: 3, present: 2, absent: 1 };
     const current = keyboardState[letter];
     if (!current || priority[status] > priority[current]) {
       keyboardState[letter] = status;
     }
   }
 
-  const keyButtons = wordleKeyboard.querySelectorAll(".key");
-  keyButtons.forEach((btn) => {
-    const letter = btn.textContent === "Back" ? "BACK" : btn.textContent;
-    if (!keyboardState[letter]) return;
+  wordleKeyboard.querySelectorAll(".key").forEach((btn) => {
+    const state = keyboardState[btn.dataset.key];
+    if (!state) return;
     btn.classList.remove("correct", "present", "absent");
-    btn.classList.add(keyboardState[letter]);
+    btn.classList.add(state);
   });
 }
 
@@ -229,14 +252,17 @@ function submitGuess() {
   currentGuess = "";
 
   if (guess === secretWord) {
-    wordleStatus.textContent = "You got it! New word?";
+    wordleDone = true;
+    const tries = guesses.length === 1 ? "1 try" : `${guesses.length} tries`;
+    wordleStatus.textContent = `You got it in ${tries}! Press New Word to play again.`;
     return;
   }
 
   if (guesses.length >= maxGuesses) {
-    wordleStatus.textContent = `Out of tries. Word was ${secretWord}.`;
+    wordleDone = true;
+    wordleStatus.textContent = `Out of tries. The word was ${secretWord}.`;
   } else {
-    wordleStatus.textContent = "Keep going.";
+    wordleStatus.textContent = `Keep going. ${maxGuesses - guesses.length} left.`;
   }
 }
 
@@ -244,24 +270,16 @@ function resetWordle() {
   pickWord();
   guesses = [];
   currentGuess = "";
+  wordleDone = false;
   keyboardState = {};
-  wordleStatus.textContent = "";
+  wordleStatus.textContent = "Type or tap letters, then press Enter.";
   buildBoard();
   buildKeyboard();
 }
 
-wordleReset.addEventListener("click", resetWordle);
-
-document.addEventListener("keydown", (event) => {
-  if (document.activeElement && document.activeElement.tagName === "INPUT") return;
-  const key = event.key.toUpperCase();
-  if (key === "BACKSPACE") {
-    handleKey("BACK");
-  } else if (key === "ENTER") {
-    handleKey("ENTER");
-  } else if (/^[A-Z]$/.test(key)) {
-    handleKey(key);
-  }
+wordleReset.addEventListener("click", () => {
+  activeGame = "wordle";
+  resetWordle();
 });
 
 resetWordle();
@@ -276,14 +294,34 @@ const snakeReset = document.getElementById("snake-reset");
 const ctx = snakeCanvas.getContext("2d");
 const gridSize = 20;
 const tileCount = snakeCanvas.width / gridSize;
+const DIRECTIONS = {
+  up: { x: 0, y: -1 },
+  down: { x: 0, y: 1 },
+  left: { x: -1, y: 0 },
+  right: { x: 1, y: 0 },
+};
+const KEY_DIRECTIONS = {
+  ArrowUp: "up",
+  ArrowDown: "down",
+  ArrowLeft: "left",
+  ArrowRight: "right",
+  w: "up",
+  s: "down",
+  a: "left",
+  d: "right",
+};
 let snake = [{ x: 10, y: 10 }];
 let food = { x: 5, y: 5 };
 let direction = { x: 0, y: 0 };
-let nextDirection = { x: 0, y: 0 };
+let moveQueue = [];
 let running = false;
 let score = 0;
 let snakeInterval = null;
 let gameOver = false;
+
+function getQuote() {
+  return QUOTES[Math.floor(Math.random() * QUOTES.length)];
+}
 
 function randomFood() {
   let pos = { x: 0, y: 0 };
@@ -296,26 +334,30 @@ function randomFood() {
   food = pos;
 }
 
+function stopSnakeTimer() {
+  if (snakeInterval) clearInterval(snakeInterval);
+  snakeInterval = null;
+  running = false;
+}
+
 function resetSnake() {
+  stopSnakeTimer();
   snake = [{ x: 10, y: 10 }];
   direction = { x: 0, y: 0 };
-  nextDirection = { x: 0, y: 0 };
-  running = false;
+  moveQueue = [];
   gameOver = false;
   score = 0;
   snakeScoreEl.textContent = "0";
-  snakeStatus.textContent = "Press any arrow key to start.";
+  snakeStatus.textContent = "Press an arrow key, WASD, or swipe to start.";
   snakeQuote.textContent = "Ready to chase the next idea.";
   randomFood();
   drawSnake();
 }
 
 function startSnake() {
-  if (running) return;
-  if (gameOver) return;
+  if (running || gameOver) return;
   running = true;
   snakeStatus.textContent = "Go!";
-  if (snakeInterval) clearInterval(snakeInterval);
   snakeInterval = setInterval(stepSnake, 110);
 }
 
@@ -332,30 +374,36 @@ function drawSnake() {
   });
 }
 
+function endSnake() {
+  stopSnakeTimer();
+  gameOver = true;
+  snakeStatus.textContent = `Game over with ${score} ${score === 1 ? "dot" : "dots"}. Press any direction to play again.`;
+  snakeQuote.textContent = getQuote();
+}
+
 function stepSnake() {
-  direction = nextDirection;
+  if (moveQueue.length) direction = moveQueue.shift();
   if (direction.x === 0 && direction.y === 0) return;
 
   const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+  const willEat = head.x === food.x && head.y === food.y;
+  // The tail moves out of the way on this step unless the snake is growing.
+  const body = willEat ? snake : snake.slice(0, -1);
 
   if (
     head.x < 0 ||
     head.y < 0 ||
     head.x >= tileCount ||
     head.y >= tileCount ||
-    snake.some((seg) => seg.x === head.x && seg.y === head.y)
+    body.some((seg) => seg.x === head.x && seg.y === head.y)
   ) {
-    running = false;
-    gameOver = true;
-    clearInterval(snakeInterval);
-    snakeStatus.textContent = "Game over. Press New Game to restart.";
-    snakeQuote.textContent = getQuote();
+    endSnake();
     return;
   }
 
   snake.unshift(head);
 
-  if (head.x === food.x && head.y === food.y) {
+  if (willEat) {
     score += 1;
     snakeScoreEl.textContent = String(score);
     snakeQuote.textContent = getQuote();
@@ -367,29 +415,102 @@ function stepSnake() {
   drawSnake();
 }
 
-function handleSnakeKey(key) {
-  if (gameOver) return;
-  if (key === "ArrowUp" || key === "W") {
-    if (direction.y !== 1) nextDirection = { x: 0, y: -1 };
-  } else if (key === "ArrowDown" || key === "S") {
-    if (direction.y !== -1) nextDirection = { x: 0, y: 1 };
-  } else if (key === "ArrowLeft" || key === "A") {
-    if (direction.x !== 1) nextDirection = { x: -1, y: 0 };
-  } else if (key === "ArrowRight" || key === "D") {
-    if (direction.x !== -1) nextDirection = { x: 1, y: 0 };
-  } else {
-    return;
+function turnSnake(name) {
+  const next = DIRECTIONS[name];
+  if (!next) return;
+  activeGame = "snake";
+
+  if (gameOver) resetSnake();
+
+  // Check against the last queued move so two quick presses can't reverse into the body.
+  const last = moveQueue.length ? moveQueue[moveQueue.length - 1] : direction;
+  const reverses = snake.length > 1 && last.x === -next.x && last.y === -next.y;
+  const repeats = last.x === next.x && last.y === next.y;
+  if (!reverses && !repeats && moveQueue.length < 3) {
+    moveQueue.push(next);
   }
   startSnake();
 }
 
-snakeReset.addEventListener("click", resetSnake);
+snakeReset.addEventListener("click", () => {
+  activeGame = "snake";
+  resetSnake();
+});
 
-document.addEventListener("keydown", (event) => {
-  handleSnakeKey(event.key.toUpperCase());
+document.querySelectorAll(".snake-pad [data-dir]").forEach((btn) => {
+  btn.addEventListener("click", () => turnSnake(btn.dataset.dir));
+});
+
+let touchStart = null;
+snakeCanvas.addEventListener(
+  "touchstart",
+  (event) => {
+    const touch = event.changedTouches[0];
+    touchStart = { x: touch.clientX, y: touch.clientY };
+    activeGame = "snake";
+  },
+  { passive: true }
+);
+snakeCanvas.addEventListener(
+  "touchmove",
+  (event) => {
+    event.preventDefault();
+  },
+  { passive: false }
+);
+snakeCanvas.addEventListener("touchend", (event) => {
+  if (!touchStart) return;
+  const touch = event.changedTouches[0];
+  const dx = touch.clientX - touchStart.x;
+  const dy = touch.clientY - touchStart.y;
+  touchStart = null;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
+  if (Math.abs(dx) > Math.abs(dy)) {
+    turnSnake(dx > 0 ? "right" : "left");
+  } else {
+    turnSnake(dy > 0 ? "down" : "up");
+  }
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && running) {
+    stopSnakeTimer();
+    snakeStatus.textContent = "Paused. Press any direction to keep going.";
+  }
 });
 
 resetSnake();
+
+// Shared keyboard handling
+document.addEventListener("keydown", (event) => {
+  if (event.ctrlKey || event.metaKey || event.altKey) return;
+  const target = event.target;
+  if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+  if (document.body.classList.contains("intro-active")) return;
+
+  const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+  const snakeDir = KEY_DIRECTIONS[key];
+  const isArrow = key.startsWith("Arrow");
+
+  if (snakeDir && (isArrow || activeGame === "snake")) {
+    event.preventDefault();
+    turnSnake(snakeDir);
+    return;
+  }
+
+  if (activeGame !== "wordle") return;
+
+  if (key === "Enter") {
+    // Stop Enter from also "clicking" whichever button has focus.
+    event.preventDefault();
+    handleKey("ENTER");
+  } else if (key === "Backspace") {
+    event.preventDefault();
+    handleKey("BACK");
+  } else if (/^[a-z]$/.test(key)) {
+    handleKey(key.toUpperCase());
+  }
+});
 
 // Button press animation
 document.querySelectorAll(".button.secondary").forEach((btn) => {
@@ -403,10 +524,10 @@ document.querySelectorAll(".button.secondary").forEach((btn) => {
 const jokeBar = document.getElementById("joke-bar");
 const jokePreview = document.getElementById("joke-preview");
 const jokeNext = document.getElementById("joke-next");
-let jokeIndex = 0;
+let jokeIndex = Math.floor(Math.random() * JOKES.length);
+let jokeTimer = null;
 
-function nextJoke() {
-  jokeIndex = (jokeIndex + 1) % JOKES.length;
+function showJoke() {
   const text = JOKES[jokeIndex];
   jokeBar.textContent = text;
   jokePreview.textContent = text;
@@ -415,11 +536,20 @@ function nextJoke() {
   jokeBar.classList.add("show");
 }
 
-jokeNext.addEventListener("click", nextJoke);
-
-function rotateJokes() {
-  nextJoke();
-  setInterval(nextJoke, 8000);
+function nextJoke() {
+  jokeIndex = (jokeIndex + 1) % JOKES.length;
+  showJoke();
 }
 
+function rotateJokes() {
+  if (jokeTimer) clearInterval(jokeTimer);
+  jokeTimer = setInterval(nextJoke, 8000);
+}
+
+jokeNext.addEventListener("click", () => {
+  nextJoke();
+  rotateJokes();
+});
+
+showJoke();
 rotateJokes();
