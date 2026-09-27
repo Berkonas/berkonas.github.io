@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Bored? | Berk Kasimcan</title>
-  <meta name="description" content="Bionic Playground: control a myoelectric prosthetic hand, tune a prosthetic gait, and drive a robot arm, right in your browser." />
+  <meta name="description" content="Bionic Playground: 3D simulations of a myoelectric prosthetic hand, prosthetic gait and a UR5-sized robot arm, built on real physics." />
   <meta name="theme-color" content="#091526" />
   <link rel="canonical" href="https://berkonas.github.io/bored.html" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -12,7 +12,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Berk Kasimcan" />
   <meta property="og:title" content="Bored? | Berk Kasimcan" />
-  <meta property="og:description" content="Bionic Playground: control a myoelectric prosthetic hand, tune a prosthetic gait, and drive a robot arm, right in your browser." />
+  <meta property="og:description" content="Bionic Playground: 3D simulations of a myoelectric prosthetic hand, prosthetic gait and a UR5-sized robot arm, built on real physics." />
   <meta property="og:url" content="https://berkonas.github.io/bored.html" />
   <meta property="og:image" content="https://berkonas.github.io/assets/og/og-image.jpg?v=2" />
   <meta property="og:image:type" content="image/jpeg" />
@@ -21,14 +21,15 @@
   <meta property="og:image:alt" content="Berk Kasimcan: Engineering you can feel. Robotics, haptics, healthcare." />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Bored? | Berk Kasimcan" />
-  <meta name="twitter:description" content="Bionic Playground: control a myoelectric prosthetic hand, tune a prosthetic gait, and drive a robot arm, right in your browser." />
+  <meta name="twitter:description" content="Bionic Playground: 3D simulations of a myoelectric prosthetic hand, prosthetic gait and a UR5-sized robot arm, built on real physics." />
   <meta name="twitter:image" content="https://berkonas.github.io/assets/og/og-image.jpg?v=2" />
   <script>document.documentElement.classList.add("js");</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="site.css?v=20260927h" />
-  <link rel="stylesheet" href="bored.css?v=20260927h" />
+  <link rel="stylesheet" href="bored.css?v=20260927i" />
+  <link rel="modulepreload" href="https://unpkg.com/three@0.159.0/build/three.module.js" crossorigin />
 </head>
 <body class="bored-page">
   <a class="skip-link" href="#main">Skip to content</a>
@@ -53,168 +54,234 @@
     </header>
 
     <main id="main">
-    <section class="wrap bionic">
-      <div class="bionic-hero">
-        <p class="bionic-eyebrow">Bored? Step into the lab.</p>
-        <h1 class="page-title">Bionic <em>playground.</em></h1>
-        <p>
-          Three live simulations from the world I work in. Drive a prosthetic hand with your own "muscle" signal,
-          watch how a prosthetic leg changes the way someone walks, and take the controls of a robot arm.
+      <section class="wrap page-head grid-bg">
+        <p class="eyebrow" data-reveal><span class="idx">06</span> Bored? Step into the lab</p>
+        <h1 class="display" data-reveal>Bionic <em>playground.</em></h1>
+        <p class="lede" data-reveal>
+          Three working simulations from the world I research. Drive a prosthetic hand with a muscle signal, watch what
+          a prosthetic knee does to a walk, and run a robot arm built to UR5 dimensions. Every number on screen comes
+          from the physics running underneath it.
         </p>
-      </div>
+        <dl class="titleblock" data-reveal>
+          <div><dt>Sheet</dt><dd>06 / 06</dd></div>
+          <div><dt>Drawing</dt><dd>Bionic playground</dd></div>
+          <div><dt>Scope</dt><dd>Prosthetics · Gait · Robotics</dd></div>
+          <div><dt>Rev</dt><dd>2026.09</dd></div>
+          <div class="tb-mark"><dt>Drawn by B. Kasimcan</dt><dd>36.14° N · 86.80° W</dd></div>
+        </dl>
+      </section>
 
-      <div class="lab-tabs" role="tablist" aria-label="Simulations">
-        <button class="lab-tab" type="button" role="tab" id="tab-myo" aria-controls="lab-myo" aria-selected="true" data-lab="myo">
-          <span class="lab-tab-kicker">01 · Prosthetics</span>
-          <span class="lab-tab-title">Myo Hand</span>
-          <span class="lab-tab-sub">Flex to grip. Don't crush the egg.</span>
-        </button>
-        <button class="lab-tab" type="button" role="tab" id="tab-gait" aria-controls="lab-gait" aria-selected="false" tabindex="-1" data-lab="gait">
-          <span class="lab-tab-kicker">02 · Biomechanics</span>
-          <span class="lab-tab-title">Gait Lab</span>
-          <span class="lab-tab-sub">Swap in a prosthetic knee and ankle.</span>
-        </button>
-        <button class="lab-tab" type="button" role="tab" id="tab-arm" aria-controls="lab-arm" aria-selected="false" tabindex="-1" data-lab="arm">
-          <span class="lab-tab-kicker">03 · Robotics</span>
-          <span class="lab-tab-title">Reach Bot</span>
-          <span class="lab-tab-sub">Inverse kinematics you can feel.</span>
-        </button>
-      </div>
-
-      <!-- Myo Hand -->
-      <div class="lab" id="lab-myo" role="tabpanel" aria-labelledby="tab-myo">
-        <div class="lab-stage lab-stage-myo">
-          <canvas id="myo-canvas" aria-label="Simulated EMG signal and a prosthetic hand gripping an object"></canvas>
-          <div class="flex-pad" id="flex-pad" role="slider" tabindex="0" aria-label="Muscle contraction" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-            <div class="flex-pad-fill" id="flex-pad-fill"></div>
-            <span class="flex-pad-label">Flex</span>
-            <span class="flex-pad-hint">press higher = squeeze harder</span>
-          </div>
+      <section class="wrap bionic" aria-label="Simulations">
+        <div class="lab-tabs" role="tablist" aria-label="Simulations">
+          <button class="lab-tab" type="button" role="tab" id="tab-myo" aria-controls="lab-myo" aria-selected="true" data-lab="myo">
+            <span class="lab-tab-kicker">01 · Prosthetics</span>
+            <span class="lab-tab-title">Myo Hand</span>
+            <span class="lab-tab-sub">Grip with a muscle signal. Friction decides the rest.</span>
+          </button>
+          <button class="lab-tab" type="button" role="tab" id="tab-gait" aria-controls="lab-gait" aria-selected="false" tabindex="-1" data-lab="gait">
+            <span class="lab-tab-kicker">02 · Biomechanics</span>
+            <span class="lab-tab-title">Gait Lab</span>
+            <span class="lab-tab-sub">Swap in a prosthetic knee and watch the forces change.</span>
+          </button>
+          <button class="lab-tab" type="button" role="tab" id="tab-arm" aria-controls="lab-arm" aria-selected="false" tabindex="-1" data-lab="arm">
+            <span class="lab-tab-kicker">03 · Robotics</span>
+            <span class="lab-tab-title">Reach Bot</span>
+            <span class="lab-tab-sub">A UR5-sized arm with exact inverse kinematics.</span>
+          </button>
         </div>
-        <aside class="lab-panel">
-          <div class="lab-readout">
-            <div>
-              <span class="lab-label">Object</span>
-              <strong id="myo-object">Tennis ball</strong>
-              <span class="lab-small" id="myo-band">Safe grip 5–30 N</span>
+
+        <!-- 01 · Myo Hand -->
+        <div class="lab" id="lab-myo" role="tabpanel" aria-labelledby="tab-myo">
+          <div class="lab-stage on-stage">
+            <div class="stage-view">
+              <div class="stage-3d" role="img" aria-label="3D prosthetic hand gripping an object, with force arrows"></div>
+              <div class="stage-labels" aria-hidden="true"></div>
+              <canvas class="hud hud-scope" id="myo-scope" aria-hidden="true"></canvas>
+              <canvas class="hud hud-gauge" id="myo-gauge" aria-hidden="true"></canvas>
+              <div class="flex-pad" id="flex-pad" role="slider" tabindex="0" aria-label="Muscle contraction" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="flex-pad-fill" id="flex-pad-fill"></div>
+                <span class="flex-pad-label">Flex</span>
+                <span class="flex-pad-hint">Press higher to squeeze harder</span>
+              </div>
+              <p class="stage-hint">Drag to orbit · Space also flexes</p>
             </div>
-            <div>
-              <span class="lab-label">Clean lifts</span>
-              <strong id="myo-score">0</strong>
-              <span class="lab-small" id="myo-best">Streak 0</span>
+          </div>
+          <aside class="lab-panel">
+            <div class="lab-readout">
+              <div>
+                <span class="lab-label">Object</span>
+                <strong id="myo-object">Soda can</strong>
+                <span class="lab-small" id="myo-mass">370 g · μ 0.45</span>
+              </div>
+              <div>
+                <span class="lab-label">Safe grip</span>
+                <strong id="myo-band">4.0–40 N</strong>
+                <span class="lab-small">slip ← → crush</span>
+              </div>
+              <div>
+                <span class="lab-label">Clean lifts</span>
+                <strong id="myo-score">0</strong>
+                <span class="lab-small" id="myo-best">Streak 0</span>
+              </div>
+            </div>
+            <p class="lab-status" id="myo-status" aria-live="polite">Press and hold the Flex pad to close the hand.</p>
+            <div class="lab-toggles">
+              <label class="lab-toggle"><input type="checkbox" id="myo-feedback" checked /><span>Grip feedback</span></label>
+              <label class="lab-toggle"><input type="checkbox" id="myo-forces" checked /><span>Free-body forces</span></label>
+            </div>
+            <label class="lab-range">
+              <span>RMS window <b id="myo-window-val">150 ms</b></span>
+              <input type="range" id="myo-window" min="30" max="400" step="10" value="150" />
+            </label>
+            <label class="lab-range">
+              <span>Activation threshold <b id="myo-thr-val">12%</b></span>
+              <input type="range" id="myo-thr" min="4" max="40" step="1" value="12" />
+            </label>
+            <div class="lab-actions">
+              <button class="btn btn-ghost btn-sm" type="button" id="myo-next">Next object</button>
+            </div>
+            <details class="lab-explain">
+              <summary>The science</summary>
+              <p>
+                <b>Signal.</b> Surface EMG is band-limited noise (about 20–450 Hz) whose amplitude grows with muscle
+                activation. The hand takes its RMS over a sliding window; anything above the threshold becomes a motor
+                command. Longer windows are calmer but lag.
+              </p>
+              <p>
+                <b>Grip.</b> Two opposing contacts hold an object only while friction can carry its weight:
+                <span class="eq">2μN ≥ m(g + a)</span>. Below that it slides out. Above the object's breaking load it
+                cracks, bursts or buckles. Lifting follows a minimum-jerk path, the smooth profile people use.
+              </p>
+              <p>
+                Most prosthetic hands give no sense of touch, so users grip by eye. Switch off grip feedback to feel
+                how hard that is. Masses and friction are typical values; breaking loads are approximate.
+              </p>
+            </details>
+          </aside>
+        </div>
+
+        <!-- 02 · Gait Lab -->
+        <div class="lab" id="lab-gait" role="tabpanel" aria-labelledby="tab-gait" hidden>
+          <div class="lab-stage on-stage">
+            <div class="stage-view">
+              <div class="stage-3d" role="img" aria-label="3D walker on a treadmill with ground reaction force arrows"></div>
+              <div class="stage-labels" aria-hidden="true"></div>
+              <div class="stage-tools lab-seg" role="radiogroup" aria-label="Camera">
+                <button type="button" role="radio" aria-checked="true" data-cam="three">3/4</button>
+                <button type="button" role="radio" aria-checked="false" data-cam="side">Side</button>
+                <button type="button" role="radio" aria-checked="false" data-cam="front">Front</button>
+              </div>
+              <p class="stage-hint">Drag to orbit</p>
+            </div>
+            <canvas class="stage-plots" id="gait-plots" aria-label="Hip, knee and ankle angles and vertical ground force over the gait cycle"></canvas>
+          </div>
+          <aside class="lab-panel">
+            <div class="lab-seg" role="radiogroup" aria-label="Right leg">
+              <button type="button" role="radio" aria-checked="true" data-gait-mode="bio">Biological</button>
+              <button type="button" role="radio" aria-checked="false" data-gait-mode="passive">Passive knee</button>
+              <button type="button" role="radio" aria-checked="false" data-gait-mode="powered">Powered knee</button>
+            </div>
+            <div class="lab-readout lab-readout-3">
+              <div><span class="lab-label">Speed</span><strong id="gait-v">1.30</strong><span class="lab-small">m/s</span></div>
+              <div><span class="lab-label">Cadence</span><strong id="gait-cadence">0</strong><span class="lab-small">steps/min</span></div>
+              <div><span class="lab-label">Symmetry</span><strong id="gait-sym">100%</strong><span class="lab-small">stance time</span></div>
+              <div><span class="lab-label">Peak force</span><strong id="gait-peak">1.0×</strong><span class="lab-small">body weight</span></div>
+              <div><span class="lab-label">Stride</span><strong id="gait-stride">1.40</strong><span class="lab-small">m</span></div>
+              <div><span class="lab-label">Legend</span><strong class="legend"><i class="dot dot-r"></i>R <i class="dot dot-l"></i>L</strong><span class="lab-small">dashed: typical</span></div>
+            </div>
+            <p class="lab-status" id="gait-phase" aria-live="off">Right leg: mid stance</p>
+            <label class="lab-range">
+              <span>Walking speed <b id="gait-speed-val">1.30 m/s</b></span>
+              <input type="range" id="gait-speed" min="0.6" max="1.9" step="0.05" value="1.3" />
+            </label>
+            <label class="lab-range">
+              <span>Gait cycle <b id="gait-scrub-val">0%</b></span>
+              <input type="range" id="gait-scrub" min="0" max="100" step="0.5" value="8" aria-label="Scrub through the gait cycle" />
+            </label>
+            <div class="lab-actions">
+              <button class="btn btn-ghost btn-sm" type="button" id="gait-play">Pause</button>
+              <label class="lab-toggle"><input type="checkbox" id="gait-forces" checked /><span>Forces</span></label>
+            </div>
+            <details class="lab-explain">
+              <summary>The science</summary>
+              <p>
+                <b>Motion.</b> Hip, knee and ankle follow the average angles measured in gait labs for healthy adults,
+                on a body built from standard anthropometric ratios (1.75 m, 75 kg). The white dots are the reflective
+                markers a motion-capture system would track.
+              </p>
+              <p>
+                <b>Force.</b> The ground force isn't drawn from a template. It is Newton's second law on the model's
+                own centre of mass, <span class="eq">F = m(g + a)</span>, shared between the feet while both are down.
+                The gold line is that centre of mass vaulting over each leg like an inverted pendulum.
+              </p>
+              <p>
+                <b>Prosthesis.</b> A passive knee must stay straight while it carries weight, and a carbon foot can't
+                push off. The body vaults higher over the stiff leg and timing goes lopsided. A powered knee and ankle
+                put much of that motion back.
+              </p>
+            </details>
+          </aside>
+        </div>
+
+        <!-- 03 · Reach Bot -->
+        <div class="lab" id="lab-arm" role="tabpanel" aria-labelledby="tab-arm" hidden>
+          <div class="lab-stage on-stage">
+            <div class="stage-view">
+              <div class="stage-3d stage-3d-touch" role="img" aria-label="3D robot arm on a table with blocks and a tray"></div>
+              <div class="stage-labels" aria-hidden="true"></div>
+              <div class="stage-tools lab-seg" role="radiogroup" aria-label="Camera">
+                <button type="button" role="radio" aria-checked="true" data-cam="three">3/4</button>
+                <button type="button" role="radio" aria-checked="false" data-cam="top">Top</button>
+                <button type="button" role="radio" aria-checked="false" data-cam="side">Side</button>
+              </div>
+              <p class="stage-hint">Point to move · click a block to pick · right-drag or two fingers to orbit</p>
             </div>
           </div>
-          <p class="lab-status" id="myo-status" aria-live="polite">Press and hold the Flex pad (or Space) to close the hand. Hold the grip in the green band to lift it.</p>
-          <label class="lab-toggle">
-            <input type="checkbox" id="myo-feedback" checked />
-            <span>Haptic feedback (force meter + phone buzz)</span>
-          </label>
-          <label class="lab-range">
-            <span>Smoothing window <b id="myo-window-val">150 ms</b></span>
-            <input type="range" id="myo-window" min="30" max="400" step="10" value="150" />
-          </label>
-          <label class="lab-range">
-            <span>Activation threshold <b id="myo-thr-val">12%</b></span>
-            <input type="range" id="myo-thr" min="4" max="40" step="1" value="12" />
-          </label>
-          <div class="lab-actions">
-            <button class="button secondary" type="button" id="myo-next">Skip object</button>
-          </div>
-          <details class="lab-explain">
-            <summary>What's going on?</summary>
-            <p>
-              Myoelectric prostheses read the tiny electrical signal (EMG) your muscles make when they contract.
-              The raw signal is noisy, so it's rectified and smoothed into an envelope. Anything above a threshold
-              drives the motors in proportion to how hard you flex. A longer smoothing window means a calmer signal but a laggier hand.
-            </p>
-            <p>
-              Most prosthetic hands give no sense of touch, so users grip by eye. Turn off haptic feedback to feel how hard that is.
-            </p>
-          </details>
-        </aside>
-      </div>
-
-      <!-- Gait Lab -->
-      <div class="lab" id="lab-gait" role="tabpanel" aria-labelledby="tab-gait" hidden>
-        <div class="lab-stage">
-          <canvas id="gait-canvas" aria-label="Walking figure on a treadmill with hip, knee and ankle angle plots"></canvas>
+          <aside class="lab-panel">
+            <div class="lab-readout">
+              <div><span class="lab-label">Sorted</span><strong id="arm-score">–</strong><span class="lab-small" id="arm-best">Best –</span></div>
+              <div class="joint-grid" id="arm-joints"></div>
+            </div>
+            <p class="lab-status" id="arm-status" aria-live="polite">Hover over a block and click to pick it up. Drop it in the gold tray.</p>
+            <div>
+              <span class="lab-label">Holding torque vs. rating (N·m)</span>
+              <div class="torque-bars" id="arm-torques"></div>
+            </div>
+            <label class="lab-range">
+              <span>Joint speed limit <b id="arm-speed-val">120°/s</b></span>
+              <input type="range" id="arm-speed" min="30" max="180" step="10" value="120" />
+            </label>
+            <label class="lab-range">
+              <span>Payload <b id="arm-load-val">0.0 kg</b></span>
+              <input type="range" id="arm-load" min="0" max="5" step="0.5" value="0" />
+            </label>
+            <div class="lab-actions">
+              <button class="btn btn-sm" type="button" id="arm-challenge">Sort 5 blocks, timed</button>
+              <label class="lab-toggle"><input type="checkbox" id="arm-envelope" /><span>Reach envelope</span></label>
+            </div>
+            <details class="lab-explain">
+              <summary>The science</summary>
+              <p>
+                <b>Kinematics.</b> Link lengths and masses match a Universal Robots UR5. Inverse kinematics is solved in
+                closed form: the base turns toward the target, the shoulder and elbow form a triangle solved with the
+                law of cosines, and the wrist cancels their angles so the gripper points straight down.
+              </p>
+              <p>
+                <b>Motion.</b> Every joint follows a trapezoidal velocity profile: accelerate, cruise at the speed limit,
+                decelerate. That's how industrial controllers move without jerking the arm.
+              </p>
+              <p>
+                <b>Torque.</b> The bars are the static torque each joint needs just to hold the arm up,
+                <span class="eq">τ = Σ m·g·x</span>, against the UR5's rated 150 N·m. Stretch out with 5 kg and watch
+                the shoulder climb. The wrist reads zero because a gripper hanging straight down loads its axis with
+                no lever arm.
+              </p>
+            </details>
+          </aside>
         </div>
-        <aside class="lab-panel">
-          <div class="lab-seg" role="radiogroup" aria-label="Right leg">
-            <button type="button" role="radio" aria-checked="true" data-gait-mode="bio">Biological</button>
-            <button type="button" role="radio" aria-checked="false" data-gait-mode="passive">Passive prosthesis</button>
-            <button type="button" role="radio" aria-checked="false" data-gait-mode="powered">Powered prosthesis</button>
-          </div>
-          <div class="lab-readout lab-readout-3">
-            <div><span class="lab-label">Cadence</span><strong id="gait-cadence">0</strong><span class="lab-small">steps/min</span></div>
-            <div><span class="lab-label">Symmetry</span><strong id="gait-sym">100%</strong><span class="lab-small">step timing</span></div>
-            <div><span class="lab-label">Energy</span><strong id="gait-energy">Baseline</strong><span class="lab-small">vs. typical walker</span></div>
-          </div>
-          <p class="lab-status" id="gait-phase" aria-live="off">Right leg: mid stance</p>
-          <label class="lab-range">
-            <span>Walking speed <b id="gait-speed-val">1.3 m/s</b></span>
-            <input type="range" id="gait-speed" min="0.5" max="2" step="0.05" value="1.3" />
-          </label>
-          <label class="lab-range">
-            <span>Gait cycle <b id="gait-scrub-val">0%</b></span>
-            <input type="range" id="gait-scrub" min="0" max="100" step="0.5" value="0" aria-label="Scrub through the gait cycle" />
-          </label>
-          <div class="lab-actions">
-            <button class="button secondary" type="button" id="gait-play">Pause</button>
-            <label class="lab-toggle lab-toggle-inline"><input type="checkbox" id="gait-forces" checked /><span>Show forces</span></label>
-          </div>
-          <details class="lab-explain">
-            <summary>What's going on?</summary>
-            <p>
-              The joint curves follow the classic shape of healthy walking. A passive prosthetic knee stays straight
-              while it carries weight and the carbon foot can't push off, so the body vaults over a stiff leg and the
-              other side works harder. Powered knees and ankles add motors to put that push-off back.
-            </p>
-            <p>The energy and symmetry numbers are illustrative, based on typical ranges in gait research.</p>
-          </details>
-        </aside>
-      </div>
 
-      <!-- Reach Bot -->
-      <div class="lab" id="lab-arm" role="tabpanel" aria-labelledby="tab-arm" hidden>
-        <div class="lab-stage">
-          <canvas id="arm-canvas" aria-label="Robot arm that follows your pointer using inverse kinematics"></canvas>
-        </div>
-        <aside class="lab-panel">
-          <div class="lab-readout">
-            <div><span class="lab-label">Challenge</span><strong id="arm-score">–</strong><span class="lab-small" id="arm-best">Best 0</span></div>
-            <div><span class="lab-label">Gripper at</span><strong id="arm-pos">0, 0</strong><span class="lab-small">x, y in mm</span></div>
-          </div>
-          <p class="lab-status" id="arm-status" aria-live="polite">Move your cursor or drag on the stage. The arm solves inverse kinematics every frame.</p>
-          <div class="lab-seg" role="radiogroup" aria-label="Number of joints">
-            <button type="button" role="radio" aria-checked="false" data-arm-links="2">2 joints</button>
-            <button type="button" role="radio" aria-checked="true" data-arm-links="3">3 joints</button>
-            <button type="button" role="radio" aria-checked="false" data-arm-links="4">4 joints</button>
-          </div>
-          <label class="lab-range">
-            <span>Motor speed <b id="arm-speed-val">180°/s</b></span>
-            <input type="range" id="arm-speed" min="30" max="720" step="10" value="180" />
-          </label>
-          <label class="lab-range">
-            <span>Payload <b id="arm-load-val">1.0 kg</b></span>
-            <input type="range" id="arm-load" min="0" max="5" step="0.5" value="1" />
-          </label>
-          <div class="torque-bars" id="arm-torques" aria-label="Gravity torque at each joint"></div>
-          <div class="lab-actions">
-            <button class="button" type="button" id="arm-challenge">Start 30 s challenge</button>
-            <label class="lab-toggle lab-toggle-inline"><input type="checkbox" id="arm-ink" /><span>Ink trail</span></label>
-          </div>
-          <details class="lab-explain">
-            <summary>What's going on?</summary>
-            <p>
-              The arm uses FABRIK, an iterative inverse kinematics solver, to find joint angles that put the gripper
-              on your target. Each motor is speed limited, so it can't teleport. The bars show how much torque each
-              joint needs just to hold the arm and payload against gravity, which is why the base motor is always the biggest.
-            </p>
-          </details>
-        </aside>
-      </div>
-    </section>
+        <noscript><p class="lab-status">These simulations need JavaScript and WebGL.</p></noscript>
+      </section>
     </main>
 
     <footer class="footer">
@@ -230,7 +297,15 @@
     </footer>
   </div>
 
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.159.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/"
+      }
+    }
+  </script>
   <script src="script.js?v=20260927h" defer></script>
-  <script src="bored.js?v=20260927c" defer></script>
+  <script type="module" src="bored.js?v=20260927i"></script>
 </body>
 </html>
