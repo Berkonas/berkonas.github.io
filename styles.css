@@ -1000,6 +1000,11 @@ a {
   color: #2b364a;
 }
 
+.projects-header p a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .project-filters {
   max-width: 980px;
   margin: 0 auto 28px;
