@@ -86,6 +86,9 @@ html {
   text-size-adjust: 100%;
   scroll-behavior: smooth;
   scroll-padding-top: 96px;
+  /* Windows draws a solid grey scrollbar where macOS overlays a thin one;
+     tint it to the palette so it doesn't sit on the page like a stripe. */
+  scrollbar-color: rgb(var(--ink-rgb) / 0.34) var(--paper-2);
 }
 
 body {
@@ -1298,6 +1301,7 @@ main {
   max-height: calc(100dvh - 48px);
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-color: rgb(var(--ink-rgb) / 0.3) transparent;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   background: var(--paper);
   box-shadow: 0 -30px 80px -20px rgba(0, 0, 0, 0.5);
@@ -2974,6 +2978,12 @@ html.intro-lock body {
 
 /* --------------------------------------------------------------------------
    Reduced motion
+   Windows switches this on whenever "Animation effects" is off (also the
+   default in "best performance" mode, remote desktop and many managed PCs),
+   and Android does with "Remove animations" and some battery savers. So
+   rather than freezing the site, keep what stays in place (fades, the
+   walker, the drafting intro, the chart) and drop what travels: slides,
+   zooms, parallax, smooth scrolling. The film strip drifts at half speed.
    -------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -2981,39 +2991,66 @@ html.intro-lock body {
     scroll-behavior: auto;
   }
 
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    transition-delay: 0s !important;
+  .js [data-reveal],
+  .js [data-reveal="scale"] {
+    transform: none;
+    transition: opacity 0.8s var(--ease);
+    transition-delay: var(--d, 0s);
+  }
+
+  .js .hero [data-enter] {
+    transform: none;
+  }
+
+  .js .hero.is-entered [data-enter] {
+    transition: opacity 0.9s var(--ease);
+    transition-delay: var(--d, 0s);
+  }
+
+  .js .hero .line-mask > span {
+    transform: none;
+    opacity: 0;
+  }
+
+  .js .hero.is-entered .line-mask > span {
+    opacity: 1;
+    transition: opacity 1s var(--ease);
+    transition-delay: var(--d, 0s);
   }
 
   .film-track {
-    animation: none !important;
+    animation-duration: 140s;
   }
 
-  .intro {
-    display: none;
+  .intro.is-leaving {
+    clip-path: inset(0 0 0 0);
+    opacity: 0;
+    transition: opacity 0.6s var(--ease);
   }
 
-  .film {
-    overflow-x: auto;
-  }
-
-  .js [data-reveal],
-  .js .hero [data-enter],
-  .js .hero .line-mask > span {
-    opacity: 1 !important;
-    transform: none !important;
-  }
-
-  .js .statement .w {
-    opacity: 1;
+  .intro.is-leaving .intro-mark {
+    transform: none;
   }
 
   .portrait-frame img {
+    transform: none !important;
+  }
+
+  .projects-list .work-card,
+  .gallery-item {
+    animation-name: cardFade;
+  }
+
+  .work-card:hover,
+  .tile:hover {
+    transform: none !important;
+  }
+
+  .work-card:hover .work-media img,
+  .tile:hover .tile-media img,
+  .gallery-item:hover img,
+  .film-item:hover img,
+  .project-gallery-item img:hover {
     transform: none !important;
   }
 
@@ -3025,10 +3062,133 @@ html.intro-lock body {
     transform: rotateY(180deg);
   }
 
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
-    animation: none !important;
+  .sheet-panel,
+  .sheet.open .sheet-panel {
+    transform: none;
+  }
+
+  .sheet-panel {
+    opacity: 0;
+    transition: opacity 0.35s var(--ease);
+  }
+
+  .sheet.open .sheet-panel {
+    opacity: 1;
+  }
+}
+
+@keyframes cardFade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Touch screens: no "stuck" hover
+   Android (and iOS) keep :hover applied after a tap, so buttons stayed gold
+   and cards stayed lifted. On screens without a real hover, show the effect
+   while pressed instead.
+   -------------------------------------------------------------------------- */
+
+@media (hover: none) {
+  .btn:hover {
+    color: var(--btn-fg);
+  }
+
+  .btn:hover::after {
+    transform: translateY(101%);
+  }
+
+  .btn:hover .arrow {
+    transform: none;
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--line-strong);
+  }
+
+  .on-stage .btn-ghost:hover {
+    color: var(--btn-fg);
+    border-color: rgb(var(--on-stage-rgb) / 0.28);
+  }
+
+  .btn:active,
+  .on-stage .btn-ghost:active {
+    color: var(--stage);
+  }
+
+  .btn:active::after {
+    transform: translateY(0);
+    transition-duration: 0.2s;
+  }
+
+  .text-link:hover {
+    background-size: 0 1px;
+  }
+
+  .nav-links a:not([aria-current]):hover {
+    color: rgb(var(--on-stage-rgb) / 0.72);
+    background: transparent;
+  }
+
+  .work-card:hover {
+    transform: none;
+    box-shadow: var(--shadow-1);
+  }
+
+  .work-card:hover .work-media img {
+    transform: scale(1.02);
+  }
+
+  .work-card:hover .work-more .arrow {
+    color: #fff;
+    background: var(--ink);
+    transform: none;
+  }
+
+  .work-card:active {
+    transform: scale(0.99);
+  }
+
+  .course-card:not(.is-flipped):hover .course-card-inner {
+    transform: none;
+  }
+
+  .gallery-item:hover img,
+  .film-item:hover img,
+  .project-gallery-item img:hover {
+    transform: none;
+  }
+
+  .sheet-close:hover {
+    color: #fff;
+    background: rgb(var(--ink-rgb) / 0.78);
+    transform: none;
+  }
+
+  .lightbox-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+
+  .link-button:hover {
+    background: var(--ink);
+    color: var(--on-stage);
+  }
+
+  .link-button.secondary:hover {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--line-strong);
+  }
+
+  .filter-chip:hover {
+    border-color: var(--line-strong);
+  }
+
+  .filter-chip.active:hover {
+    border-color: var(--ink);
   }
 }
 
