@@ -6,7 +6,7 @@
 // hover to reveal the skeleton. Type "tr" or "us" (or triple-click) for a flag.
 // Behind it, one of the three cities in my story, drawn as a line elevation.
 // Once per visit it goes off script; type "dance" for another move.
-import { CITIES, STRIP, PEAK } from "./skylines.js?v=20260928c";
+import { CITIES, STRIP, PEAK, drawFar } from "./skylines.js?v=20260929b";
 
 // --- Kinematics --------------------------------------------------------------
 
@@ -665,7 +665,7 @@ function start(host) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, Hc);
 
-    drawSkyline();
+    drawSkyline(t);
     drawGround();
     drawTrails();
 
@@ -751,7 +751,7 @@ function start(host) {
   const sky = document.createElement("canvas");
   const skyCtx = sky.getContext("2d");
 
-  function drawSkyline() {
+  function drawSkyline(t) {
     if (sky.width !== canvas.width || sky.height !== canvas.height) {
       sky.width = canvas.width;
       sky.height = canvas.height;
@@ -763,36 +763,103 @@ function start(host) {
     const far = project({ x: -1.6 * Math.sin(view.yaw), y: 0, z: -1.6 * Math.cos(view.yaw) });
     const base = far.y - 2;
     const span = STRIP * scale;
-    const offset = -((view.yaw * k) / D) - walked * 5;
-    let x0 = ((offset % span) + span) % span - span;
+    const turn = -(view.yaw * k) / D;
     g.lineJoin = "round";
     g.lineCap = "round";
-    for (; x0 < W; x0 += span) {
-      g.save();
-      g.translate(x0, base);
-      g.scale(scale, scale);
-      g.lineWidth = 1 / scale;
-      g.strokeStyle = `rgba(${BLUE}, 0.11)`;
+
+    // A low glow along the horizon, like city light on a night sky.
+    const glow = g.createRadialGradient(W / 2, base, 0, W / 2, base, W * 0.62);
+    glow.addColorStop(0, `rgba(${BLUE}, 0.1)`);
+    glow.addColorStop(1, `rgba(${BLUE}, 0)`);
+    g.fillStyle = glow;
+    g.fillRect(0, base - Hc * 0.5, W, Hc * 0.5);
+
+    // The moon barely moves: it is the farthest thing in the picture.
+    const mx = W * 0.8 + turn * 0.15;
+    const my = base - PEAK * scale * 0.98;
+    const mr = Math.max(7, 11 * scale * 1.3);
+    g.strokeStyle = `rgba(${INK}, 0.32)`;
+    g.fillStyle = `rgba(${INK}, 0.07)`;
+    g.lineWidth = 1;
+    g.beginPath();
+    if (city.moon === "crescent") {
+      g.arc(mx, my, mr, 0.35 * Math.PI, 1.65 * Math.PI);
+      g.arc(mx + mr * 0.42, my, mr * 0.82, 1.6 * Math.PI, 0.4 * Math.PI, true);
+      g.closePath();
+      g.fill();
+      g.stroke();
+      g.fillStyle = `rgba(${INK}, 0.3)`;
+      g.beginPath();
+      for (let n = 0; n < 10; n++) {
+        const a = -Math.PI / 2 + (n * Math.PI) / 5;
+        const rr = n % 2 ? mr * 0.16 : mr * 0.42;
+        g.lineTo(mx + mr * 1.3 + Math.cos(a) * rr, my + Math.sin(a) * rr);
+      }
+      g.closePath();
+      g.fill();
+    } else {
+      g.arc(mx, my, mr, 0, Math.PI * 2);
+      g.fill();
+      g.stroke();
+    }
+
+    const tile = (offset, fn) => {
+      let x0 = ((offset % span) + span) % span - span;
+      for (; x0 < W; x0 += span) {
+        g.save();
+        g.translate(x0, base);
+        g.scale(scale, scale);
+        g.lineWidth = 1 / scale;
+        fn(x0);
+        g.restore();
+      }
+    };
+
+    // Far layer: fainter and slower, which is what makes the landmarks feel near.
+    tile(turn * 0.7 - walked * 3, () => {
+      g.beginPath();
+      drawFar(g, city.far);
+      g.fillStyle = `rgba(${BLUE}, 0.035)`;
+      g.fill();
+      g.strokeStyle = `rgba(${BLUE}, 0.1)`;
+      g.stroke();
+      city.far.lights.forEach(([x, y], n) => {
+        const a = 0.22 + 0.16 * Math.sin(t * 0.6 + n * 1.7);
+        g.fillStyle = `rgba(${GOLD}, ${a})`;
+        g.fillRect(x - 1.2 / scale, y - 1.2 / scale, 2.4 / scale, 2.4 / scale);
+      });
+    });
+
+    // Landmarks, with red aviation lights blinking on the tallest.
+    tile(turn - walked * 5, () => {
+      g.strokeStyle = `rgba(${BLUE}, 0.12)`;
       g.beginPath();
       city.detail(g);
       g.stroke();
-      g.strokeStyle = `rgba(${BLUE}, 0.26)`;
+      g.strokeStyle = `rgba(${BLUE}, 0.3)`;
       g.beginPath();
       city.draw(g);
       g.stroke();
-      g.restore();
-    }
+      const on = (t % 1.6) < 0.5;
+      city.beacons.forEach(([x, y]) => {
+        g.fillStyle = on ? "rgba(239, 91, 107, 0.85)" : "rgba(239, 91, 107, 0.18)";
+        g.beginPath();
+        g.arc(x, y, 1.9 / scale, 0, Math.PI * 2);
+        g.fill();
+      });
+    });
+
     // Fade the edges and the sky so the drawing melts into the hero.
     g.globalCompositeOperation = "destination-in";
     const fx = g.createLinearGradient(0, 0, W, 0);
     fx.addColorStop(0, "rgba(0,0,0,0)");
-    fx.addColorStop(0.18, "rgba(0,0,0,1)");
-    fx.addColorStop(0.82, "rgba(0,0,0,1)");
+    fx.addColorStop(0.16, "rgba(0,0,0,1)");
+    fx.addColorStop(0.84, "rgba(0,0,0,1)");
     fx.addColorStop(1, "rgba(0,0,0,0)");
     g.fillStyle = fx;
     g.fillRect(0, 0, W, Hc);
-    const fy = g.createLinearGradient(0, base - PEAK * scale, 0, base + 6);
-    fy.addColorStop(0, "rgba(0,0,0,0.35)");
+    const fy = g.createLinearGradient(0, base - PEAK * scale * 1.2, 0, base + 6);
+    fy.addColorStop(0, "rgba(0,0,0,0.45)");
     fy.addColorStop(1, "rgba(0,0,0,1)");
     g.fillStyle = fy;
     g.fillRect(0, 0, W, Hc);
@@ -806,7 +873,7 @@ function start(host) {
     ctx.fillStyle = `rgba(${INK}, 0.38)`;
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
-    ctx.fillText(`${city.name.toUpperCase()} · ${city.coords}`, 4, Hc - 8);
+    ctx.fillText(city.name.toUpperCase(), 4, Hc - 8);
   }
 
   // A drafting grid on the floor that runs backwards like a treadmill belt.

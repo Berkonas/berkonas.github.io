@@ -2,9 +2,9 @@
 // only loaded the first time its tab opens, so the page stays light.
 const tabs = Array.from(document.querySelectorAll(".bench-tab"));
 const loaders = {
-  rotations: () => import("./bored/rotations.js?v=20260928c"),
-  segments: () => import("./bored/segments.js?v=20260928c"),
-  haptics: () => import("./bored/haptics.js?v=20260928c"),
+  rotations: () => import("./bored/rotations.js?v=20260929b"),
+  segments: () => import("./bored/segments.js?v=20260929b"),
+  haptics: () => import("./bored/haptics.js?v=20260929b"),
 };
 const started = {};
 const tools = {};

@@ -600,8 +600,8 @@ function createCourseCard(course) {
   front.className = "course-card-face course-card-front";
   front.innerHTML = `
     <span class="course-code">${code || schoolTag}</span>
-    <h3 class="clamp-3">${title}</h3>
-    <p class="course-instructor clamp-2">${course.instructor}</p>
+    <h3>${title}</h3>
+    <p class="course-instructor">${course.instructor}</p>
     <div class="course-footer">
       <div class="course-tag">${schoolTag}</div>
       <div class="course-hint">Flip ↻</div>
@@ -612,8 +612,8 @@ function createCourseCard(course) {
   back.className = "course-card-face course-card-back";
   back.innerHTML = `
     <span class="course-code">${code || schoolTag}</span>
-    <p class="course-school clamp-1">${course.school}</p>
-    <p class="course-desc clamp-4">${course.description}</p>
+    <p class="course-school">${course.school}</p>
+    <p class="course-desc">${course.description}</p>
     <div class="course-footer">
       <div class="course-hint">Flip back ↺</div>
     </div>

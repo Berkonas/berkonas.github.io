@@ -817,9 +817,6 @@ main {
     grid-column: 1 / -1;
   }
 
-  .walker-note {
-    display: none;
-  }
 }
 
 /* Hero entrance: each line rises out of a mask. */
@@ -1916,8 +1913,11 @@ main {
   outline-offset: 3px;
 }
 
+/* Both faces share one grid cell, so the card grows to fit whichever side
+   has more to say and nothing on the back gets cut off. */
 .course-card-inner {
   position: relative;
+  display: grid;
   height: 100%;
   min-height: inherit;
   transform-style: preserve-3d;
@@ -1933,8 +1933,7 @@ main {
 }
 
 .course-card-face {
-  position: absolute;
-  inset: 0;
+  grid-area: 1 / 1;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -2023,31 +2022,6 @@ main {
 
 .course-card-back .course-hint {
   color: var(--on-stage-faint);
-}
-
-.clamp-1,
-.clamp-2,
-.clamp-3,
-.clamp-4 {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.clamp-1 {
-  -webkit-line-clamp: 1;
-}
-
-.clamp-2 {
-  -webkit-line-clamp: 2;
-}
-
-.clamp-3 {
-  -webkit-line-clamp: 3;
-}
-
-.clamp-4 {
-  -webkit-line-clamp: 5;
 }
 
 /* --------------------------------------------------------------------------
@@ -2208,7 +2182,7 @@ main {
 }
 
 /* --------------------------------------------------------------------------
-   Home — facts, selected work, path, recognition
+   Home — facts, selected work, path
    -------------------------------------------------------------------------- */
 
 .facts {
@@ -2606,89 +2580,6 @@ main {
   }
 }
 
-/* Recognition: four honours, each led by the number that makes it matter. */
-
-.honors {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(16px, 2.4vw, 32px);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.honors li {
-  display: grid;
-  align-content: start;
-  gap: 8px;
-  padding-top: 22px;
-  border-top: 1px solid var(--line-strong);
-}
-
-.honor-figure {
-  margin-bottom: 18px;
-  font-size: clamp(2.1rem, 3vw, 2.9rem);
-  font-weight: 600;
-  font-stretch: var(--wide);
-  line-height: 1;
-  letter-spacing: -0.05em;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
-.honor-figure small {
-  font-size: 0.42em;
-  font-weight: 400;
-  font-style: italic;
-  font-stretch: 100%;
-  letter-spacing: -0.01em;
-  color: var(--accent-ink);
-  vertical-align: 0.3em;
-}
-
-.honors b {
-  font-size: 1.08rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.honors li > span:last-child {
-  font-size: 0.92rem;
-  line-height: 1.55;
-  color: var(--muted);
-}
-
-@media (max-width: 960px) {
-  .honors {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: 40px;
-  }
-}
-
-@media (max-width: 480px) {
-  .honors {
-    column-gap: 16px;
-    row-gap: 30px;
-  }
-
-  .honors li {
-    padding-top: 16px;
-  }
-
-  .honor-figure {
-    margin-bottom: 8px;
-    font-size: 1.7rem;
-  }
-
-  .honors b {
-    font-size: 0.98rem;
-  }
-
-  .honors li > span:last-child {
-    font-size: 0.86rem;
-  }
-}
-
 .beyond-section {
   padding-top: 0;
 }
@@ -2715,11 +2606,6 @@ main {
   padding: 20px 20px 22px;
   border-right: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  transition: background-color 0.3s var(--ease);
-}
-
-.beyond li:hover {
-  background: rgb(var(--ink-rgb) / 0.03);
 }
 
 .beyond b {

@@ -236,10 +236,116 @@ function nashvilleDetail(c) {
   }
 }
 
+// --- Far layers, lights and beacons --------------------------------------------
+// The far layer is a seeded, generated city fabric drawn fainter behind the
+// landmarks. It returns closed shapes (so they can take a faint fill) and the
+// windows that are lit tonight.
+
+function rng(seed) {
+  return () => {
+    seed |= 0;
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function blocks(r, x0, x1, height, lit, out) {
+  for (let x = x0; x < x1; ) {
+    const w = 12 + r() * 26;
+    const h = Math.max(8, height(x + w / 2) * (0.55 + r() * 0.6));
+    out.rects.push([x, h, w]);
+    const n = Math.floor((w * h) / 900 * lit);
+    for (let k = 0; k < n; k++) out.lights.push([x + 3 + r() * (w - 6), -(4 + r() * (h - 8))]);
+    x += w + 2 + r() * 7;
+  }
+}
+
+function nashvilleFar() {
+  const r = rng(615);
+  const out = { rects: [], lights: [], extra: [] };
+  blocks(r, 0, 1000, (x) => 26 + 150 * Math.exp(-(((x - 420) / 230) ** 2)), 1.3, out);
+  return out;
+}
+
+function dcFar() {
+  const r = rng(202);
+  const out = { rects: [], lights: [], extra: [] };
+  // D.C. keeps its buildings low; trees line the Mall.
+  blocks(r, 0, 1000, (x) => 20 + 16 * Math.sin(x / 90) ** 2, 0.9, out);
+  for (let x = 170; x < 340; x += 11 + r() * 6) out.extra.push(["tree", x, 9 + r() * 7]);
+  for (let x = 545; x < 590; x += 12) out.extra.push(["tree", x, 10 + r() * 6]);
+  return out;
+}
+
+function istanbulFar() {
+  const r = rng(34);
+  const out = { rects: [], lights: [], extra: [] };
+  // Houses climbing the seven hills, a few distant minarets, the Asian shore.
+  const hill = (x) => 22 + 34 * (0.5 + 0.5 * Math.sin(x / 120 + 1.2)) + 12 * Math.sin(x / 47);
+  for (let x = 0; x < 620; ) {
+    const w = 7 + r() * 9;
+    const base = hill(x) * 0.55;
+    out.rects.push([x, base + 6 + r() * 10, w]);
+    if (r() < 0.35) out.lights.push([x + w / 2, -(base + 3 + r() * 5)]);
+    x += w + 1 + r() * 3;
+  }
+  for (const x of [120, 280, 470, 560]) out.extra.push(["minaret", x, 70 + r() * 30]);
+  for (let x = 640; x < 1000; x += 8 + r() * 10) {
+    const h = 8 + r() * 10;
+    out.rects.push([x, h, 5 + r() * 6]);
+    if (r() < 0.4) out.lights.push([x + 3, -h + 3]);
+  }
+  return out;
+}
+
+export function drawFar(c, far) {
+  far.rects.forEach(([x, h, w]) => c.rect(x, -h, w, h));
+  far.extra.forEach(([kind, x, h]) => {
+    if (kind === "tree") {
+      c.moveTo(x - h * 0.7, 0);
+      c.arc(x, -h * 0.55, h * 0.7, Math.PI, 0);
+      c.lineTo(x + h * 0.7, 0);
+    } else {
+      c.rect(x - 2, -h, 4, h);
+      c.moveTo(x - 2, -h);
+      c.lineTo(x, -h - 12);
+      c.lineTo(x + 2, -h);
+    }
+  });
+}
+
+// beacons: the red aviation lights on the tallest structures.
+// moon: "full", or "crescent" for İstanbul, which has one on its flag.
 export const CITIES = [
-  { id: "nashville", name: "Nashville", coords: "36.16° N · 86.78° W", draw: nashville, detail: nashvilleDetail },
-  { id: "dc", name: "Washington, D.C.", coords: "38.89° N · 77.03° W", draw: dc, detail: dcDetail },
-  { id: "istanbul", name: "İstanbul", coords: "41.01° N · 28.98° E", draw: istanbul, detail: istanbulDetail },
+  {
+    id: "nashville",
+    name: "Nashville",
+    draw: nashville,
+    detail: nashvilleDetail,
+    far: nashvilleFar(),
+    beacons: [[380, -332], [434, -332], [584, -264]],
+    moon: "full",
+  },
+  {
+    id: "dc",
+    name: "Washington, D.C.",
+    draw: dc,
+    detail: dcDetail,
+    far: dcFar(),
+    beacons: [[357, -320]],
+    moon: "full",
+  },
+  {
+    id: "istanbul",
+    name: "İstanbul",
+    draw: istanbul,
+    detail: istanbulDetail,
+    far: istanbulFar(),
+    beacons: [[700, -178], [930, -178], [517, -216]],
+    moon: "crescent",
+  },
 ];
 
 export const STRIP = 1000; // units per city strip

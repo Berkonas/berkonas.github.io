@@ -15,8 +15,8 @@ import {
   quatToEuler,
   matVec,
   qRandom,
-} from "./rotmath.js?v=20260928c";
-import { segmented, parseNumber, fmt, copyText, palette, fitCanvas } from "./ui.js?v=20260928c";
+} from "./rotmath.js?v=20260929b";
+import { segmented, parseNumber, fmt, copyText, palette, fitCanvas } from "./ui.js?v=20260929b";
 
 const DEG = Math.PI / 180;
 const PRIME = ["", "′", "″"];

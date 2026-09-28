@@ -2,7 +2,7 @@
 // A pattern is an amplitude envelope (breakpoints in normalized time) on a
 // carrier. The same signal function drives the plot, the audio preview, the
 // WAV file and the Arduino table, so what you see is what you export.
-import { segmented, copyText, download, palette, fitCanvas, fmt, prettyJSON } from "./ui.js?v=20260928c";
+import { segmented, copyText, download, palette, fitCanvas, fmt, prettyJSON } from "./ui.js?v=20260929b";
 
 const PRESETS = {
   tap: { dur: 40, freq: 175, freq2: 0, repeat: 1, gap: 200, points: [[0, 0], [0.08, 1], [0.7, 1], [1, 0]] },
