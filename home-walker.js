@@ -6,7 +6,7 @@
 // hover to reveal the skeleton. Type "tr" or "us" (or triple-click) for a flag.
 // Behind it, one of the three cities in my story, drawn as a line elevation.
 // Once per visit it goes off script; type "dance" for another move.
-import { CITIES, STRIP, PEAK, drawFar } from "./skylines.js?v=20260929b";
+import { CITIES, STRIP, PEAK, drawFar } from "./skylines.js?v=20260930a";
 
 // --- Kinematics --------------------------------------------------------------
 
@@ -481,7 +481,6 @@ function start(host) {
   host.appendChild(canvas);
   const ctx = canvas.getContext("2d");
   const readout = document.querySelector("[data-walker-readout]");
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const hero = host.closest(".hero") || host;
 
   // Each visit shows the next city and the next move, so return visits differ.
@@ -505,6 +504,9 @@ function start(host) {
   let W = 0;
   let Hc = 0;
   let dpr = 1;
+  // Sharpness ceiling for the canvas. Starts at 2x and steps down only if
+  // this device is taking too long to draw a frame (see frame() below).
+  let maxDpr = 2;
   let k = 1; // focal length in px
   const view = { yaw: rad(24), pitch: rad(7), tYaw: rad(24), tPitch: rad(7) };
   const D = 4.6; // camera distance, m
@@ -514,7 +516,7 @@ function start(host) {
     const r = host.getBoundingClientRect();
     W = Math.max(1, r.width);
     Hc = Math.max(1, r.height);
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
     canvas.width = Math.round(W * dpr);
     canvas.height = Math.round(Hc * dpr);
     canvas.style.width = `${W}px`;
@@ -571,7 +573,6 @@ function start(host) {
   const raiseFlag = (key) => {
     flag = { cloth: flags[key], born: now() };
     wake();
-    if (reduceMotion.matches) draw(now());
   };
   let taps = [];
   host.addEventListener("pointerdown", (e) => {
@@ -607,7 +608,7 @@ function start(host) {
   let movesPlayed = 0;
 
   function startMove() {
-    if (reduceMotion.matches || act) return;
+    if (act) return;
     const move = MOVES[nextMove];
     nextMove = (nextMove + 1) % MOVES.length;
     // "face" turns the walker toward the camera, for moves that greet you.
@@ -1068,17 +1069,40 @@ function start(host) {
   let inView = true;
   let raf = 0;
 
+  // Frame budget: time our own drawing (not the gap between frames, which a
+  // battery saver can stretch on its own). If a slower phone or laptop GPU
+  // keeps needing more than ~9 ms, render at a lower pixel density so the
+  // walk stays smooth. It never goes below 1x, so it stays crisp.
+  let cost = 0;
+  let costFrames = 0;
+
+  function adaptQuality(ms) {
+    cost = costFrames ? cost * 0.95 + ms * 0.05 : ms;
+    costFrames++;
+    if (costFrames < 90 || cost < 9 || maxDpr <= 1) return;
+    const current = Math.min(window.devicePixelRatio || 1, maxDpr);
+    if (current <= 1) {
+      maxDpr = 1;
+      return;
+    }
+    maxDpr = Math.max(1, current - 0.5);
+    costFrames = 0;
+    resize();
+  }
+
   function frame() {
     raf = 0;
     if (!running) return;
     const t = now();
+    const t0 = performance.now();
     const ps = step(t);
     draw(t, ps);
+    adaptQuality(performance.now() - t0);
     raf = requestAnimationFrame(frame);
   }
 
   function wake() {
-    if (reduceMotion.matches || !inView || document.hidden || running) return;
+    if (!inView || document.hidden || running) return;
     running = true;
     lastT = 0;
     raf = requestAnimationFrame(frame);
@@ -1090,25 +1114,14 @@ function start(host) {
     raf = 0;
   }
 
-  function still() {
-    // Reduced motion: one clear pose at mid-stance, skeleton shown.
-    phase = 0.3;
-    bones = 1;
-    tapBones = true;
-    history.length = 0;
-    draw(now());
-  }
-
   resize();
-  if (reduceMotion.matches) still();
-  else {
-    // Pre-roll so the first frame already has trails.
-    const t0 = now();
-    for (let i = 0; i < 90; i++) step(t0 - (90 - i) / 60);
-    lastT = 0;
-    draw(t0);
-    wake();
-  }
+  // Pre-roll so the first frame already has trails. The walker animates even
+  // with reduced motion on: it moves in place inside its own frame.
+  const t0 = now();
+  for (let i = 0; i < 90; i++) step(t0 - (90 - i) / 60);
+  lastT = 0;
+  draw(t0);
+  wake();
   host.classList.add("is-live");
 
   new IntersectionObserver(([entry]) => {
@@ -1117,15 +1130,6 @@ function start(host) {
     else sleep();
   }).observe(host);
   document.addEventListener("visibilitychange", () => (document.hidden ? sleep() : wake()));
-  reduceMotion.addEventListener?.("change", () => {
-    if (reduceMotion.matches) {
-      sleep();
-      still();
-    } else {
-      tapBones = false;
-      wake();
-    }
-  });
   new ResizeObserver(() => {
     resize();
     if (!running) draw(now());
