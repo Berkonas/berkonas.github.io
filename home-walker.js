@@ -6,7 +6,7 @@
 // hover to reveal the skeleton. Type "tr" or "us" (or triple-click) for a flag.
 // Behind it, one of the three cities in my story, drawn as a line elevation.
 // Once per visit it goes off script; type "dance" for another move.
-import { CITIES, STRIP, PEAK, drawFar } from "./skylines.js?v=20261004b";
+import { CITIES, STRIP, PEAK, drawFar } from "./skylines.js?v=20261005";
 
 // --- Kinematics --------------------------------------------------------------
 
@@ -169,20 +169,41 @@ function pose(p) {
 // the pelvis is then lifted so the lowest point of the body touches the floor.
 
 const smooth01 = (x) => x * x * (3 - 2 * x);
+// Quintic: like smooth01, but acceleration also starts and ends at zero.
+const smoother01 = (x) => x * x * x * (x * (6 * x - 15) + 10);
 const window01 = (u, a, b) => clamp((u - a) / (b - a), 0, 1);
 
-// Keyframes [[u, value], ...], eased between keys.
+// Keyframes [[u, value], ...] through a monotone cubic spline (Fritsch and
+// Carlson). Easing every gap separately stops each limb dead at every key,
+// which reads as robotic; this keeps a joint's speed through a key it passes
+// on its way somewhere, and only comes to rest where the motion turns back,
+// holds, or ends. Monotone, so it never overshoots a key: no knee bends the
+// wrong way between two poses.
 function K(keys) {
+  const n = keys.length;
+  const xs = keys.map((k) => k[0]);
+  const ys = keys.map((k) => k[1]);
+  const d = [];
+  for (let i = 0; i < n - 1; i++) d.push((ys[i + 1] - ys[i]) / (xs[i + 1] - xs[i]));
+  const m = new Array(n).fill(0);
+  for (let i = 1; i < n - 1; i++) {
+    if (d[i - 1] * d[i] <= 0) continue;
+    const h0 = xs[i] - xs[i - 1];
+    const h1 = xs[i + 1] - xs[i];
+    const w1 = 2 * h1 + h0;
+    const w2 = h1 + 2 * h0;
+    m[i] = (w1 + w2) / (w1 / d[i - 1] + w2 / d[i]);
+  }
   return (u) => {
-    if (u <= keys[0][0]) return keys[0][1];
-    for (let i = 1; i < keys.length; i++) {
-      if (u <= keys[i][0]) {
-        const [u0, v0] = keys[i - 1];
-        const [u1, v1] = keys[i];
-        return v0 + (v1 - v0) * smooth01((u - u0) / (u1 - u0));
-      }
-    }
-    return keys[keys.length - 1][1];
+    if (u <= xs[0]) return ys[0];
+    if (u >= xs[n - 1]) return ys[n - 1];
+    let i = 0;
+    while (u > xs[i + 1]) i++;
+    const h = xs[i + 1] - xs[i];
+    const t = (u - xs[i]) / h;
+    const t2 = t * t;
+    const t3 = t2 * t;
+    return (2 * t3 - 3 * t2 + 1) * ys[i] + (t3 - 2 * t2 + t) * h * m[i] + (-2 * t3 + 3 * t2) * ys[i + 1] + (t3 - t2) * h * m[i + 1];
   };
 }
 
@@ -262,7 +283,9 @@ const MOVES = [
       const sh = K([[0, 0], [0.22, -55], [0.33, 175], [0.45, 120], [0.6, 120], [0.72, 90], [0.82, 50], [1, 0]]);
       const elbow = K([[0, 10], [0.22, 5], [0.33, 5], [0.45, 40], [0.6, 40], [0.8, 20], [1, 10]]);
       const lean = K([[0, 3], [0.22, 35], [0.33, -5], [0.45, 10], [0.72, 10], [0.8, 30], [1, 3]]);
-      const pitch = K([[0, 0], [0.33, 0], [0.72, 360]]);
+      // Rotation starts at take-off and runs at a near-even rate in the air,
+      // as a real flip's does, then settles into the landing.
+      const pitch = K([[0, 0], [0.31, 0], [0.37, 28], [0.66, 332], [0.74, 360]]);
       return (u) => ({ hip: hip(u), knee: knee(u), ankle: ankle(u), sh: sh(u), elbow: elbow(u), lean: lean(u), pitch: pitch(u), lift: parabola(u, 0.33, 0.72, 0.55) });
     })(),
   },
@@ -382,6 +405,24 @@ const MOVES = [
   },
 ];
 
+// The entrance: a motion-capture calibration. The subject stands in a T-pose
+// while a scan line finds each marker, the skeleton is solved, the arms come
+// down, and the walk begins. Times are seconds from the hero's entrance.
+const ENTRANCE = {
+  id: "calibrate",
+  dur: 3.1,
+  holdStart: true,
+  scan: [0.25, 1.35], // the scan line's sweep, head to floor
+  solve: [1.3, 2.3], // the skeleton flashes in and out
+  params: (() => {
+    const shAbd = K([[0, 90], [0.56, 90], [0.8, 8]]);
+    const elbow = K([[0, 0], [0.56, 0], [0.8, 10]]);
+    const sh = K([[0, 0], [0.62, -6], [0.82, 0]]);
+    const hipAbd = K([[0, 7], [0.6, 7], [0.82, 4]]);
+    return (u) => ({ shAbd: shAbd(u), elbow: elbow(u), sh: sh(u), hipAbd: hipAbd(u) });
+  })(),
+};
+
 const MARKERS = ["head", "shR", "shL", "elR", "elL", "wrR", "wrL", "hipR", "hipL", "knR", "knL", "anR", "anL", "toR", "toL"];
 const BONES = [
   ["shR", "shL"],
@@ -498,7 +539,7 @@ function start(host) {
   const css = getComputedStyle(document.documentElement);
   const rgb = (name, fallback) => (css.getPropertyValue(name).trim() || fallback).split(/\s+/).join(", ");
   const INK = rgb("--on-stage-rgb", "232 237 244");
-  const GOLD = rgb("--accent-rgb", "255 98 36");
+  const ACCENT = rgb("--accent-rgb", "232 48 75");
   const BLUE = rgb("--blue-rgb", "196 198 204");
 
   let W = 0;
@@ -508,6 +549,7 @@ function start(host) {
   // this device is taking too long to draw a frame (see frame() below).
   let maxDpr = 2;
   let k = 1; // focal length in px
+  let zoom = 1; // the camera eases in during the entrance
   const view = { yaw: rad(24), pitch: rad(7), tYaw: rad(24), tPitch: rad(7) };
   const D = 4.6; // camera distance, m
   const CY = 0.88; // height the camera looks at, m
@@ -536,7 +578,7 @@ function start(host) {
     const y2 = y * cp - z1 * sp;
     const z2 = y * sp + z1 * cp;
     const d = D - z2;
-    const s = k / d;
+    const s = (k * zoom) / d;
     return { x: W * 0.5 + x1 * s, y: Hc * 0.47 - y2 * s, d, s };
   }
 
@@ -601,10 +643,12 @@ function start(host) {
   const history = []; // recent poses in belt coordinates, for trails
   let lastT = 0;
   let lastReadout = 0;
-  let belt = STRIDE * FREQ; // m/s under the feet
+  let belt = 0; // m/s under the feet
+  let gaitRate = 0; // 0 standing, 1 walking; eases between the two
   let act = null; // the move in progress
   let enteredAt = 0;
-  const moveDelay = 2.6 + Math.random() * 2.4;
+  const bootAt = now();
+  const moveDelay = ENTRANCE.dur + 2.6 + Math.random() * 2.4;
   let movesPlayed = 0;
 
   function startMove() {
@@ -620,13 +664,24 @@ function start(host) {
   function step(t) {
     const dt = lastT ? Math.min(0.05, t - lastT) : 1 / 60;
     lastT = t;
-    if (!enteredAt && hero.classList.contains("is-entered")) enteredAt = t;
+    // The calibration plays as the hero arrives (or after a few seconds, if
+    // something keeps the hero from announcing itself), and only once most of
+    // the figure is on screen: on a phone it sits below the fold at first.
+    if (!enteredAt && onScreen && (hero.classList.contains("is-entered") || t - bootAt > 3)) {
+      enteredAt = t;
+      act = { move: ENTRANCE, t0: t, face: 0 };
+    }
     if (!movesPlayed && enteredAt && t - enteredAt > moveDelay) startMove();
     const u = act ? (t - act.t0) / act.move.dur : 0;
     if (act && u >= 1) act = null;
-    // The gait pauses during a move and picks up where it left off.
-    if (!act) phase = (phase + FREQ * dt) % 1;
-    const target = act ? (act.move.belt ? act.move.belt(u) : 0) : STRIDE * FREQ;
+    // The gait slows into a move and picks back up while the move hands over,
+    // rather than freezing mid-stride and restarting at full speed. The belt
+    // follows the legs, so the planted foot never skates.
+    const handingOver = act && act.move.dur - (t - act.t0) < 0.5;
+    const gaitTarget = enteredAt && (!act || handingOver) ? 1 : 0;
+    gaitRate += (gaitTarget - gaitRate) * (1 - Math.exp(-dt * 4));
+    phase = (phase + FREQ * gaitRate * dt) % 1;
+    const target = act && act.move.belt ? act.move.belt(u) : STRIDE * FREQ * gaitRate;
     belt += (target - belt) * (1 - Math.exp(-dt * 6));
     walked += belt * dt;
 
@@ -651,7 +706,8 @@ function start(host) {
         Object.values(mv.m).forEach((p) => (p.y += dy));
         mv.com.y += dy;
       }
-      const w = smooth01(clamp(el / 0.4, 0, 1)) * smooth01(clamp((act.move.dur - el) / 0.45, 0, 1));
+      const into = act.move.holdStart ? 1 : smoother01(clamp(el / 0.45, 0, 1));
+      const w = into * smoother01(clamp((act.move.dur - el) / 0.5, 0, 1));
       const mix = (a, b) => ({ x: a.x + (b.x - a.x) * w, y: a.y + (b.y - a.y) * w, z: a.z + (b.z - a.z) * w });
       const m = {};
       MARKERS.forEach((name) => (m[name] = mix(ps.m[name], mv.m[name])));
@@ -662,12 +718,46 @@ function start(host) {
     return ps;
   }
 
+  // Seconds into the entrance; negative until the hero arrives.
+  const revealAt = (t) => (enteredAt ? t - enteredAt : -1);
+  const easeOut = (x) => 1 - Math.pow(1 - x, 4);
+
+  // The scan ring's height: above the head, down to the floor. It keeps going
+  // (unseen) below the floor afterwards, so the feet's reticles finish too.
+  const scanHeight = (rv) =>
+    2.05 - 2.25 * smoother01(window01(rv, ENTRANCE.scan[0], ENTRANCE.scan[1])) - 2 * Math.max(0, rv - ENTRANCE.scan[1]);
+
+  function drawScan(rv) {
+    if (rv < ENTRANCE.scan[0] || rv > ENTRANCE.scan[1] + 0.25) return;
+    const y = scanHeight(rv);
+    const a = window01(rv, ENTRANCE.scan[0], ENTRANCE.scan[0] + 0.15) * (1 - window01(rv, ENTRANCE.scan[1] - 0.1, ENTRANCE.scan[1] + 0.25));
+    const ring = [];
+    for (let i = 0; i <= 64; i++) {
+      const th = (i / 64) * Math.PI * 2;
+      ring.push(project({ x: 0.05 + 0.62 * Math.cos(th), y, z: 0.62 * Math.sin(th) }));
+    }
+    const trace = (width, alpha) => {
+      ctx.lineWidth = width;
+      ctx.strokeStyle = `rgba(${ACCENT}, ${alpha})`;
+      ctx.beginPath();
+      ring.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
+      ctx.stroke();
+    };
+    trace(6, 0.12 * a);
+    trace(1.2, 0.85 * a);
+  }
+
   function draw(t, ps = pose(phase)) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, Hc);
 
-    drawSkyline(t);
-    drawGround();
+    const rv = revealAt(t);
+    if (rv < 0) return; // nothing on stage until the hero arrives
+    const entering = rv < ENTRANCE.dur + 0.5;
+    zoom = 1 + 0.08 * (1 - easeOut(clamp(rv / 2.4, 0, 1)));
+
+    drawSkyline(t, rv);
+    drawGround(rv);
     drawTrails();
 
     // Markers sorted far to near, sized and lit by depth.
@@ -676,13 +766,16 @@ function start(host) {
     const dMax = D + 0.5;
     const depth = (d) => clamp((dMax - d) / (dMax - dMin), 0, 1);
 
-    if (bones > 0.01) {
+    // "Skeleton solved": the bones flash once during the entrance.
+    const solved = entering ? 0.85 * Math.sin(Math.PI * window01(rv, ENTRANCE.solve[0], ENTRANCE.solve[1])) : 0;
+    const boneAlpha = Math.max(bones, solved);
+    if (boneAlpha > 0.01) {
       ctx.lineCap = "round";
       BONES.forEach(([a, b]) => {
         const pa = project(ps.m[a]);
         const pb = project(ps.m[b]);
         const near = depth((pa.d + pb.d) / 2);
-        ctx.strokeStyle = `rgba(${BLUE}, ${bones * (0.25 + 0.45 * near)})`;
+        ctx.strokeStyle = `rgba(${BLUE}, ${boneAlpha * (0.25 + 0.45 * near)})`;
         ctx.lineWidth = 1 + near * 0.8;
         ctx.beginPath();
         ctx.moveTo(pa.x, pa.y);
@@ -691,42 +784,71 @@ function start(host) {
       });
       const neck = project({ x: (ps.m.shR.x + ps.m.shL.x) / 2, y: (ps.m.shR.y + ps.m.shL.y) / 2, z: (ps.m.shR.z + ps.m.shL.z) / 2 });
       const hd = project(ps.m.head);
-      ctx.strokeStyle = `rgba(${BLUE}, ${bones * 0.45})`;
+      ctx.strokeStyle = `rgba(${BLUE}, ${boneAlpha * 0.45})`;
       ctx.beginPath();
       ctx.moveTo(neck.x, neck.y);
       ctx.lineTo(hd.x, hd.y);
       ctx.stroke();
-      drawKneeAngle(ps);
+      if (bones > 0.01) drawKneeAngle(ps);
     }
+
+    if (entering) drawScan(rv);
 
     if (flag) drawFlag(t, ps);
 
+    // Each marker is found as the scan ring passes it: it lands from a little
+    // larger, and a reticle opens out and fades where it locked on.
+    const scanY = entering ? scanHeight(rv) : -1;
+    let locked = 0;
     pts.sort((a, b) => b.p.d - a.p.d);
     pts.forEach(({ name, p }) => {
+      const found = entering ? clamp((ps.m[name].y - scanY) / 0.22, 0, 1) : 1;
+      if (found >= 1) locked++;
+      if (found <= 0) return;
       const near = depth(p.d);
-      const r = (name === "head" ? 4.6 : 3.3) * (0.75 + 0.5 * near) * (k / 900 + 0.55);
+      const settle = 1 + 0.9 * (1 - easeOut(found));
+      const r = (name === "head" ? 4.6 : 3.3) * (0.75 + 0.5 * near) * (k / 900 + 0.55) * settle;
       const glow = ctx.createRadialGradient(p.x, p.y, r * 0.6, p.x, p.y, r * 2.8);
-      glow.addColorStop(0, `rgba(${INK}, ${0.1 + 0.12 * near})`);
+      glow.addColorStop(0, `rgba(${INK}, ${(0.1 + 0.12 * near) * found})`);
       glow.addColorStop(1, `rgba(${INK}, 0)`);
       ctx.fillStyle = glow;
       ctx.beginPath();
       ctx.arc(p.x, p.y, r * 2.8, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = `rgba(${INK}, ${0.55 + 0.45 * near})`;
+      ctx.fillStyle = `rgba(${INK}, ${(0.55 + 0.45 * near) * found})`;
       ctx.beginPath();
       ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
       ctx.fill();
+      if (entering) {
+        const lock = clamp((ps.m[name].y - scanY) / 0.7, 0, 1);
+        if (lock > 0 && lock < 1) {
+          const rr = r * (1.8 + 3.2 * easeOut(lock));
+          ctx.strokeStyle = `rgba(${ACCENT}, ${0.75 * (1 - lock)})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, rr, 0, Math.PI * 2);
+          for (let q = 0; q < 4; q++) {
+            const a = (q * Math.PI) / 2;
+            ctx.moveTo(p.x + Math.cos(a) * rr, p.y + Math.sin(a) * rr);
+            ctx.lineTo(p.x + Math.cos(a) * (rr + 4), p.y + Math.sin(a) * (rr + 4));
+          }
+          ctx.stroke();
+        }
+      }
     });
 
-    // Centre of mass in orange: the drafting symbol, a quartered circle.
+    // Centre of mass in the accent: the drafting symbol, a quartered circle.
+    // It is computed, not measured, so it appears once every marker is found.
+    const comIn = entering ? easeOut(window01(rv, ENTRANCE.scan[1] - 0.05, ENTRANCE.scan[1] + 0.3)) : 1;
     const c = project(ps.com);
-    const cr = 5.2 * (k / 900 + 0.55);
-    ctx.strokeStyle = `rgba(${GOLD}, 0.95)`;
+    const cr = 5.2 * (k / 900 + 0.55) * (0.4 + 0.6 * comIn);
+    ctx.globalAlpha = comIn;
+    ctx.strokeStyle = `rgba(${ACCENT}, 0.95)`;
     ctx.lineWidth = 1.2;
     ctx.beginPath();
     ctx.arc(c.x, c.y, cr, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.fillStyle = `rgba(${GOLD}, 0.95)`;
+    ctx.fillStyle = `rgba(${ACCENT}, 0.95)`;
     ctx.beginPath();
     ctx.moveTo(c.x, c.y);
     ctx.arc(c.x, c.y, cr, -Math.PI / 2, 0);
@@ -737,10 +859,18 @@ function start(host) {
     ctx.arc(c.x, c.y, cr, Math.PI / 2, Math.PI);
     ctx.closePath();
     ctx.fill();
+    ctx.globalAlpha = 1;
 
     if (readout && t - lastReadout > 0.12) {
       lastReadout = t;
       const a = ps.aR;
+      if (entering && rv < ENTRANCE.dur - 0.35) {
+        readout.textContent =
+          rv < ENTRANCE.scan[1]
+            ? `Calibrating · ${String(locked).padStart(2, "0")}/${MARKERS.length} markers found`
+            : `Skeleton solved · ${BONES.length} segments`;
+        return;
+      }
       readout.textContent = ps.label
         ? `Off script: ${ps.label.toLowerCase()} · R knee ${a.knee.toFixed(1)}°`
         : `Gait cycle ${String(Math.round(a.pct)).padStart(2, "0")}% · R knee ${a.knee.toFixed(1)}° · ${(STRIDE * FREQ).toFixed(2)} m/s`;
@@ -752,7 +882,7 @@ function start(host) {
   const sky = document.createElement("canvas");
   const skyCtx = sky.getContext("2d");
 
-  function drawSkyline(t) {
+  function drawSkyline(t, rv = 9) {
     if (sky.width !== canvas.width || sky.height !== canvas.height) {
       sky.width = canvas.width;
       sky.height = canvas.height;
@@ -826,7 +956,7 @@ function start(host) {
       g.stroke();
       city.far.lights.forEach(([x, y], n) => {
         const a = 0.22 + 0.16 * Math.sin(t * 0.6 + n * 1.7);
-        g.fillStyle = `rgba(${GOLD}, ${a})`;
+        g.fillStyle = `rgba(${ACCENT}, ${a})`;
         g.fillRect(x - 1.2 / scale, y - 1.2 / scale, 2.4 / scale, 2.4 / scale);
       });
     });
@@ -865,9 +995,12 @@ function start(host) {
     g.fillStyle = fy;
     g.fillRect(0, 0, W, Hc);
     g.globalCompositeOperation = "source-over";
+    // During the entrance the city rises a few pixels into place as it fades in.
+    const rise = easeOut(window01(rv, 0.05, 1.3));
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.drawImage(sky, 0, 0);
+    ctx.globalAlpha = rise;
+    ctx.drawImage(sky, 0, (1 - rise) * 16 * dpr);
     ctx.restore();
 
     ctx.font = `500 10px "IBM Plex Mono", ui-monospace, monospace`;
@@ -878,13 +1011,20 @@ function start(host) {
   }
 
   // A drafting grid on the floor that runs backwards like a treadmill belt.
-  function drawGround() {
+  function drawGround(rv = 9) {
     const step = 0.25;
     const off = walked % step;
     const X = 1.6;
     const Z = 0.9;
+    // During the entrance the grid draws outward from under the feet.
+    const reach = rv < 1.4 ? 2.4 * easeOut(window01(rv, 0, 1.2)) : Infinity;
     ctx.lineWidth = 1;
     const line = (a, b, alpha) => {
+      if (reach < Infinity) {
+        const dist = Math.hypot((a.x + b.x) / 2, (a.z + b.z) / 2);
+        alpha *= clamp((reach - dist) / 0.35, 0, 1);
+        if (alpha <= 0) return;
+      }
       const pa = project(a);
       const pb = project(b);
       ctx.strokeStyle = `rgba(${BLUE}, ${alpha})`;
@@ -916,7 +1056,7 @@ function start(host) {
   }
 
   // Long-exposure trails: where the ankles, a wrist and the toe have been,
-  // carried backwards by the belt. The orange line is the centre of mass.
+  // carried backwards by the belt. The red line is the centre of mass.
   function drawTrails() {
     if (history.length < 3) return;
     const nowW = walked;
@@ -941,7 +1081,7 @@ function start(host) {
       }
     };
     TRAILS.forEach((name) => path((h) => h.m[name], INK, 1, 0.3));
-    path((h) => h.com, GOLD, 1.4, 0.7);
+    path((h) => h.com, ACCENT, 1.4, 0.7);
   }
 
   // Knee flexion drawn as a dimension arc on the right knee.
@@ -956,7 +1096,7 @@ function start(host) {
     while (delta > Math.PI) delta -= 2 * Math.PI;
     while (delta < -Math.PI) delta += 2 * Math.PI;
     const r = 26;
-    ctx.strokeStyle = `rgba(${GOLD}, ${bones * 0.9})`;
+    ctx.strokeStyle = `rgba(${ACCENT}, ${bones * 0.9})`;
     ctx.lineWidth = 1;
     ctx.setLineDash([2, 3]);
     ctx.beginPath();
@@ -967,7 +1107,7 @@ function start(host) {
     ctx.beginPath();
     ctx.arc(Kp.x, Kp.y, r, a0, a0 + delta, delta < 0);
     ctx.stroke();
-    ctx.fillStyle = `rgba(${GOLD}, ${bones})`;
+    ctx.fillStyle = `rgba(${ACCENT}, ${bones})`;
     ctx.font = `500 11px "IBM Plex Mono", ui-monospace, monospace`;
     const mid = a0 + delta / 2;
     ctx.fillText(`${ps.aR.knee.toFixed(0)}°`, Kp.x + Math.cos(mid) * (r + 8) + 4, Kp.y + Math.sin(mid) * (r + 8) + 4);
@@ -1051,7 +1191,7 @@ function start(host) {
     g.moveTo(pb.x, pb.y);
     g.lineTo(ptop.x, ptop.y - 4);
     g.stroke();
-    g.fillStyle = `rgb(${GOLD})`;
+    g.fillStyle = `rgb(${ACCENT})`;
     g.beginPath();
     g.arc(ptop.x, ptop.y - 5, 2.6, 0, Math.PI * 2);
     g.fill();
@@ -1067,6 +1207,7 @@ function start(host) {
 
   let running = false;
   let inView = true;
+  let onScreen = false; // at least half the figure has been seen
   let raf = 0;
 
   // Frame budget: time our own drawing (not the gap between frames, which a
@@ -1115,20 +1256,22 @@ function start(host) {
   }
 
   resize();
-  // Pre-roll so the first frame already has trails. The walker animates even
+  // The stage stays empty until the hero arrives, then the calibration plays
+  // and the trails build up from the first step. The walker animates even
   // with reduced motion on: it moves in place inside its own frame.
-  const t0 = now();
-  for (let i = 0; i < 90; i++) step(t0 - (90 - i) / 60);
-  lastT = 0;
-  draw(t0);
+  draw(now());
   wake();
   host.classList.add("is-live");
 
-  new IntersectionObserver(([entry]) => {
-    inView = entry.isIntersecting;
-    if (inView) wake();
-    else sleep();
-  }).observe(host);
+  new IntersectionObserver(
+    ([entry]) => {
+      inView = entry.isIntersecting;
+      if (entry.intersectionRatio >= 0.55) onScreen = true;
+      if (inView) wake();
+      else sleep();
+    },
+    { threshold: [0, 0.55] }
+  ).observe(host);
   document.addEventListener("visibilitychange", () => (document.hidden ? sleep() : wake()));
   new ResizeObserver(() => {
     resize();

@@ -9,7 +9,7 @@
 // innermost stable orbit, r = 3.
 //
 // Adapted from a React component on 21st.dev into plain WebGL for this site:
-// the gas burns white-hot to ember, and the empty sky is the site's own black,
+// the gas burns white-hot to a velvet red, and the empty sky is the site's own black,
 // so the section sits flush with the footer below it.
 
 const VERT = `
@@ -377,8 +377,8 @@ const DISC = {
   grain: 0.48,
   doppler: 0.35,
   hotColor: "#FFFFFF",
-  midColor: "#FF7A33",
-  coolColor: "#C2410C",
+  midColor: "#F0435C",
+  coolColor: "#9E1428",
   exposure: 0.9,
   vignette: 0.28,
   scrimStrength: 0.92,
