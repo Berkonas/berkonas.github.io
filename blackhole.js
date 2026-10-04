@@ -9,8 +9,8 @@
 // innermost stable orbit, r = 3.
 //
 // Adapted from a React component on 21st.dev into plain WebGL for this site:
-// the gas is Vanderbilt gold, and the empty sky is the site's navy rather than
-// black, so the section sits flush with the footer below it.
+// the gas burns white-hot to ember, and the empty sky is the site's own black,
+// so the section sits flush with the footer below it.
 
 const VERT = `
 attribute vec2 aPos;
@@ -267,7 +267,7 @@ void main() {
 `;
 
 // Tone map, then lay the picture over the page colour with a screen blend, so
-// empty sky is navy and the gas brightens it the way light would.
+// empty sky matches the page and the gas brightens it the way light would.
 const COMPOSITE_FRAG = `
 precision highp float;
 varying vec2 vUv;
@@ -372,18 +372,18 @@ const DISC = {
   diskOuter: 15,
   diskThickness: 0.26,
   diskDensity: 1,
-  brightness: 1,
+  brightness: 1.15,
   spinSpeed: 0.06,
   grain: 0.48,
   doppler: 0.35,
-  hotColor: "#FFF4DC",
-  midColor: "#D9A94E",
-  coolColor: "#6E430E",
+  hotColor: "#FFFFFF",
+  midColor: "#FF7A33",
+  coolColor: "#C2410C",
   exposure: 0.9,
   vignette: 0.28,
   scrimStrength: 0.92,
   maxDpr: 1.5,
-  background: "#091526",
+  background: "#080808",
 };
 
 function mount(host, section) {

@@ -9,10 +9,11 @@
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 
-const STAGE = "#091526";
-const STAGE_2 = "#0f213a";
-const INK = "#e8edf4";
-const GOLD = "#d4ac5e";
+const STAGE = "#080808";
+const STAGE_2 = "#161616";
+const INK = "#f5f5f4";
+const SILVER_TOP = "#ffffff";
+const SILVER_BOTTOM = "#8f8f8f";
 
 const QUAD_VERT = /* glsl */ `
 varying vec2 vUv;
@@ -118,9 +119,9 @@ void main() {
              + 0.6 * specular(vec3(1.0, 1.0, -1.0), uShininess * 0.6, uDiffuseness * 0.5, n, eye);
   color += spec * (uBackside > 0.5 ? 0.35 : 1.0);
 
-  // The bevels catch the light warm, a nod to the gold on the rest of the site.
+  // The bevels catch the light and go white.
   float f = pow(1.0 + dot(eye, n), uFresnelPower);
-  color = mix(color, vec3(1.0, 0.95, 0.86), f * (uBackside > 0.5 ? 0.25 : 0.55));
+  color = mix(color, vec3(1.0), f * (uBackside > 0.5 ? 0.25 : 0.55));
   color += vec3(0.004, 0.005, 0.007);
 
   gl_FragColor = vec4(color, 1.0);
@@ -239,7 +240,7 @@ function init(root) {
     // Blueprint grid. Through the glass it bends along with the words.
     const cx = W / 2;
     const gridLines = (step, alpha) => {
-      ctx.strokeStyle = `rgba(118, 170, 222, ${alpha})`;
+      ctx.strokeStyle = `rgba(200, 200, 205, ${alpha})`;
       ctx.lineWidth = 1;
       ctx.beginPath();
       for (let x = (cx % step) + 0.5; x < W; x += step) {
@@ -287,8 +288,18 @@ function init(root) {
     ctx.textBaseline = "alphabetic";
     lines.forEach((line, i) => {
       setFont(line, fs);
-      ctx.fillStyle = line.serif ? GOLD : INK;
-      ctx.fillText(line.text, W * 0.5, cy + cap / 2 + (i - 1) * gap);
+      const y = cy + cap / 2 + (i - 1) * gap;
+      if (line.serif) {
+        // Brushed silver, like the accent words in the page's own type.
+        const metal = ctx.createLinearGradient(0, y - fs * 0.8, 0, y + fs * 0.1);
+        metal.addColorStop(0, SILVER_TOP);
+        metal.addColorStop(0.5, "#d9d9d9");
+        metal.addColorStop(1, SILVER_BOTTOM);
+        ctx.fillStyle = metal;
+      } else {
+        ctx.fillStyle = INK;
+      }
+      ctx.fillText(line.text, W * 0.5, y);
     });
     boardTex.needsUpdate = true;
   }

@@ -1,44 +1,52 @@
 /* ==========================================================================
    Berk Kasimcan — site design system
-   "Drafting room": heritage navy and vellum, with a Commodore-gold accent and
-   blueprint-blue construction lines (Johns Hopkins, George Mason, Vanderbilt).
-   Archivo (wide for display) for text, IBM Plex Mono for technical labels.
+   Monochrome: near-black stages and paper-white pages, brushed-silver accent
+   words, and one signal-orange highlight kept for small things that should
+   catch the eye (the current page, progress, focus, labels).
+   Archivo (wide for display) for text, Instrument Serif for accent words,
+   IBM Plex Mono for technical labels.
    ========================================================================== */
 
 :root {
   color-scheme: light;
 
-  --paper: #eef1f4;
-  --paper-2: #e1e6ec;
-  --surface: #fbfcfd;
-  --ink-rgb: 12 27 46;
+  --paper: #f4f4f2;
+  --paper-2: #e8e8e5;
+  --surface: #ffffff;
+  --ink-rgb: 10 10 10;
   --ink: rgb(var(--ink-rgb));
-  --ink-2: #33445a;
-  --muted: #5f6f84;
-  --line: rgb(var(--ink-rgb) / 0.11);
+  --ink-2: #333333;
+  --muted: #666666;
+  --line: rgb(var(--ink-rgb) / 0.1);
   --line-strong: rgb(var(--ink-rgb) / 0.2);
 
-  --stage-rgb: 9 21 38;
+  --stage-rgb: 8 8 8;
   --stage: rgb(var(--stage-rgb));
-  --stage-2: #0f213a;
-  --stage-3: #17304f;
-  --on-stage-rgb: 232 237 244;
+  --stage-2: #141414;
+  --stage-3: #1f1f1f;
+  --on-stage-rgb: 245 245 244;
   --on-stage: rgb(var(--on-stage-rgb));
-  --on-stage-2: #b6c2d2;
-  --on-stage-muted: #8c9cb2;
-  --on-stage-faint: #5d6e86;
+  --on-stage-2: #c2c2c2;
+  --on-stage-muted: #8f8f8f;
+  --on-stage-faint: #7a7a7a;
   --stage-line: rgb(var(--on-stage-rgb) / 0.12);
 
-  --accent-rgb: 212 172 94;
+  /* Signal orange. --accent-ink is the darker cut for text on white. */
+  --accent-rgb: 255 98 36;
   --accent: rgb(var(--accent-rgb));
-  --accent-soft: #f1e6cf;
-  --accent-ink: #86621c;
+  --accent-soft: #ffe7dc;
+  --accent-ink: #c2410c;
 
-  --blue-rgb: 118 170 222;
+  /* The old blueprint blue, now a neutral silver for lines and drawings. */
+  --blue-rgb: 196 198 204;
   --blue: rgb(var(--blue-rgb));
-  --blue-ink: #2d5b8e;
-  --grid-minor: rgb(var(--blue-rgb) / 0.05);
-  --grid-major: rgb(var(--blue-rgb) / 0.1);
+  --blue-ink: #4a4a4a;
+  --grid-minor: rgb(var(--blue-rgb) / 0.04);
+  --grid-major: rgb(var(--blue-rgb) / 0.08);
+
+  /* Brushed metal, for accent words set on dark and on light. */
+  --metal-dark: linear-gradient(180deg, #ffffff 0%, #d9d9d9 45%, #8f8f8f 100%);
+  --metal-light: linear-gradient(180deg, #5a5a5a 0%, #2a2a2a 55%, #6e6e6e 100%);
 
   --font-sans: "Archivo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -211,10 +219,12 @@ button {
   letter-spacing: -0.04em;
 }
 
-/* Accent words switch to a true italic serif, a drafting-pen counterpoint to
-   the wide grotesque. */
+/* Accent words switch to a true italic serif, cut from brushed metal:
+   graphite on paper, silver on the dark stages. The padding keeps the italic
+   overhang inside the painted box so the last letter is not clipped. */
 .display em,
-.h2 em {
+.h2 em,
+.statement em {
   font-family: var(--font-accent);
   font-style: italic;
   font-weight: 400;
@@ -222,12 +232,21 @@ button {
   font-size: 1.08em;
   line-height: 0.9;
   letter-spacing: -0.015em;
-  color: var(--accent-ink);
+  padding-right: 0.12em;
+  margin-right: -0.12em;
+  color: var(--ink-2);
+  background: var(--metal-light);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 .on-stage .display em,
 .on-stage .h2 em {
-  color: var(--accent);
+  color: var(--on-stage-2);
+  background-image: var(--metal-dark);
 }
 
 .h2 {
@@ -252,16 +271,16 @@ button {
    -------------------------------------------------------------------------- */
 
 /* Liquid metal: a lit gradient with a hairline highlight on the top edge, a
-   shine that sweeps across on hover, and a warm gold halo. The magnetic pull
+   shine that sweeps across on hover, and a soft halo. The magnetic pull
    (script.js) moves the button through --mx / --my. */
 .btn {
-  --btn-bg: linear-gradient(180deg, #213a5c 0%, var(--ink) 52%, #060f1c 100%);
-  --btn-bg-hover: linear-gradient(180deg, #2a4770 0%, #10233c 50%, #07121f 100%);
+  --btn-bg: linear-gradient(180deg, #3a3a3a 0%, #121212 52%, #000000 100%);
+  --btn-bg-hover: linear-gradient(180deg, #4a4a4a 0%, #1a1a1a 50%, #050505 100%);
   --btn-fg: var(--on-stage);
   --btn-border: rgb(var(--ink-rgb) / 0.9);
-  --btn-border-hover: rgb(var(--accent-rgb) / 0.75);
+  --btn-border-hover: #000000;
   --btn-inset: inset 0 1px 0 rgb(255 255 255 / 0.16);
-  --btn-glow: 0 0 0 1px rgb(var(--accent-rgb) / 0.14), 0 10px 28px -10px rgb(var(--accent-rgb) / 0.55);
+  --btn-glow: 0 12px 28px -12px rgb(0 0 0 / 0.55);
   --btn-shine: rgb(255 255 255 / 0.22);
   --mx: 0px;
   --my: 0px;
@@ -335,40 +354,41 @@ button {
 
 .btn:hover .arrow {
   transform: translateX(3px);
+  color: var(--accent);
 }
 
 .btn-ghost {
   --btn-bg: linear-gradient(135deg, rgb(255 255 255 / 0.7), rgb(255 255 255 / 0.32) 50%, rgb(var(--blue-rgb) / 0.12));
-  --btn-bg-hover: linear-gradient(135deg, rgb(255 255 255 / 0.95), rgb(var(--accent-rgb) / 0.12) 55%, rgb(var(--blue-rgb) / 0.16));
+  --btn-bg-hover: linear-gradient(135deg, rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.6) 55%, rgb(var(--blue-rgb) / 0.2));
   --btn-fg: var(--ink);
   --btn-border: var(--line-strong);
-  --btn-border-hover: rgb(var(--accent-rgb) / 0.85);
+  --btn-border-hover: rgb(var(--ink-rgb) / 0.55);
   --btn-inset: inset 0 1px 0 rgb(255 255 255 / 0.9);
-  --btn-glow: 0 10px 26px -14px rgb(var(--accent-rgb) / 0.7);
+  --btn-glow: 0 12px 26px -14px rgb(0 0 0 / 0.35);
   --btn-shine: rgb(255 255 255 / 0.85);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
 .on-stage .btn {
-  --btn-bg: linear-gradient(180deg, #ffffff 0%, #ecebe7 48%, #d3d0c8 100%);
-  --btn-bg-hover: linear-gradient(180deg, #ffffff 0%, #fbf2df 42%, #e7d2a6 100%);
+  --btn-bg: linear-gradient(180deg, #ffffff 0%, #e7e7e7 48%, #cfcfcf 100%);
+  --btn-bg-hover: linear-gradient(180deg, #ffffff 0%, #f4f4f4 42%, #dadada 100%);
   --btn-fg: var(--stage);
   --btn-border: #fff;
-  --btn-border-hover: #fff6e3;
+  --btn-border-hover: #ffffff;
   --btn-inset: inset 0 1px 0 rgb(255 255 255 / 0.95);
-  --btn-glow: 0 0 24px rgb(var(--accent-rgb) / 0.38), 0 8px 18px rgb(255 255 255 / 0.1);
+  --btn-glow: 0 0 26px rgb(255 255 255 / 0.28), 0 8px 18px rgb(255 255 255 / 0.12);
   --btn-shine: rgb(255 255 255 / 0.6);
 }
 
 .on-stage .btn-ghost {
   --btn-bg: linear-gradient(135deg, rgb(255 255 255 / 0.12), rgb(0 0 0 / 0.42) 46%, rgb(var(--blue-rgb) / 0.12));
-  --btn-bg-hover: linear-gradient(135deg, rgb(255 240 210 / 0.2), rgb(0 0 0 / 0.32) 48%, rgb(var(--accent-rgb) / 0.16));
+  --btn-bg-hover: linear-gradient(135deg, rgb(255 255 255 / 0.18), rgb(0 0 0 / 0.32) 48%, rgb(255 255 255 / 0.1));
   --btn-fg: var(--on-stage);
   --btn-border: rgb(var(--on-stage-rgb) / 0.32);
-  --btn-border-hover: rgb(var(--accent-rgb) / 0.85);
-  --btn-inset: inset 0 1px 0 rgb(255 255 255 / 0.14);
-  --btn-glow: 0 0 22px rgb(var(--accent-rgb) / 0.26);
+  --btn-border-hover: rgb(255 255 255 / 0.8);
+  --btn-inset: inset 0 1px 0 rgb(255 255 255 / 0.2);
+  --btn-glow: 0 0 22px rgb(255 255 255 / 0.16);
   --btn-shine: rgb(255 255 255 / 0.2);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
@@ -449,7 +469,8 @@ button {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: var(--accent);
+  background: linear-gradient(180deg, #ffffff 0%, #e4e4e4 55%, #c9c9c9 100%);
+  box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgb(255 255 255 / 0.08);
   color: var(--stage);
   font-family: var(--font-mono);
   font-size: 0.72rem;
@@ -508,7 +529,7 @@ button {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-/* Tubelight: a gold lamp on the nav's top edge above the current page, with
+/* Tubelight: an orange lamp on the nav's top edge above the current page, with
    its light spilling down onto the link. */
 .nav-links a[aria-current="page"]::before {
   content: "";
@@ -564,7 +585,7 @@ button {
   opacity: 1;
 }
 
-/* Reading progress, drawn as a gold hairline along the pill's lower edge. */
+/* Reading progress, drawn as an orange hairline along the pill's lower edge. */
 .nav::after {
   content: "";
   position: absolute;
@@ -826,8 +847,7 @@ main {
 }
 
 .hero .display em {
-  color: var(--accent);
-  padding-right: 0.06em;
+  background-image: var(--metal-dark);
 }
 
 .hero-sub {
@@ -1029,14 +1049,20 @@ main {
   margin: 0 0 24px;
   padding: 8px 14px 8px 10px;
   border-radius: var(--radius-pill);
-  border: 1px solid rgb(var(--accent-rgb) / 0.22);
-  background: linear-gradient(90deg, rgb(var(--accent-rgb) / 0.26) 0%, var(--stage-3) 48%, rgb(var(--stage-rgb) / 0.6) 100%);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: linear-gradient(90deg, #6f6f6f 0%, #262626 52%, #0a0a0a 100%);
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08);
   font-family: var(--font-mono);
   font-size: 0.72rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--on-stage);
+}
+
+@media (max-width: 520px) {
+  .badge-long {
+    display: none;
+  }
 }
 
 .badge-star {
@@ -1162,11 +1188,9 @@ main {
 }
 
 .statement em {
-  font-family: var(--font-accent);
-  font-weight: 400;
   font-size: 1.1em;
+  line-height: 1;
   letter-spacing: -0.01em;
-  color: var(--accent-ink);
 }
 
 .js .statement .w {
@@ -1999,7 +2023,7 @@ main {
   width: 120vw;
   height: 80%;
   transform: translateX(-50%);
-  background: radial-gradient(closest-side, rgb(var(--accent-rgb) / 0.2), transparent);
+  background: radial-gradient(closest-side, rgb(255 255 255 / 0.07), transparent);
   filter: blur(20px);
 }
 
@@ -2009,7 +2033,7 @@ main {
 }
 
 .contact .display em {
-  color: var(--accent);
+  background-image: var(--metal-dark);
 }
 
 .contact-mail {
@@ -3109,12 +3133,12 @@ main {
 }
 
 .intro-mark .circle {
-  stroke: rgb(var(--blue-rgb) / 0.6);
+  stroke: rgb(var(--accent-rgb) / 0.85);
   stroke-width: 0.8;
 }
 
 .intro-mark .glyph {
-  stroke: var(--accent);
+  stroke: var(--on-stage);
   stroke-width: 7;
 }
 
@@ -3229,7 +3253,7 @@ html.intro-lock body {
 }
 
 /* --------------------------------------------------------------------------
-   Spotlight cards: a gold rim and a soft wash follow the pointer
+   Spotlight cards: an orange rim and a soft wash follow the pointer
    (the layer is added by script.js, fine pointers only)
    -------------------------------------------------------------------------- */
 
@@ -3266,7 +3290,7 @@ html.intro-lock body {
 }
 
 /* --------------------------------------------------------------------------
-   Film grain over the whole page, like vellum under a lamp
+   Film grain over the whole page, like a print under a lamp
    -------------------------------------------------------------------------- */
 
 .grain {
@@ -3279,7 +3303,7 @@ html.intro-lock body {
 }
 
 /* --------------------------------------------------------------------------
-   Contact: a black hole, ray-traced, with a gold disc (blackhole.js)
+   Contact: a black hole, ray-traced, with an ember disc (blackhole.js)
    -------------------------------------------------------------------------- */
 
 .contact-hole {

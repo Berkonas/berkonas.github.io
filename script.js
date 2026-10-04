@@ -1493,11 +1493,11 @@ function createModelViewer(container) {
   controls.autoRotate = !prefersReducedMotion();
   controls.autoRotateSpeed = 1.2;
 
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xc4ccd8, 2.2));
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xcfcfcf, 2.2));
   const key = new THREE.DirectionalLight(0xffffff, 2.4);
   key.position.set(3, 4, 2);
   scene.add(key);
-  const warm = new THREE.DirectionalLight(0xd4ac5e, 1.1);
+  const warm = new THREE.DirectionalLight(0xffe2d2, 0.9);
   warm.position.set(-3, 1.5, -2);
   scene.add(warm);
 
@@ -1699,7 +1699,7 @@ function initScrollProgress() {
   });
 }
 
-// A gold rim and a soft wash follow the pointer over cards.
+// An orange rim and a soft wash follow the pointer over cards.
 function initSpotlights(scope = document) {
   if (!finePointer()) return;
   scope.querySelectorAll(".tile, .work-card").forEach((card) => {

@@ -499,8 +499,8 @@ function start(host) {
   const css = getComputedStyle(document.documentElement);
   const rgb = (name, fallback) => (css.getPropertyValue(name).trim() || fallback).split(/\s+/).join(", ");
   const INK = rgb("--on-stage-rgb", "232 237 244");
-  const GOLD = rgb("--accent-rgb", "212 172 94");
-  const BLUE = rgb("--blue-rgb", "118 170 222");
+  const GOLD = rgb("--accent-rgb", "255 98 36");
+  const BLUE = rgb("--blue-rgb", "196 198 204");
 
   let W = 0;
   let Hc = 0;
@@ -717,7 +717,7 @@ function start(host) {
       ctx.fill();
     });
 
-    // Centre of mass in gold: the drafting symbol, a quartered circle.
+    // Centre of mass in orange: the drafting symbol, a quartered circle.
     const c = project(ps.com);
     const cr = 5.2 * (k / 900 + 0.55);
     ctx.strokeStyle = `rgba(${GOLD}, 0.95)`;
@@ -915,7 +915,7 @@ function start(host) {
   }
 
   // Long-exposure trails: where the ankles, a wrist and the toe have been,
-  // carried backwards by the belt. The gold line is the centre of mass.
+  // carried backwards by the belt. The orange line is the centre of mass.
   function drawTrails() {
     if (history.length < 3) return;
     const nowW = walked;
