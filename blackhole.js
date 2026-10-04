@@ -391,7 +391,8 @@ function mount(host, section) {
   canvas.setAttribute("aria-hidden", "true");
   host.appendChild(canvas);
 
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Reduced motion leaves this running, as it does the walker: the gas turns
+  // in place inside its own frame and nothing travels across the page.
   const narrowQuery = window.matchMedia("(max-width: 767px)");
   // Drops to a cheaper setting if the GPU cannot keep up (see tick).
   let lite = false;
@@ -711,7 +712,7 @@ function mount(host, section) {
     for (let i = 0; i < passes; i++) render(clock);
   };
 
-  let clock = reduced ? 6 : 0;
+  let clock = 0;
   let lastFrame = 0;
   let running = true;
   let visible = true;
@@ -741,7 +742,7 @@ function mount(host, section) {
   }
 
   const wake = () => {
-    if (!reduced && running && visible && !raf) {
+    if (running && visible && !raf) {
       lastFrame = 0;
       raf = requestAnimationFrame(tick);
     }
@@ -749,15 +750,12 @@ function mount(host, section) {
 
   if (!build()) return giveUp();
   resize();
-  settle(reduced ? 16 : 1);
+  settle(1);
   section.classList.add("has-hole");
   requestAnimationFrame(() => host.classList.add("is-live"));
   wake();
 
-  new ResizeObserver(() => {
-    resize();
-    if (reduced) settle(16);
-  }).observe(host);
+  new ResizeObserver(() => resize()).observe(host);
 
   // Only spend the GPU while the section is on screen.
   new IntersectionObserver(([entry]) => {
@@ -784,7 +782,7 @@ function mount(host, section) {
     canvas.style.display = "";
     resize();
     running = true;
-    settle(reduced ? 16 : 1);
+    settle(1);
     wake();
   });
 }

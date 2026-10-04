@@ -511,15 +511,87 @@ function getOptimizedImagePath(src) {
   return src.replace(/^assets\//, "assets/optimized/").replace(/\.(png|jpe?g)$/i, ".jpg");
 }
 
+// Pixel size of each full-size photo in assets/optimized/. The resized copies
+// (-480, -720, -960, -1440) were made by longest side, so a portrait photo's
+// "-960" file is only 720 px wide. srcset needs true widths, or browsers think
+// they have more pixels than they do and pick a file that is too small.
+const IMAGE_DIMENSIONS = {
+  "images/gallery/443B1D15-FF20-46BA-8F67-F5869B61B8DB": [1800, 1350],
+  "images/gallery/84425": [1800, 1200],
+  "images/gallery/G0061829": [1800, 1350],
+  "images/gallery/IMG_0108": [1350, 1800],
+  "images/gallery/IMG_1480": [1350, 1800],
+  "images/gallery/IMG_3062": [1350, 1800],
+  "images/gallery/IMG_3098": [1350, 1800],
+  "images/gallery/IMG_4376": [1350, 1800],
+  "images/gallery/IMG_4557": [1350, 1800],
+  "images/gallery/IMG_4558": [1800, 1350],
+  "images/gallery/IMG_5881": [1800, 1350],
+  "images/gallery/IMG_7080": [1350, 1800],
+  "images/gallery/IMG_7189": [1246, 1800],
+  "images/gallery/IMG_7561": [1800, 1350],
+  "images/gallery/IMG_7780": [1199, 1800],
+  "images/gallery/IMG_8022": [1800, 1350],
+  "images/gallery/IMG_9671": [1800, 1350],
+  "images/gallery/create-lab-outreach": [1800, 1350],
+  "images/gallery/graduation-hackerman-hall": [1350, 1800],
+  "images/gallery/graduation-in-the-lab": [1350, 1800],
+  "images/gallery/haptics-lab-experiment": [1800, 1800],
+  "images/gallery/vanderbilt-graduate-school": [1350, 1800],
+  "images/profile/IMG_0313": [1440, 1800],
+  "projects/bike-hmm/1": [1800, 1203],
+  "projects/bike-hmm/2": [1800, 1209],
+  "projects/bike-hmm/3": [1800, 916],
+  "projects/bike-hmm/4": [1800, 659],
+  "projects/bike-hmm/5": [1800, 589],
+  "projects/bike-hmm/cover": [1800, 1686],
+  "projects/clinibooth/1": [1800, 1350],
+  "projects/clinibooth/2": [1800, 1350],
+  "projects/clinibooth/3": [1800, 1350],
+  "projects/clinibooth/cover": [1800, 1350],
+  "projects/haptic-belt/1": [1800, 1350],
+  "projects/haptic-belt/2": [1800, 1013],
+  "projects/haptic-belt/cover": [1800, 1350],
+  "projects/haptics-cross-modal/1": [1800, 1350],
+  "projects/haptics-cross-modal/2": [1800, 1350],
+  "projects/haptics-cross-modal/cover": [1800, 1350],
+  "projects/harvard-fluidic-window/IMG_3978": [1350, 1800],
+  "projects/harvard-fluidic-window/IMG_3979": [1350, 1800],
+  "projects/harvard-fluidic-window/IMG_3981": [1350, 1800],
+  "projects/harvard-fluidic-window/IMG_3984": [1350, 1800],
+  "projects/harvard-fluidic-window/IMG_4165": [1350, 1800],
+  "projects/harvard-fluidic-window/cover": [1800, 1350],
+  "projects/hydrogel/1": [1800, 1287],
+  "projects/hydrogel/2": [1349, 1800],
+  "projects/hydrogel/3": [1800, 900],
+  "projects/hydrogel/cover": [1800, 1428],
+  "projects/migraine-app/01-today": [1800, 1329],
+  "projects/migraine-app/02-quick-log": [1800, 1329],
+  "projects/migraine-app/03-history": [1800, 1329],
+  "projects/migraine-app/04-medications": [1800, 1329],
+  "projects/migraine-app/05-insights": [1800, 1329],
+  "projects/migraine-app/06-reports-settings": [1800, 1329],
+  "projects/ur5-push-place/cover": [1800, 943],
+};
+
+const RESPONSIVE_STEPS = [480, 720, 960, 1440];
+
+function getImageDimensions(src) {
+  const key = (getOptimizedImagePath(src) || "").replace(/^assets\/optimized\//, "").replace(/\.jpg$/i, "");
+  return IMAGE_DIMENSIONS[key] || null;
+}
+
 function getResponsiveImageCandidates(src) {
   const optimizedSrc = getOptimizedImagePath(src);
   if (optimizedSrc === src) {
     return [];
   }
 
-  return [480, 720, 960, 1440].map((width) => ({
-    src: optimizedSrc.replace(/\.jpg$/i, `-${width}.jpg`),
-    width,
+  const [fullW, fullH] = getImageDimensions(src) || [1800, 1350];
+  const longest = Math.max(fullW, fullH);
+  return RESPONSIVE_STEPS.filter((step) => step < longest).map((step) => ({
+    src: optimizedSrc.replace(/\.jpg$/i, `-${step}.jpg`),
+    width: Math.round((fullW * step) / longest),
   }));
 }
 
@@ -529,9 +601,23 @@ function setImageSourceWithFallback(img, src, options = {}) {
   let fallbackAttempted = false;
   img.decoding = "async";
   const candidates = getResponsiveImageCandidates(src);
+  const dims = getImageDimensions(src);
+
+  // Real proportions up front, so layout doesn't jump as photos arrive.
+  if (dims) {
+    img.setAttribute("width", dims[0]);
+    img.setAttribute("height", dims[1]);
+    img.dataset.autoDims = "1";
+  } else if (img.dataset.autoDims) {
+    img.removeAttribute("width");
+    img.removeAttribute("height");
+    delete img.dataset.autoDims;
+  }
+  delete img.dataset.fit;
 
   if (candidates.length) {
-    img.srcset = `${candidates.map((candidate) => `${candidate.src} ${candidate.width}w`).join(", ")}, ${optimizedSrc} 1800w`;
+    const fullWidth = dims ? dims[0] : 1800;
+    img.srcset = `${candidates.map((candidate) => `${candidate.src} ${candidate.width}w`).join(", ")}, ${optimizedSrc} ${fullWidth}w`;
   } else {
     img.removeAttribute("srcset");
   }
@@ -556,6 +642,65 @@ function setImageSourceWithFallback(img, src, options = {}) {
     }
   };
   img.src = candidates[2]?.src || candidates[0]?.src || optimizedSrc;
+  watchImageSharpness(img);
+}
+
+// --- Sharp photos on every screen --------------------------------------------
+// Safari loads the first srcset file that covers the screen. Chrome, Edge and
+// Android round down to a smaller file when the screen sits between two sizes,
+// and a sizes="" guess can't see cropping from object-fit: cover. Once a photo
+// is laid out, work out how wide it is really drawn, choose the file that
+// covers that at this screen's pixel density, and set `sizes` so that every
+// browser lands on the same file.
+const sharpnessWatcher =
+  "ResizeObserver" in window ? new ResizeObserver((entries) => entries.forEach((entry) => fitImageToScreen(entry.target))) : null;
+
+function watchImageSharpness(img) {
+  if (sharpnessWatcher && !img.closest(".lightbox")) sharpnessWatcher.observe(img);
+}
+
+function readSrcset(img) {
+  return (img.getAttribute("srcset") || "")
+    .split(",")
+    .map((part) => {
+      const [url, descriptor] = part.trim().split(/\s+/);
+      return { url: url && new URL(url, document.baseURI).href, width: parseInt(descriptor, 10) };
+    })
+    .filter((candidate) => candidate.url && candidate.width)
+    .sort((a, b) => a.width - b.width);
+}
+
+function drawnWidth(img) {
+  const style = getComputedStyle(img);
+  const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+  const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+  const w = img.clientWidth - padX;
+  const h = img.clientHeight - padY;
+  if (w <= 0) return 0;
+  const nw = Number(img.getAttribute("width")) || img.naturalWidth;
+  const nh = Number(img.getAttribute("height")) || img.naturalHeight;
+  if (!nw || !nh || h <= 0) return w;
+  const widthAtHeight = (h * nw) / nh;
+  if (style.objectFit === "cover") return Math.max(w, widthAtHeight);
+  if (style.objectFit === "contain") return Math.min(w, widthAtHeight);
+  return w;
+}
+
+function fitImageToScreen(img) {
+  const candidates = readSrcset(img);
+  const drawn = drawnWidth(img);
+  if (candidates.length < 2 || !drawn) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  const needed = drawn * dpr;
+  // Allow a file a few percent short rather than jumping to one twice the size.
+  const pick = candidates.find((candidate) => candidate.width >= needed * 0.94) || candidates[candidates.length - 1];
+  const current = candidates.find((candidate) => candidate.url === img.currentSrc);
+  if (current && current.width >= pick.width) return; // already as sharp or sharper
+  if (Number(img.dataset.fit) === pick.width) return;
+  img.dataset.fit = pick.width;
+  // At exactly this slot width the chosen file's density matches the screen,
+  // which Safari, Chrome and Firefox all resolve to that same file.
+  img.sizes = `${Math.max(1, Math.floor(pick.width / dpr))}px`;
 }
 
 const HOME_FILM = [
@@ -875,7 +1020,7 @@ function createWorkCard(project, index, options = {}) {
     const img = document.createElement("img");
     img.alt = "";
     img.loading = "lazy";
-    setImageSourceWithFallback(img, project.cover, { sizes: "(max-width: 760px) 64vw, 50vw" });
+    setImageSourceWithFallback(img, project.cover, { sizes: "(max-width: 760px) 92vw, 50vw" });
     media.appendChild(img);
     media.insertAdjacentHTML(
       "beforeend",
@@ -887,7 +1032,7 @@ function createWorkCard(project, index, options = {}) {
     img.alt = "";
     img.loading = "lazy";
     setImageSourceWithFallback(img, project.cover, {
-      sizes: "(max-width: 760px) 64vw, 50vw",
+      sizes: "(max-width: 760px) 92vw, 50vw",
     });
     media.appendChild(img);
   }
@@ -1094,12 +1239,27 @@ function renderFilm() {
     const img = document.createElement("img");
     img.alt = index < HOME_FILM.length ? "Photo from the gallery" : "";
     img.loading = "lazy";
-    img.height = 360;
-    setImageSourceWithFallback(img, src, { sizes: "(max-width: 760px) 200px, 320px", onHardFailure: () => item.remove() });
+    setImageSourceWithFallback(img, src, { sizes: "(max-width: 760px) 300px, 480px", onHardFailure: () => item.remove() });
     item.appendChild(img);
     if (index >= HOME_FILM.length) item.setAttribute("aria-hidden", "true");
     track.appendChild(item);
   });
+
+  // The strip moves sideways, so Chrome's lazy loading only fetches a photo as
+  // it slides in, and it pops in blank. Load the whole strip as it nears view.
+  const film = track.closest(".film") || track;
+  const loadAll = () => track.querySelectorAll("img").forEach((img) => (img.loading = "eager"));
+  if (!("IntersectionObserver" in window)) return loadAll();
+  const io = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        loadAll();
+        io.disconnect();
+      }
+    },
+    { rootMargin: "900px 0px" },
+  );
+  io.observe(film);
 }
 
 function initWordReveal() {
@@ -1132,11 +1292,7 @@ function initWordReveal() {
     items.push({ block, words: [...block.querySelectorAll(".w")] });
   });
 
-  if (prefersReducedMotion()) {
-    items.forEach(({ words }) => words.forEach((word) => word.classList.add("on")));
-    return;
-  }
-
+  // Opacity only, so it stays on with reduced motion too.
   const update = () => {
     const vh = window.innerHeight;
     items.forEach(({ block, words }) => {
@@ -1254,7 +1410,8 @@ function playIntro(onReveal) {
   } catch (err) {
     seen = false;
   }
-  if (seen || prefersReducedMotion()) {
+  // With reduced motion the intro still draws, then fades instead of wiping (CSS).
+  if (seen) {
     onReveal();
     return;
   }
@@ -1298,10 +1455,13 @@ function playIntro(onReveal) {
     window.setTimeout(() => intro.remove(), 1000);
     window.removeEventListener("keydown", finish);
     window.removeEventListener("wheel", finish);
+    window.removeEventListener("touchmove", finish);
   };
   intro.addEventListener("click", finish);
   window.addEventListener("keydown", finish);
   window.addEventListener("wheel", finish, { passive: true });
+  // Phones: a swipe skips it too (the page can't scroll while it's up).
+  window.addEventListener("touchmove", finish, { passive: true });
   window.setTimeout(finish, 2000);
 }
 
@@ -1309,7 +1469,8 @@ function playIntro(onReveal) {
 
 function setupRevealAnimations() {
   const items = document.querySelectorAll("[data-reveal]:not(.is-in)");
-  if (prefersReducedMotion() || !("IntersectionObserver" in window)) {
+  // Reduced motion keeps the fade and drops the rise (see site.css).
+  if (!("IntersectionObserver" in window)) {
     items.forEach((item) => item.classList.add("is-in"));
     return;
   }
@@ -1490,7 +1651,7 @@ function createModelViewer(container) {
   controls.enableDamping = true;
   controls.enablePan = false;
   controls.enableZoom = true;
-  controls.autoRotate = !prefersReducedMotion();
+  controls.autoRotate = true; // turns in place, inside its own frame
   controls.autoRotateSpeed = 1.2;
 
   scene.add(new THREE.HemisphereLight(0xffffff, 0xcfcfcf, 2.2));
@@ -1660,7 +1821,7 @@ const finePointer = () => window.matchMedia("(hover: hover) and (pointer: fine)"
 // One pill glides under the pointer between nav links.
 function initNavIndicator() {
   const links = document.querySelector(".nav-links");
-  if (!links) return;
+  if (!links || !finePointer()) return;
   const pill = document.createElement("span");
   pill.className = "nav-indicator";
   pill.setAttribute("aria-hidden", "true");
@@ -1750,6 +1911,7 @@ function initYear() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("img[srcset]").forEach(watchImageSharpness);
   initMobileNav();
   initYear();
   renderCourses();

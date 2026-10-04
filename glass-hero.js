@@ -131,7 +131,8 @@ void main() {
 
 function init(root) {
   const canvas = root.querySelector(".glass-canvas");
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Reduced motion leaves the drift on, as it does the walker: the block turns
+  // in place inside its own frame and nothing travels across the page.
 
   let renderer;
   try {
@@ -405,11 +406,6 @@ function init(root) {
   canvas.addEventListener("pointercancel", release);
 
   const startSpin = (axis, angle) => {
-    if (reduced) {
-      turn(axis, angle);
-      wake();
-      return;
-    }
     velX = velY = 0;
     spin.axis = axis;
     spin.left = angle;
@@ -461,18 +457,13 @@ function init(root) {
         velX *= damp;
         velY *= damp;
       }
-      if (!reduced) {
-        const idle = Math.min(1, Math.max(0, (now - releasedAt - 600) / 1000));
-        turn(Y, 0.0035 * idle * f);
-        turn(X, 0.0012 * idle * f);
-      }
+      const idle = Math.min(1, Math.max(0, (now - releasedAt - 600) / 1000));
+      turn(Y, 0.0035 * idle * f);
+      turn(X, 0.0012 * idle * f);
     }
 
     draw();
-    // Under reduced motion nothing moves on its own, so the loop sleeps until
-    // a drag, a key, or a button wakes it and the motion has settled.
-    const settling = dragging || Math.abs(spin.left) > 0.0005 || Math.abs(velX) + Math.abs(velY) > 1e-5;
-    if (visible && (!reduced || settling)) raf = requestAnimationFrame(tick);
+    if (visible) raf = requestAnimationFrame(tick);
     else last = 0;
   }
 
