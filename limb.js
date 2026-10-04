@@ -4,9 +4,9 @@
 // display would show it: each frame the limb is painted small, one pixel per
 // cell, and every cell becomes a dot sized by how much leg is in it. The knee
 // and ankle motors come through in the accent red. Over the dots sit the
-// numbers a gait lab would watch: knee and ankle angles on callouts, the
-// ground reaction force under the foot in stance, and scrolling joint-angle
-// traces. Hover (or touch) to look through the dots at the drawing itself.
+// numbers a gait lab would watch: knee and ankle angles on callouts, and
+// scrolling hip, knee and ankle traces. Hover (or touch) to look through the
+// dots at the drawing itself.
 //
 // The motion is normative sagittal gait (hip, knee, ankle over one cycle),
 // with the pelvis rising and falling over the stance foot.
@@ -115,15 +115,6 @@ const HIP_Y = (() => {
   }
   return (p) => terms.reduce((sum, [a, b], n) => sum + a * Math.cos(2 * Math.PI * n * p) + b * Math.sin(2 * Math.PI * n * p), 0);
 })();
-
-// Vertical ground reaction force in body weights over stance (s: 0..1): the
-// double hump of loading and push-off, with the valley of mid-stance between.
-function grf(s) {
-  const hump1 = 1.1 * Math.exp(-Math.pow((s - 0.22) / 0.12, 2));
-  const hump2 = 1.08 * Math.exp(-Math.pow((s - 0.78) / 0.12, 2));
-  const valley = 0.78 * Math.exp(-Math.pow((s - 0.5) / 0.2, 2));
-  return Math.max(hump1, hump2, valley) * Math.min(1, s / 0.06, (1 - s) / 0.06);
-}
 
 // --- The limb, as shapes ------------------------------------------------------
 // tone: how bright the part reads (0..1); red: a motor, lit in the accent.
@@ -253,7 +244,6 @@ function start(host) {
   canvas.setAttribute("aria-hidden", "true");
   host.appendChild(canvas);
   const ctx = canvas.getContext("2d");
-  const readout = document.querySelector("[data-limb-readout]");
   const hero = host.closest(".hero") || host;
 
   const css = getComputedStyle(document.documentElement);
@@ -319,7 +309,6 @@ function start(host) {
   let lastT = 0;
   let enteredAt = 0;
   let onScreen = false;
-  let lastReadout = 0;
   const trace = []; // recent { t, knee, ankle, stance }
   const pointer = { x: 0, y: 0, inside: false, lens: 0 };
 
@@ -350,7 +339,7 @@ function start(host) {
     walked += STRIDE * FREQ * dt;
     pointer.lens += ((pointer.inside ? 1 : 0) - pointer.lens) * (1 - Math.exp(-dt * 10));
     const a = angles(phase);
-    trace.push({ t, knee: a.knee, ankle: a.ankle, stance: a.pct < STANCE });
+    trace.push({ t, hip: a.hip, knee: a.knee, ankle: a.ankle, stance: a.pct < STANCE });
     while (trace.length && t - trace[0].t > 2.4) trace.shift();
     return a;
   }
@@ -377,7 +366,6 @@ function start(host) {
     }
     const glowInk = new Path2D();
     const glowRed = new Path2D();
-    let count = 0;
     const half = cell / 2;
     for (let j = 0; j < rows; j++) {
       const appear = clamp((scanRow - j) / 6, 0, 1);
@@ -406,7 +394,6 @@ function start(host) {
           glow.moveTo(cx + radius * 2.4, cy);
           glow.arc(cx, cy, radius * 2.4, 0, Math.PI * 2);
         }
-        count++;
       }
     }
     // Bloom first, then the dots, brightest last.
@@ -432,7 +419,6 @@ function start(host) {
       ctx.fillStyle = `rgba(${ACCENT}, ${0.9 * a})`;
       ctx.fillRect(0, y - 0.5, W, 1);
     }
-    return count;
   }
 
   // --- The data layer ----------------------------------------------------------
@@ -536,18 +522,9 @@ function start(host) {
       });
       ctx.stroke();
     };
+    curve((p) => p.hip, -15, 38, `rgba(${INK}, 0.32)`);
     curve((p) => p.knee, -5, 70, `rgba(${INK}, 0.85)`);
     curve((p) => p.ankle, -22, 16, `rgba(${ACCENT}, 0.9)`);
-    ctx.font = mono(9);
-    ctx.textAlign = "left";
-    ctx.textBaseline = "alphabetic";
-    ctx.fillStyle = `rgba(${INK}, 0.6)`;
-    ctx.fillText("KNEE θ", x0, top - 6);
-    ctx.fillStyle = `rgba(${ACCENT}, 0.85)`;
-    ctx.fillText("ANKLE θ", x0 + ctx.measureText("KNEE θ  ").width + 6, top - 6);
-    ctx.textAlign = "right";
-    ctx.fillStyle = `rgba(${INK}, 0.4)`;
-    ctx.fillText("LAST 2.4 S", x1, top - 6);
     ctx.globalAlpha = 1;
   }
 
@@ -637,56 +614,20 @@ function start(host) {
     const { list, pro } = shapes(phase);
     const dataIn = window01(rv, 0.6, 1.4);
     drawGround(dataIn);
-    const count = drawDots(t, list, rv);
-
-    // Ground reaction force, under the prosthetic foot while it is planted.
-    let force = 0;
-    let arrowTop = null;
-    if (a.pct < STANCE) {
-      const s = a.pct / STANCE;
-      force = grf(s);
-      const cop = lerp(pro.heel, pro.toe, s);
-      const base = T({ x: cop.x, y: 0 });
-      const len = force * 0.3 * scale;
-      arrowTop = { x: base.x, y: base.y - len };
-      ctx.strokeStyle = `rgba(${ACCENT}, ${0.9 * dataIn})`;
-      ctx.fillStyle = ctx.strokeStyle;
-      ctx.lineWidth = 1.6;
-      ctx.beginPath();
-      ctx.moveTo(base.x, base.y);
-      ctx.lineTo(arrowTop.x, arrowTop.y + 5);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(arrowTop.x, arrowTop.y);
-      ctx.lineTo(arrowTop.x - 4, arrowTop.y + 7);
-      ctx.lineTo(arrowTop.x + 4, arrowTop.y + 7);
-      ctx.closePath();
-      ctx.fill();
-    }
+    drawDots(t, list, rv);
 
     // Callouts, laid out down the right margin without colliding.
     const Kp = T(pro.K);
     const Ap = T(pro.A);
     const floorTop = groundY - 14;
-    const rowsY = [Math.min(Kp.y, floorTop - 88), Math.min(Ap.y, floorTop - 44)];
-    rowsY[1] = Math.max(rowsY[1], rowsY[0] + 44);
+    const rowsY = [Math.min(Kp.y, floorTop - 48), Math.min(Ap.y, floorTop)];
+    rowsY[1] = Math.max(rowsY[1], rowsY[0] + 48);
     const grow = (d) => window01(rv, 0.9 + d, 1.7 + d);
-    callout(Kp, rowsY[0], "KNEE · POWERED", `${a.knee.toFixed(1)}°`, false, grow(0));
-    callout(Ap, rowsY[1], "ANKLE · POWERED", `${signed(a.ankle)}°`, false, grow(0.12));
-    const gy = Math.max(rowsY[1] + 44, floorTop);
-    const gp = arrowTop || T({ x: pro.heel.x, y: 0 });
-    callout(gp, gy, "GROUND REACTION", force > 0.01 ? `${force.toFixed(2)} BW` : "swing", true, grow(0.24));
+    callout(Kp, rowsY[0], "KNEE", `${a.knee.toFixed(1)}°`, false, grow(0));
+    callout(Ap, rowsY[1], "ANKLE", `${signed(a.ankle)}°`, false, grow(0.12));
 
     drawTraces(t, dataIn);
     drawLens(list, pro);
-
-    if (readout && t - lastReadout > 0.08) {
-      lastReadout = t;
-      readout.textContent =
-        rv < 1.2
-          ? `Rendering · ${count.toLocaleString("en-US")} dots`
-          : `Gait ${String(Math.round(a.pct)).padStart(2, "0")}% · ${a.pct < STANCE ? "stance" : "swing"} · knee ${a.knee.toFixed(1)}° · ankle ${signed(a.ankle)}° · ${(STRIDE * FREQ).toFixed(2)} m/s`;
-    }
   }
 
   // --- Loop --------------------------------------------------------------------

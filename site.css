@@ -945,17 +945,6 @@ main {
   color: var(--accent);
 }
 
-.fig-readout {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.02em;
-  color: var(--on-stage-2);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .hero-meta {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
