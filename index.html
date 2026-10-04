@@ -26,8 +26,8 @@
   <script>document.documentElement.classList.add("js");</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="site.css?v=20260929b" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="site.css?v=20261004" />
 </head>
 <body class="home">
   <a class="skip-link" href="#main">Skip to content</a>
@@ -55,7 +55,7 @@
       <section class="hero on-stage" aria-label="Introduction">
         <div class="wrap hero-grid">
           <div class="hero-copy">
-            <p class="eyebrow" data-enter style="--d: 0.1s">Ph.D. researcher · Mechanical Engineering · Vanderbilt</p>
+            <p class="badge" data-enter style="--d: 0.1s"><svg class="badge-star" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.6C12.55 2.6 12.88 3.15 13.08 4.7c.62 4.7 1.52 5.6 6.22 6.22 1.55.2 2.1.53 2.1 1.08s-.55.88-2.1 1.08c-4.7.62-5.6 1.52-6.22 6.22-.2 1.55-.53 2.1-1.08 2.1s-.88-.55-1.08-2.1c-.62-4.7-1.52-5.6-6.22-6.22C3.15 12.88 2.6 12.55 2.6 12s.55-.88 2.1-1.08c4.7-.62 5.6-1.52 6.22-6.22C11.12 3.15 11.45 2.6 12 2.6Z"/></svg><span>Ph.D. researcher · Mechanical Engineering · Vanderbilt</span></p>
             <h1 class="display">
               <span class="line-mask"><span style="--d: 0.2s">Engineering</span></span>
               <span class="line-mask"><span style="--d: 0.32s">you can <em>feel.</em></span></span>
@@ -263,6 +263,7 @@
       </section>
 
       <section class="contact on-stage grid-bg" id="contact" aria-labelledby="contact-title">
+        <div class="contact-hole" data-blackhole aria-hidden="true"></div>
         <div class="wrap">
           <p class="eyebrow" data-reveal>Contact</p>
           <h2 class="display" id="contact-title" data-reveal>Let’s build something that <em>helps.</em></h2>
@@ -293,7 +294,8 @@
     </footer>
   </div>
 
-  <script src="script.js?v=20260929b" defer></script>
-  <script type="module" src="home-walker.js?v=20260929b"></script>
+  <script src="script.js?v=20261004" defer></script>
+  <script type="module" src="home-walker.js?v=20261004"></script>
+  <script type="module" src="blackhole.js?v=20261004"></script>
 </body>
 </html>

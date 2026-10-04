@@ -26,8 +26,8 @@
   <script>document.documentElement.classList.add("js");</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="site.css?v=20260929b" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="site.css?v=20261004" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -52,15 +52,28 @@
     </header>
 
     <main id="main">
-      <section class="wrap page-head grid-bg">
-        <p class="eyebrow" data-reveal>Index of work</p>
-        <h1 class="display" data-reveal>Things I’ve <em>built.</em></h1>
+      <section class="glass-hero on-stage" data-glass aria-labelledby="work-title">
+        <canvas class="glass-canvas" tabindex="0" role="img" aria-label="A glass block resting over the headline. Drag it, or use the arrow keys, to turn it."></canvas>
+        <div class="wrap glass-ui">
+          <p class="eyebrow">Index of work</p>
+          <h1 class="display glass-title" id="work-title">Things I’ve <em>built.</em></h1>
+          <div class="glass-foot">
+            <p class="glass-caption"><span><b>Fig. 2</b>Glass block, n ≈ 1.18</span><span class="glass-hint">Drag to turn it</span></p>
+            <div class="glass-turn">
+              <button type="button" data-turn="-1" aria-label="Turn the glass left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+              <button type="button" data-turn="1" aria-label="Turn the glass right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="wrap page-head projects-intro grid-bg">
         <p class="lede" data-reveal>A few things I have built across haptics, robotics, and healthcare. Open any project for the full story, media, and reports. Publications are on <a class="inline-link" href="https://scholar.google.com/citations?user=Gple4vMAAAAJ&amp;hl=en" target="_blank" rel="noopener">Google Scholar</a>.</p>
         <dl class="titleblock" data-reveal>
           <div><dt>Sheet</dt><dd>02 / 06</dd></div>
           <div><dt>Drawing</dt><dd>Index of work</dd></div>
           <div><dt>Scope</dt><dd>Haptics · Robotics · Health</dd></div>
-          <div><dt>Rev</dt><dd>2026.09</dd></div>
+          <div><dt>Rev</dt><dd>2026.10</dd></div>
           <div class="tb-mark"><dt>Drawn by</dt><dd>B. Kasimcan</dd></div>
         </dl>
       </section>
@@ -93,6 +106,7 @@
       }
     }
   </script>
-  <script src="script.js?v=20260929b" defer></script>
+  <script src="script.js?v=20261004" defer></script>
+  <script type="module" src="glass-hero.js?v=20261004"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@
 // hover to reveal the skeleton. Type "tr" or "us" (or triple-click) for a flag.
 // Behind it, one of the three cities in my story, drawn as a line elevation.
 // Once per visit it goes off script; type "dance" for another move.
-import { CITIES, STRIP, PEAK, drawFar } from "./skylines.js?v=20260929b";
+import { CITIES, STRIP, PEAK, drawFar } from "./skylines.js?v=20261004";
 
 // --- Kinematics --------------------------------------------------------------
 
