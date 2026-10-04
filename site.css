@@ -1,8 +1,7 @@
 /* ==========================================================================
    Berk Kasimcan — site design system
    Monochrome: near-black stages and paper-white pages, brushed-silver accent
-   words, and one signal-orange highlight kept for small things that should
-   catch the eye (the current page, progress, focus, labels).
+   words, and one velvet red kept for the things that should catch the eye (the current page, progress, focus, labels).
    Archivo (wide for display) for text, Instrument Serif for accent words,
    IBM Plex Mono for technical labels.
    ========================================================================== */
@@ -33,11 +32,15 @@
   --on-stage-faint: #7a7a7a;
   --stage-line: rgb(var(--on-stage-rgb) / 0.12);
 
-  /* Signal orange. --accent-ink is the darker cut for text on white. */
-  --accent-rgb: 255 98 36;
+  /* Velvet red, from the two flags in my story: a cool crimson cut from
+     Turkish red for highlights on black, and the exact red of the American
+     flag for red text on white. The velvet gradient runs between them, for
+     the few red shapes large enough to show a sheen. */
+  --accent-rgb: 232 48 75;
   --accent: rgb(var(--accent-rgb));
-  --accent-soft: #ffe7dc;
-  --accent-ink: #c2410c;
+  --accent-soft: #fde4e8;
+  --accent-ink: #b22234;
+  --accent-velvet: linear-gradient(135deg, #f2566d 0%, #e8304b 42%, #b22234 78%, #8c1426 100%);
 
   /* The old blueprint blue, now a neutral silver for lines and drawings. */
   --blue-rgb: 196 198 204;
@@ -550,7 +553,7 @@ button {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-/* Tubelight: an orange lamp on the nav's top edge above the current page, with
+/* Tubelight: a red lamp on the nav's top edge above the current page, with
    its light spilling down onto the link. */
 .nav-links a[aria-current="page"]::before {
   content: "";
@@ -560,7 +563,7 @@ button {
   width: 30px;
   height: 3px;
   border-radius: 0 0 4px 4px;
-  background: var(--accent);
+  background: var(--accent-velvet);
   transform: translateX(-50%);
   box-shadow: 0 0 10px 1px rgb(var(--accent-rgb) / 0.7), 0 6px 18px 4px rgb(var(--accent-rgb) / 0.28);
 }
@@ -606,7 +609,7 @@ button {
   opacity: 1;
 }
 
-/* Reading progress, drawn as an orange hairline along the pill's lower edge. */
+/* Reading progress, drawn as a red hairline along the pill's lower edge. */
 .nav::after {
   content: "";
   position: absolute;
@@ -615,7 +618,7 @@ button {
   bottom: -1px;
   height: 1.5px;
   border-radius: 2px;
-  background: linear-gradient(90deg, rgb(var(--accent-rgb) / 0.2), var(--accent));
+  background: linear-gradient(90deg, rgb(var(--accent-rgb) / 0.15), var(--accent) 70%, #b22234);
   transform: scaleX(var(--progress, 0));
   transform-origin: left;
   pointer-events: none;
@@ -903,17 +906,11 @@ main {
   cursor: crosshair;
 }
 
+/* The walker's entrance (a motion-capture calibration) is drawn by
+   home-walker.js, so the canvas itself needs no fade. */
 .walker canvas {
   position: absolute;
   inset: 0;
-  opacity: 0;
-  animation: walkerIn 1.6s var(--ease) 0.3s forwards;
-}
-
-@keyframes walkerIn {
-  to {
-    opacity: 1;
-  }
 }
 
 .walker-caption {
@@ -2807,7 +2804,7 @@ main {
 }
 
 .is-degree .bar {
-  background: var(--accent);
+  background: var(--accent-velvet);
 }
 
 /* Still under way: solid up to today, dashed after, running off the chart. */
@@ -3267,7 +3264,7 @@ html.intro-lock body {
 }
 
 /* --------------------------------------------------------------------------
-   Spotlight cards: an orange rim and a soft wash follow the pointer
+   Spotlight cards: a red rim and a soft wash follow the pointer
    (the layer is added by script.js, fine pointers only)
    -------------------------------------------------------------------------- */
 
@@ -3383,7 +3380,7 @@ html.intro-lock body {
   opacity: 0;
   cursor: grab;
   touch-action: pan-y;
-  transition: opacity 1.2s var(--ease);
+  transition: opacity 0.7s var(--ease);
 }
 
 .glass-canvas.dragging {
@@ -3420,6 +3417,13 @@ html.intro-lock body {
   margin-top: auto;
   margin-bottom: auto;
   font-size: clamp(3rem, 11vw, 9rem);
+}
+
+/* While the glass loads, the HTML headline is held back so it can't flash
+   up for a frame before the canvas takes over (the class is set in the
+   page's head, before first paint). */
+.glass-pending .glass-hero:not(.glass-ready) .glass-title {
+  visibility: hidden;
 }
 
 /* Once the canvas is drawing the headline, the HTML one stays for readers. */
@@ -3500,7 +3504,7 @@ html.intro-lock body {
 }
 
 /* --------------------------------------------------------------------------
-   Beyond the lab: numbered cells, an orange rule draws across on hover
+   Beyond the lab: numbered cells, a red rule draws across on hover
    -------------------------------------------------------------------------- */
 
 .beyond {

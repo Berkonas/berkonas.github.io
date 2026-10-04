@@ -1868,7 +1868,7 @@ function initScrollProgress() {
   });
 }
 
-// An orange rim and a soft wash follow the pointer over cards.
+// A red rim and a soft wash follow the pointer over cards.
 function initSpotlights(scope = document) {
   if (!finePointer()) return;
   scope.querySelectorAll(".tile, .work-card").forEach((card) => {

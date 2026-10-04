@@ -138,7 +138,9 @@ function init(root) {
   try {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
   } catch (err) {
-    return; // No WebGL: the HTML headline simply stays.
+    // No WebGL after all: give the HTML headline back.
+    document.documentElement.classList.remove("glass-pending");
+    return;
   }
   renderer.setClearColor(STAGE);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -513,6 +515,7 @@ function init(root) {
     cancelAnimationFrame(raf);
     raf = 0;
     root.classList.remove("glass-ready");
+    document.documentElement.classList.remove("glass-pending");
   });
   canvas.addEventListener("webglcontextrestored", () => {
     lost = false;

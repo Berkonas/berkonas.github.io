@@ -189,7 +189,7 @@ export function palette() {
   const rgb = (name, fallback) => (css.getPropertyValue(name).trim() || fallback).split(/\s+/).join(", ");
   return {
     ink: rgb("--on-stage-rgb", "232 237 244"),
-    gold: rgb("--accent-rgb", "255 98 36"),
+    gold: rgb("--accent-rgb", "232 48 75"),
     blue: rgb("--blue-rgb", "196 198 204"),
     stage: rgb("--stage-rgb", "9 21 38"),
   };
