@@ -1897,6 +1897,43 @@ function initMagnetic() {
   });
 }
 
+// "Engineering you can feel": on phones that can, a tap on a control answers
+// with a short tick, the way a good physical button would.
+function initHaptics() {
+  if (typeof navigator.vibrate !== "function" || !window.matchMedia("(pointer: coarse)").matches) return;
+  const controls = ".btn, .filter-chip, .nav-links a, .nav-toggle, .glass-turn button, .copy-btn, .bench-tab, .course-card";
+  document.addEventListener("click", (event) => {
+    if (event.pointerType && event.pointerType !== "touch") return;
+    if (event.target.closest(controls)) navigator.vibrate(8);
+  });
+}
+
+// The time where I am, in the footer.
+function initClock() {
+  const clocks = document.querySelectorAll("[data-clock]");
+  if (!clocks.length || typeof Intl === "undefined") return;
+  let format;
+  try {
+    format = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Chicago",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "short",
+    });
+  } catch (err) {
+    return;
+  }
+  const tick = () => {
+    const text = format.format(new Date());
+    clocks.forEach((clock) => {
+      clock.querySelector("[data-clock-time]").textContent = text;
+    });
+  };
+  tick();
+  clocks.forEach((clock) => (clock.hidden = false));
+  window.setInterval(tick, 20000);
+}
+
 function initGrain() {
   const grain = document.createElement("div");
   grain.className = "grain";
@@ -1930,6 +1967,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initSpotlights();
   initMagnetic();
   initGrain();
+  initHaptics();
+  initClock();
   syncProjectFromHash();
   window.addEventListener("popstate", syncProjectFromHash);
 });

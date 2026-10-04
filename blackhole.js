@@ -420,6 +420,8 @@ function mount(host, section) {
   // worse than nothing, so any failure takes it out and leaves the plain glow.
   function giveUp() {
     canvas.remove();
+    const caption = section.querySelector("[data-hole-caption]");
+    if (caption) caption.hidden = true;
     host.classList.remove("is-live");
     section.classList.remove("has-hole");
   }
@@ -719,6 +721,18 @@ function mount(host, section) {
   let raf = 0;
   const frameTimes = [];
 
+  // Fig. 3's readout: the simulation clock, and how fast the gas at the
+  // inner edge of the disc is moving (sqrt(M/r) with M = 1/2, as a fraction
+  // of c), which is what throws the near side brighter.
+  const readout = section.querySelector("[data-hole-readout]");
+  const rimSpeed = Math.sqrt(0.5 / DISC.diskInner).toFixed(2).replace(/^0/, "");
+  let lastReadout = -1;
+  const updateReadout = () => {
+    if (!readout || Math.abs(clock - lastReadout) < 0.1) return;
+    lastReadout = clock;
+    readout.innerHTML = `r<sub>in</sub> ${DISC.diskInner} r<sub>s</sub> · rim ${rimSpeed}c · t ${clock.toFixed(1)} s`;
+  };
+
   function tick(now) {
     raf = 0;
     if (!running || !visible) return;
@@ -739,6 +753,7 @@ function mount(host, section) {
     }
     clock += dt;
     render(clock);
+    updateReadout();
   }
 
   const wake = () => {
@@ -752,10 +767,18 @@ function mount(host, section) {
   resize();
   settle(1);
   section.classList.add("has-hole");
+  const caption = section.querySelector("[data-hole-caption]");
+  if (caption) caption.hidden = false;
+  updateReadout();
   requestAnimationFrame(() => host.classList.add("is-live"));
   wake();
 
-  new ResizeObserver(() => resize()).observe(host);
+  // Resizing reallocates the canvas, which clears it; draw straight away so
+  // the section never blinks empty while the window is being dragged.
+  new ResizeObserver(() => {
+    resize();
+    render(clock);
+  }).observe(host);
 
   // Only spend the GPU while the section is on screen.
   new IntersectionObserver(([entry]) => {

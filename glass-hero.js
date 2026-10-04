@@ -436,6 +436,23 @@ function init(root) {
   let raf = 0;
   let last = 0;
 
+  // Fig. 2's readout: the block's orientation, as a mechanism drawing would
+  // give it. Text is only rewritten when a rounded angle actually changes.
+  const readout = root.querySelector("[data-glass-readout]");
+  const euler = new THREE.Euler();
+  let lastText = "";
+  const deg = (r) => {
+    const d = Math.round(THREE.MathUtils.radToDeg(r));
+    const signed = `${d < 0 ? "−" : ""}${Math.abs(d)}`;
+    return `${signed.padStart(4, "\u2007")}°`;
+  };
+  function updateReadout() {
+    if (!readout) return;
+    euler.setFromQuaternion(spinner.quaternion, "YXZ");
+    const text = `θ ${deg(euler.y)}  φ ${deg(euler.x)}  ψ ${deg(euler.z)}`;
+    if (text !== lastText) readout.textContent = lastText = text;
+  }
+
   function tick(now) {
     raf = 0;
     const dt = last ? Math.min(0.05, (now - last) / 1000) : 1 / 60;
@@ -463,6 +480,7 @@ function init(root) {
     }
 
     draw();
+    updateReadout();
     if (visible) raf = requestAnimationFrame(tick);
     else last = 0;
   }
@@ -495,6 +513,7 @@ function init(root) {
   Promise.race([fontsReady, new Promise((resolve) => setTimeout(resolve, 2500))]).then(() => {
     layout();
     draw();
+    updateReadout();
     root.classList.add("glass-ready");
     wake();
     // A font that arrives after the timeout still gets painted in.
