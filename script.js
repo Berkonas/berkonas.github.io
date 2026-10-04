@@ -1194,6 +1194,7 @@ function renderProjects(filter = "All") {
     list.appendChild(card);
   });
   initModelViewers();
+  initSpotlights(list);
 }
 
 function setupFilters() {
@@ -1410,7 +1411,15 @@ function playIntro(onReveal) {
     seen = false;
   }
   // With reduced motion the intro still draws, then fades instead of wiping (CSS).
-  if (seen) {
+  // A link to a section (index.html#contact) skips it: the intro locks
+  // scrolling, so the browser's jump to that section would otherwise be lost.
+  let deepLink = false;
+  try {
+    deepLink = location.hash.length > 1 && !!document.getElementById(decodeURIComponent(location.hash.slice(1)));
+  } catch (err) {
+    deepLink = false;
+  }
+  if (seen || deepLink) {
     onReveal();
     return;
   }
@@ -1653,11 +1662,11 @@ function createModelViewer(container) {
   controls.autoRotate = true; // turns in place, inside its own frame
   controls.autoRotateSpeed = 1.2;
 
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xc4ccd8, 2.2));
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xcfcfcf, 2.2));
   const key = new THREE.DirectionalLight(0xffffff, 2.4);
   key.position.set(3, 4, 2);
   scene.add(key);
-  const warm = new THREE.DirectionalLight(0xd4ac5e, 1.1);
+  const warm = new THREE.DirectionalLight(0xffe2d2, 0.9);
   warm.position.set(-3, 1.5, -2);
   scene.add(warm);
 
@@ -1813,6 +1822,133 @@ function initMobileNav() {
   });
 }
 
+// --- Material and motion -----------------------------------------------------
+
+const finePointer = () => window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+// One pill glides under the pointer between nav links.
+function initNavIndicator() {
+  const links = document.querySelector(".nav-links");
+  if (!links || !finePointer()) return;
+  const pill = document.createElement("span");
+  pill.className = "nav-indicator";
+  pill.setAttribute("aria-hidden", "true");
+  links.prepend(pill);
+  links.classList.add("has-indicator");
+
+  const moveTo = (link) => {
+    pill.style.setProperty("--x", `${link.offsetLeft}px`);
+    pill.style.setProperty("--w", `${link.offsetWidth}px`);
+  };
+  links.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("pointerenter", () => {
+      // First entry snaps into place; after that it slides.
+      if (!links.classList.contains("is-hovering")) {
+        pill.style.transition = "none";
+        moveTo(link);
+        pill.getBoundingClientRect();
+        pill.style.transition = "";
+      } else {
+        moveTo(link);
+      }
+      links.classList.add("is-hovering");
+    });
+  });
+  links.addEventListener("pointerleave", () => links.classList.remove("is-hovering"));
+}
+
+// Reading progress, drawn along the bottom of the nav pill.
+function initScrollProgress() {
+  const nav = document.querySelector(".nav");
+  if (!nav) return;
+  onScrollFrame(() => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+    nav.style.setProperty("--progress", progress.toFixed(4));
+  });
+}
+
+// An orange rim and a soft wash follow the pointer over cards.
+function initSpotlights(scope = document) {
+  if (!finePointer()) return;
+  scope.querySelectorAll(".tile, .work-card").forEach((card) => {
+    if (card.querySelector(":scope > .spotlight")) return;
+    const spot = document.createElement("span");
+    spot.className = "spotlight";
+    spot.setAttribute("aria-hidden", "true");
+    card.appendChild(spot);
+    card.addEventListener("pointermove", (event) => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty("--sx", `${event.clientX - rect.left}px`);
+      card.style.setProperty("--sy", `${event.clientY - rect.top}px`);
+      card.classList.add("is-lit");
+    });
+    card.addEventListener("pointerleave", () => card.classList.remove("is-lit"));
+  });
+}
+
+// Primary buttons lean a few pixels toward the pointer.
+function initMagnetic() {
+  if (!finePointer() || prefersReducedMotion()) return;
+  document.querySelectorAll(".hero-cta .btn, .contact-links .btn, .resume-actions .btn").forEach((btn) => {
+    btn.addEventListener("pointermove", (event) => {
+      const rect = btn.getBoundingClientRect();
+      const dx = (event.clientX - rect.left - rect.width / 2) / rect.width;
+      const dy = (event.clientY - rect.top - rect.height / 2) / rect.height;
+      btn.style.setProperty("--mx", `${(dx * 8).toFixed(1)}px`);
+      btn.style.setProperty("--my", `${(dy * 6).toFixed(1)}px`);
+    });
+    btn.addEventListener("pointerleave", () => {
+      btn.style.setProperty("--mx", "0px");
+      btn.style.setProperty("--my", "0px");
+    });
+  });
+}
+
+// "Engineering you can feel": on phones that can, a tap on a control answers
+// with a short tick, the way a good physical button would.
+function initHaptics() {
+  if (typeof navigator.vibrate !== "function" || !window.matchMedia("(pointer: coarse)").matches) return;
+  const controls = ".btn, .filter-chip, .nav-links a, .nav-toggle, .glass-turn button, .copy-btn, .bench-tab, .course-card";
+  document.addEventListener("click", (event) => {
+    if (event.pointerType && event.pointerType !== "touch") return;
+    if (event.target.closest(controls)) navigator.vibrate(8);
+  });
+}
+
+// The time where I am, in the footer.
+function initClock() {
+  const clocks = document.querySelectorAll("[data-clock]");
+  if (!clocks.length || typeof Intl === "undefined") return;
+  let format;
+  try {
+    format = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Chicago",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "short",
+    });
+  } catch (err) {
+    return;
+  }
+  const tick = () => {
+    const text = format.format(new Date());
+    clocks.forEach((clock) => {
+      clock.querySelector("[data-clock-time]").textContent = text;
+    });
+  };
+  tick();
+  clocks.forEach((clock) => (clock.hidden = false));
+  window.setInterval(tick, 20000);
+}
+
+function initGrain() {
+  const grain = document.createElement("div");
+  grain.className = "grain";
+  grain.setAttribute("aria-hidden", "true");
+  document.body.appendChild(grain);
+}
+
 function initYear() {
   document.querySelectorAll("[data-year]").forEach((el) => {
     el.textContent = new Date().getFullYear();
@@ -1834,6 +1970,13 @@ document.addEventListener("DOMContentLoaded", () => {
   initCopyButtons();
   initHeroEntrance();
   setupRevealAnimations();
+  initNavIndicator();
+  initScrollProgress();
+  initSpotlights();
+  initMagnetic();
+  initGrain();
+  initHaptics();
+  initClock();
   syncProjectFromHash();
   window.addEventListener("popstate", syncProjectFromHash);
 });

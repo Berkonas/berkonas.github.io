@@ -1306,7 +1306,8 @@ code {
 
   .num input,
   .input-unit input,
-  .tool select {
+  .tool select,
+  .rep-options select {
     font-size: 16px; /* iOS zooms into anything smaller on focus */
   }
 

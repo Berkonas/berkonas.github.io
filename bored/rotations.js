@@ -15,8 +15,8 @@ import {
   quatToEuler,
   matVec,
   qRandom,
-} from "./rotmath.js?v=20260930a";
-import { segmented, parseNumber, fmt, copyText, palette, fitCanvas } from "./ui.js?v=20260930a";
+} from "./rotmath.js?v=20261004b";
+import { segmented, parseNumber, fmt, copyText, palette, fitCanvas } from "./ui.js?v=20261004b";
 
 const DEG = Math.PI / 180;
 const PRIME = ["", "′", "″"];
@@ -453,7 +453,7 @@ export function init(root) {
       ctx.beginPath();
       pts.forEach((p, k) => (k ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
       ctx.closePath();
-      ctx.fillStyle = face.top ? `rgba(23, 48, 79, ${0.78 + 0.2 * shade})` : `rgba(15, 33, 58, ${0.85})`;
+      ctx.fillStyle = face.top ? `rgba(34, 34, 34, ${0.78 + 0.2 * shade})` : `rgba(20, 20, 20, ${0.85})`;
       ctx.fill();
       ctx.strokeStyle = `rgba(${pal.ink}, ${0.25 + 0.35 * shade})`;
       ctx.lineWidth = 1;
