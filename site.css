@@ -837,7 +837,7 @@ main {
 }
 
 /* --------------------------------------------------------------------------
-   Home — hero: copy on the left, the point-light walker on the right
+   Home — hero: copy on the left, the prosthesis (limb.js) on the right
    -------------------------------------------------------------------------- */
 
 .hero {
@@ -897,23 +897,29 @@ main {
   margin: 0;
 }
 
-.walker {
+/* The stage carries a faint dot matrix, aligned with the canvas's own dot
+   grid (limb.js sets --cell), so the empty display reads as a display. */
+.limb {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 0.98;
   max-height: min(64vh, 620px);
   touch-action: pan-y;
   cursor: crosshair;
+  background-image: radial-gradient(circle, rgb(var(--on-stage-rgb) / 0.07) 0.7px, transparent 1.1px);
+  background-size: var(--cell, 7px) var(--cell, 7px);
+  -webkit-mask-image: radial-gradient(70% 70% at 42% 48%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(70% 70% at 42% 48%, #000 55%, transparent 100%);
 }
 
-/* The walker's entrance (a motion-capture calibration) is drawn by
-   home-walker.js, so the canvas itself needs no fade. */
-.walker canvas {
+/* The entrance (a scan that renders the dots) is drawn by limb.js, so the
+   canvas itself needs no fade. */
+.limb canvas {
   position: absolute;
   inset: 0;
 }
 
-.walker-caption {
+.fig-caption {
   display: grid;
   gap: 6px;
   max-width: 34em;
@@ -925,7 +931,7 @@ main {
   color: var(--on-stage-muted);
 }
 
-.walker-title {
+.fig-title {
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.08em;
@@ -933,13 +939,13 @@ main {
   color: var(--on-stage);
 }
 
-.walker-title b {
+.fig-title b {
   margin-right: 8px;
   font-weight: 500;
   color: var(--accent);
 }
 
-.walker-readout {
+.fig-readout {
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.02em;
@@ -984,12 +990,12 @@ main {
     gap: 8px;
   }
 
-  .walker {
+  .limb {
     aspect-ratio: 1 / 0.82;
     max-height: 62vh;
   }
 
-  .walker-caption {
+  .fig-caption {
     margin-left: 0;
   }
 }
@@ -3556,7 +3562,7 @@ html.intro-lock body {
 }
 
 /* --------------------------------------------------------------------------
-   Figure captions on the live visuals, in the walker's lab-notebook style
+   Figure captions on the live visuals, in Fig. 1's lab-notebook style
    -------------------------------------------------------------------------- */
 
 .contact-figure {
@@ -3777,7 +3783,7 @@ html.intro-lock body {
    default in "best performance" mode, remote desktop and many managed PCs),
    and Android does with "Remove animations" and some battery savers. So
    rather than freezing the site, keep what stays in place (fades, the
-   walker, the drafting intro, the chart) and drop what travels: slides,
+   prosthesis, the drafting intro, the chart) and drop what travels: slides,
    zooms, parallax, smooth scrolling. The film strip drifts at half speed.
    -------------------------------------------------------------------------- */
 

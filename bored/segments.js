@@ -3,7 +3,7 @@
 // Lengths in mm for the reference subjects; everything else in % :
 // mass of body mass, CM position of segment length from the origin endpoint,
 // radii of gyration (sagittal, transverse, longitudinal) of segment length.
-import { segmented, parseNumber, fmt, copyText, download, prettyJSON } from "./ui.js?v=20261005";
+import { segmented, parseNumber, fmt, copyText, download, prettyJSON } from "./ui.js?v=20261006";
 
 const REF = {
   F: { stature: 1.735, label: "female" },

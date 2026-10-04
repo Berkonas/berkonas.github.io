@@ -131,7 +131,7 @@ void main() {
 
 function init(root) {
   const canvas = root.querySelector(".glass-canvas");
-  // Reduced motion leaves the drift on, as it does the walker: the block turns
+  // Reduced motion leaves the drift on, as it does the prosthesis: the block turns
   // in place inside its own frame and nothing travels across the page.
 
   let renderer;
