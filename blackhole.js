@@ -391,7 +391,7 @@ function mount(host, section) {
   canvas.setAttribute("aria-hidden", "true");
   host.appendChild(canvas);
 
-  // Reduced motion leaves this running, as it does the walker: the gas turns
+  // Reduced motion leaves this running, as it does the prosthesis: the gas turns
   // in place inside its own frame and nothing travels across the page.
   const narrowQuery = window.matchMedia("(max-width: 767px)");
   // Drops to a cheaper setting if the GPU cannot keep up (see tick), and
