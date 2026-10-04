@@ -1411,7 +1411,15 @@ function playIntro(onReveal) {
     seen = false;
   }
   // With reduced motion the intro still draws, then fades instead of wiping (CSS).
-  if (seen) {
+  // A link to a section (index.html#contact) skips it: the intro locks
+  // scrolling, so the browser's jump to that section would otherwise be lost.
+  let deepLink = false;
+  try {
+    deepLink = location.hash.length > 1 && !!document.getElementById(decodeURIComponent(location.hash.slice(1)));
+  } catch (err) {
+    deepLink = false;
+  }
+  if (seen || deepLink) {
     onReveal();
     return;
   }

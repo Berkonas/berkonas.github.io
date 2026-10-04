@@ -8,7 +8,9 @@
    ========================================================================== */
 
 :root {
-  color-scheme: light;
+  /* "only": Android browsers with a forced dark mode (Samsung Internet,
+     Chrome's auto-dark) must not invert a design that is already half black. */
+  color-scheme: only light;
 
   --paper: #f4f4f2;
   --paper-2: #e8e8e5;
@@ -44,9 +46,8 @@
   --grid-minor: rgb(var(--blue-rgb) / 0.04);
   --grid-major: rgb(var(--blue-rgb) / 0.08);
 
-  /* Brushed metal, for accent words set on dark and on light. */
+  /* Brushed metal, for accent words on the dark stages. */
   --metal-dark: linear-gradient(180deg, #ffffff 0%, #d9d9d9 45%, #8f8f8f 100%);
-  --metal-light: linear-gradient(180deg, #5a5a5a 0%, #2a2a2a 55%, #6e6e6e 100%);
 
   --font-sans: "Archivo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -113,6 +114,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   overflow-x: clip;
+}
+
+/* Safari before 16 has no "clip". Full-bleed backgrounds measured in vw are a
+   scrollbar's width too wide on desktops with classic scrollbars, so hide the
+   sideways overflow at the viewport instead (on html, which keeps the sticky
+   elements working, unlike hidden on body). */
+@supports not (overflow-x: clip) {
+  html {
+    overflow-x: hidden;
+  }
 }
 
 img,
@@ -222,9 +233,10 @@ button {
   letter-spacing: -0.04em;
 }
 
-/* Accent words switch to a true italic serif, cut from brushed metal:
-   graphite on paper, silver on the dark stages. The padding keeps the italic
-   overhang inside the painted box so the last letter is not clipped. */
+/* Accent words switch to a true italic serif: graphite on paper, brushed
+   silver on the dark stages. The silver is a gradient clipped to the glyphs,
+   applied only where the browser supports that, and never on an element that
+   animates by itself: WebKit can drop clipped text while it is composited. */
 .display em,
 .h2 em,
 .statement em {
@@ -235,21 +247,27 @@ button {
   font-size: 1.08em;
   line-height: 0.9;
   letter-spacing: -0.015em;
-  padding-right: 0.12em;
-  margin-right: -0.12em;
-  color: var(--ink-2);
-  background: var(--metal-light);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
+  color: #4a4a4a;
 }
 
 .on-stage .display em,
 .on-stage .h2 em {
-  color: var(--on-stage-2);
-  background-image: var(--metal-dark);
+  color: #cfcfcf;
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .on-stage .display em,
+  .on-stage .h2 em {
+    /* Room for the italic overhang, so the last letter is not cut off. */
+    padding-right: 0.12em;
+    margin-right: -0.12em;
+    background: var(--metal-dark);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
 }
 
 .h2 {
@@ -849,9 +867,7 @@ main {
   line-height: 0.94;
 }
 
-.hero .display em {
-  background-image: var(--metal-dark);
-}
+
 
 .hero-sub {
   max-width: 31em;
@@ -1025,23 +1041,6 @@ main {
   transform: none;
   transition: transform 1.2s var(--ease);
   transition-delay: var(--d, 0s);
-}
-
-/* The accent word lands soft, then sharpens, once its line is up. */
-.hero .display em {
-  display: inline-block;
-}
-
-.js .hero .display em {
-  opacity: 0.35;
-  filter: blur(6px);
-}
-
-.js .hero.is-entered .display em {
-  opacity: 1;
-  filter: none;
-  transition: opacity 1.2s var(--ease), filter 1.2s var(--ease);
-  transition-delay: 0.62s;
 }
 
 /* Status badge: pops in, its star spins into place. */
@@ -2049,9 +2048,7 @@ main {
   font-size: clamp(2.8rem, 8vw, 7rem);
 }
 
-.contact .display em {
-  background-image: var(--metal-dark);
-}
+
 
 .contact-mail {
   display: inline-flex;
@@ -3370,6 +3367,7 @@ html.intro-lock body {
 
 .glass-hero {
   position: relative;
+  height: min(86vh, 860px);
   height: min(86svh, 860px);
   min-height: 540px;
   overflow: hidden;
@@ -3625,13 +3623,41 @@ html.intro-lock body {
   letter-spacing: -0.06em;
   text-align: center;
   white-space: nowrap;
-  color: transparent;
-  background: linear-gradient(180deg, rgb(var(--on-stage-rgb) / 0.16) 10%, rgb(var(--on-stage-rgb) / 0) 85%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  transform: translateY(14%);
+  /* Sunk below the footer's edge, which crops it. */
+  margin-bottom: -0.12em;
+  color: rgb(var(--on-stage-rgb) / 0.07);
   user-select: none;
   pointer-events: none;
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .footer-mark {
+    background: linear-gradient(180deg, rgb(var(--on-stage-rgb) / 0.16) 10%, rgb(var(--on-stage-rgb) / 0) 85%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* Windows High Contrast and other forced palettes: clipped and outlined text
+   would vanish, so it goes back to plain text, and pure decoration goes. */
+@media (forced-colors: active) {
+  .display em,
+  .h2 em {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+  }
+
+  .footer-mark,
+  .grain,
+  .spotlight {
+    display: none;
+  }
+
+  .lost-code {
+    -webkit-text-stroke: 0;
+    color: CanvasText;
+  }
 }
 
 .footer-clock {
@@ -3671,6 +3697,7 @@ html.intro-lock body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-height: calc(100vh - 90px);
   min-height: calc(100svh - 90px);
   padding: clamp(120px, 14vw, 160px) 0 clamp(48px, 6vw, 72px);
 }
@@ -3797,14 +3824,8 @@ html.intro-lock body {
   }
 
   /* The newer entrances, held to the same rule: they fade in place. */
-  .js :is(.eyebrow, .h2, .display, .lede, p, .text-link)[data-reveal],
-  .js .hero .display em {
+  .js :is(.eyebrow, .h2, .display, .lede, p, .text-link)[data-reveal] {
     filter: none;
-  }
-
-  .js .hero .display em,
-  .js .hero.is-entered .display em {
-    transition: opacity 1s var(--ease) 0.62s;
   }
 
   .js .hero .badge[data-enter],

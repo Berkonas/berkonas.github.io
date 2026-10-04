@@ -142,7 +142,14 @@ function init(root) {
   }
   renderer.setClearColor(STAGE);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  // A machine with no usable GPU (a VM, remote desktop, a blocklisted driver
+  // on Linux or Windows) runs WebGL in software. There the block is drawn at
+  // 1x and only while someone is turning it, instead of drifting every frame.
+  const gl = renderer.getContext();
+  const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+  const gpuName = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || "") : "";
+  const software = /swiftshader|llvmpipe|softpipe|software|microsoft basic/i.test(gpuName);
+  renderer.setPixelRatio(software ? 1 : Math.min(window.devicePixelRatio || 1, 2));
 
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
   camera.position.set(0, 0, 10);
@@ -214,7 +221,12 @@ function init(root) {
   scene.add(pivot);
   spinner.quaternion.setFromEuler(new THREE.Euler(-0.42, 0.62, 0.18));
 
-  const rtOptions = { type: THREE.HalfFloatType, depthBuffer: true };
+  // Half floats keep the dark gradient behind the words free of banding, but
+  // not every GPU can render into them (older iPhones, some Android chips).
+  // Without that, a half-float target is incomplete and the glass draws blank.
+  const canHalf =
+    renderer.extensions.has("EXT_color_buffer_half_float") || renderer.extensions.has("EXT_color_buffer_float");
+  const rtOptions = { type: canHalf ? THREE.HalfFloatType : THREE.UnsignedByteType, depthBuffer: true };
   const rtBack = new THREE.WebGLRenderTarget(2, 2, rtOptions);
   const rtFront = new THREE.WebGLRenderTarget(2, 2, rtOptions);
   backMat.uniforms.uTexture.value = rtBack.texture;
@@ -435,6 +447,7 @@ function init(root) {
   let visible = true;
   let raf = 0;
   let last = 0;
+  let lost = false;
 
   // Fig. 2's readout: the block's orientation, as a mechanism drawing would
   // give it. Text is only rewritten when a rounded angle actually changes.
@@ -474,20 +487,40 @@ function init(root) {
         velX *= damp;
         velY *= damp;
       }
-      const idle = Math.min(1, Math.max(0, (now - releasedAt - 600) / 1000));
-      turn(Y, 0.0035 * idle * f);
-      turn(X, 0.0012 * idle * f);
+      if (!software) {
+        const idle = Math.min(1, Math.max(0, (now - releasedAt - 600) / 1000));
+        turn(Y, 0.0035 * idle * f);
+        turn(X, 0.0012 * idle * f);
+      }
     }
 
     draw();
     updateReadout();
-    if (visible) raf = requestAnimationFrame(tick);
+    const settling = dragging || Math.abs(spin.left) > 0.0005 || Math.abs(velX) + Math.abs(velY) > 1e-5;
+    if (visible && (!software || settling)) raf = requestAnimationFrame(tick);
     else last = 0;
   }
 
   function wake() {
-    if (!raf && visible) raf = requestAnimationFrame(tick);
+    if (!raf && visible && !lost) raf = requestAnimationFrame(tick);
   }
+
+  // If the GPU drops the context (a driver reset, too many tabs on a phone),
+  // stop drawing and let the HTML headline stand in until it comes back.
+  canvas.addEventListener("webglcontextlost", (event) => {
+    event.preventDefault();
+    lost = true;
+    cancelAnimationFrame(raf);
+    raf = 0;
+    root.classList.remove("glass-ready");
+  });
+  canvas.addEventListener("webglcontextrestored", () => {
+    lost = false;
+    layout();
+    draw();
+    root.classList.add("glass-ready");
+    wake();
+  });
 
   new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting && !document.hidden;

@@ -394,8 +394,9 @@ function mount(host, section) {
   // Reduced motion leaves this running, as it does the walker: the gas turns
   // in place inside its own frame and nothing travels across the page.
   const narrowQuery = window.matchMedia("(max-width: 767px)");
-  // Drops to a cheaper setting if the GPU cannot keep up (see tick).
-  let lite = false;
+  // Drops to a cheaper setting if the GPU cannot keep up (see tick), and
+  // starts there on phones that report very little memory.
+  let lite = typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 2;
   const settings = () => {
     const base = { ...DISC, ...(narrowQuery.matches ? NARROW : WIDE) };
     if (lite) {
@@ -745,7 +746,9 @@ function mount(host, section) {
       frameTimes.push(raw);
       if (frameTimes.length === 60) {
         const median = [...frameTimes].sort((a, b) => a - b)[30];
-        if (median > 0.03) {
+        // 45 ms, not 33: battery savers on iOS and Android hold every page to
+        // 30 Hz, and that alone should not cost the picture its quality.
+        if (median > 0.045) {
           lite = true;
           resize();
         }
